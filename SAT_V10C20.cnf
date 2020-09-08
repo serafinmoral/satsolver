@@ -1,0 +1,30 @@
+c FILE: pruebaEDM01.cnf
+c
+c SOURCE: Diaz Macias, Efrain (efraindiaz@uteq.edu.ec),
+c          
+c
+c DESCRIPTION: Pruebas SAT
+c
+c NOTE: Satisfiable
+c
+p cnf 10 20
+1 -2 3 0
+-1 -3 4 0
+-1 -2 -6 0
+2 -3 -7 0
+-2 3 -10 0
+-2 8 -9 0
+3 5 8 0
+-3 4 -7 0
+4 7 -10 0
+4 -7 -10 0
+-4 5 -8 0
+5 -8 -9 0
+-5 -6 9 0
+-5 -8 -9 0
+6 -8 10 0
+6 7 9 0
+-6 -9 10 0
+7 8 9 0
+-7 9 10 0
+8 -9 10 0
