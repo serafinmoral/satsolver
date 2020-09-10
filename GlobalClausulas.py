@@ -713,7 +713,7 @@ class globalClausulas:
                     y.refer[cl] = self.refer[cl]
             elif -x in cl:
                 cl2 = frozenset(cl-{-x})
-                r1 = self.refer.get(cl,set()).copy()
+                r1 = set(self.refer.get(cl,set()).copy())
                 r1.add(-x)
                 y.refer[cl2]=r1
                 
