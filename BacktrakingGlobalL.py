@@ -145,13 +145,23 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
         listauni = [variable]
     else:
         listauni = []
+
+    listae = []
     while True:
 #        print("ciclo", path)
 #        print("entro en unit prop")
-
-        uni = formula.unitprop()
+        
+        while True:
+    
+            uni = formula.unitprop()
 #        print("salgo", uni)
-        listauni = listauni  + uni
+            listauni = listauni  + uni
+            if formula.contradict:
+                break
+            nequiv = formula.equivprop()
+            listae = listae + nequiv  
+            if not nequiv:
+                break
             
         if formula.contradict:
 #                print("contradiccion")
@@ -184,10 +194,20 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
         if not formula.listaclaus:
                 for v in formula.listavar:
                     listauni.append(v)
-#                print("añado ", v , " a solucion por no clausulas ")
+                    print("añado ", v , " a solucion por no clausulas ")
                 
-#            print("solucion ", asignaciones)
-                formula.compruebasol2(listauni)
+                solucion = listauni
+                for (l1, l2) in reversed(listae):
+                    if l1 in solucion and l2 not in solucion:
+                        solucion.append(l2)
+                    elif -l1 in solucion and -l2 not in solucion:
+                        solucion.append(-l2)
+                for (l1, l2) in reversed(listae):
+                    if l1 in solucion and l2 not in solucion:
+                        solucion.append(l2)
+                    elif -l1 in solucion and -l2 not in solucion:
+                        solucion.append(-l2)
+                formula.compruebasol2(solucion)
 
                 
                 formula.solved = True
@@ -199,16 +219,31 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
         variable = obtenerVariable3d(formula,N1,N2)
         path.append(variable)
         formulan = formula.restringeref(variable)
-
         formulan.refer[variable] = {-variable}
 
-        ntunit = listauni + tunit
-        solucion = backtracking2(formulan,napren,path,ntunit,N1,N2,N3,NI)
-        tapren.combina(napren)
+        if not formulan.contradict:
+
+            ntunit = listauni + tunit
+            solucion = backtracking2(formulan,napren,path,ntunit,N1,N2,N3,NI)
+            tapren.combina(napren)
+        else:
+            tapren.insertar(frozenset(formulan.apren))
         path.pop()
             
         if formulan.solved and not formulan.contradict:
+                print(listauni)
+                print(listae)
                 solucion = listauni + solucion 
+                for (l1, l2) in reversed(listae):
+                    if l1 in solucion and l2 not in solucion:
+                        solucion.append(l2)
+                    elif -l1 in solucion and -l2 not in solucion:
+                        solucion.append(-l2)
+                for (l1, l2) in reversed(listae):
+                    if l1 in solucion and l2 not in solucion:
+                        solucion.append(l2)
+                    elif -l1 in solucion and -l2 not in solucion:
+                        solucion.append(-l2)
                 formula.compruebasol2(solucion)
                 formula.solved = True
                 return solucion
@@ -1446,13 +1481,13 @@ def main(info,N1,N2,N3,I):
         tapren = globalClausulas()
         path = []
         
-        
+        tuni = []
+
         while not info.solved:
             NI = [I]
-            info.unitprop()
+            tuni = tuni + info.unitprop()
 #            print(info.unit)
             formula = info.copia()
-            tuni = []
             configura = backtracking2(formula,tapren,path,tuni,N1,N2,N3,NI)   
             info.solved = formula.solved
             info.contradict = formula.contradict
@@ -1476,7 +1511,7 @@ def main(info,N1,N2,N3,I):
             print("Inconsistente")
             
         else:
-            configura = configura+list(info.unit)
+            configura = configura+tuni
 #            for (l1,l2) in lista:
 #                if l1 in configura:
 #                    configura.append(l2)

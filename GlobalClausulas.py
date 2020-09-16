@@ -390,7 +390,7 @@ class globalClausulas:
                     self.insertarref(c,refs[c])
                         
 
-            self.unitprop()
+#            self.unitprop()
             
         
         return equival                        
