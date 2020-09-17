@@ -231,8 +231,7 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
         path.pop()
             
         if formulan.solved and not formulan.contradict:
-                print(listauni)
-                print(listae)
+            
                 solucion = listauni + solucion 
                 for (l1, l2) in reversed(listae):
                     if l1 in solucion and l2 not in solucion:
@@ -1438,46 +1437,9 @@ def main(info,N1,N2,N3,I):
         
 
     
-    
-    #        info.calculadep()
-#        print("salgo de explora")
-#        info.equivprop()
-        
-#        self.conjuntoclau.satura()
-# mbmb mbmbmbbbbbbhjjguy
-#       info.satura2()
-#        print(info.unit)      
-        
-
-
-#        lista = info.equivprop()   
-        
-
-        
-#        config = asignagreedy(info)
-        
-
-#        
-# 
-      
-#        for i in range(1):
-#            explorai(info,config)
-#            explorai2(info,config)
-#        
-
-
-  
-
-#        explora(info)
-
         info.poda()
 
         
-        
-#        print(lista)
-       
-#        todas = info.calculartodasbloqueadas()
-#        print ("bloqueadas",todas)
         tapren = globalClausulas()
         path = []
         
