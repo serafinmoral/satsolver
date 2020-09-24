@@ -1063,6 +1063,23 @@ class globalClausulas:
         if len(x)==1:
             self.unitprev.add(set(x).pop())
             self.unit.add(set(x).pop())
+        elif len(x)==2:
+                        self.dobles.add(x)
+                        mc = frozenset(map(lambda y: -y, x))
+                        if mc in self.dobles:
+#                            print(c,mc,"nueva equivalencia")
+                            par = set(x)
+                            t1 = par.pop()
+                            t2 = -par.pop()
+                            
+                            if(abs(t1)<abs(t2)):
+                                if(not  (-t1,-t2) in self.equiv):    
+                                    self.equiv.add((t1,t2))
+#                                    print("nueva equivalencia ", t1, t2)
+#                                    time.sleep(3)
+                            else:
+                                if(not (-t2,-t1) in self.equiv):
+                                    self.equiv.add((t2,t1))
             
         if len(x)>M:
             self.refer[x] = r

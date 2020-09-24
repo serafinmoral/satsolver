@@ -163,8 +163,9 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
             listae = formula.equivprop()
             
             listas = dict()
-
+#            nuevas = []
             nuevas = formula.borraexactolim(listas, M=N3)
+
 
             listapar.append((nuevas, listas,listae))
             
