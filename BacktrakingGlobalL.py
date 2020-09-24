@@ -146,23 +146,31 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
     else:
         listauni = []
 
-    listae = []
+    listapar = []
     while True:
 #        print("ciclo", path)
 #        print("entro en unit prop")
         
         while True:
+
+
     
             uni = formula.unitprop()
 #        print("salgo", uni)
             listauni = listauni  + uni
             if formula.contradict:
                 break
-            nequiv = formula.equivprop()
-            listae = listae + nequiv  
-            if not nequiv:
-                break
+            listae = formula.equivprop()
             
+            listas = dict()
+
+            nuevas = formula.borraexactolim(listas, M=N3)
+
+            listapar.append((nuevas, listas,listae))
+            
+            if (not nuevas) and (not listae):
+                break
+
         if formula.contradict:
 #                print("contradiccion")
                 apren = formula.apren
@@ -197,16 +205,8 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
                     print("añado ", v , " a solucion por no clausulas ")
                 
                 solucion = listauni
-                for (l1, l2) in reversed(listae):
-                    if l1 in solucion and l2 not in solucion:
-                        solucion.append(l2)
-                    elif -l1 in solucion and -l2 not in solucion:
-                        solucion.append(-l2)
-                for (l1, l2) in reversed(listae):
-                    if l1 in solucion and l2 not in solucion:
-                        solucion.append(l2)
-                    elif -l1 in solucion and -l2 not in solucion:
-                        solucion.append(-l2)
+                for x in reversed(listapar):
+                     expandesol(solucion,x[0],x[1],x[2])
                 formula.compruebasol2(solucion)
 
                 
@@ -233,16 +233,8 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
         if formulan.solved and not formulan.contradict:
             
                 solucion = listauni + solucion 
-                for (l1, l2) in reversed(listae):
-                    if l1 in solucion and l2 not in solucion:
-                        solucion.append(l2)
-                    elif -l1 in solucion and -l2 not in solucion:
-                        solucion.append(-l2)
-                for (l1, l2) in reversed(listae):
-                    if l1 in solucion and l2 not in solucion:
-                        solucion.append(l2)
-                    elif -l1 in solucion and -l2 not in solucion:
-                        solucion.append(-l2)
+                for x in reversed(listapar):
+                     expandesol(solucion,x[0],x[1],x[2])
                 formula.compruebasol2(solucion)
                 formula.solved = True
                 return solucion
@@ -261,24 +253,37 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
                     ntunit = listauni + tunit
                     tunitn = set(map(lambda x: -x, ntunit))
                     for cl in napren.listaclaus:
-                
+                      if -variable not in cl:
                        cln =  reduce(cl,ntunit)
 #                       print("introduzco" ,cln)
-                       tunitn = set(map(lambda x: -x, ntunit))
+                      
                        if 0 not in cln:
                           if cln:
                              formula.refer[cln] = set(cl.intersection(tunitn))
 #                             print (formula.refer[cln])
                              formula.insertarref(cln,set(cl.intersection(tunitn)),M=0)
-                             
-                     
                           else:
                             formula.solved = True
                             formula.contradict = True
-                            formula.apren = set(cl.intersection(tunitn))
+                            formula.apren = frozenset(cl.intersection(tunitn))
 #                            print(formula.apren)
                             tapren.insertar(formula.apren)
                             return []
+                    cln =  reduce(formulan.apren,ntunit)
+                    if 0 not in cln:
+                          if cln:
+                             formula.refer[cln] = set(cl.intersection(tunitn))
+#                             print (formula.refer[cln])
+                             formula.insertarref(cln,set(cl.intersection(tunitn)),M=0)
+                          else:
+                            formula.solved = True
+                            formula.contradict = True
+                            formula.apren = frozenset(cl.intersection(tunitn))
+#                            print(formula.apren)
+                            tapren.insertar(formula.apren)
+                            return []
+
+                    
      
 
 #        formulan = formula.restringeref(variable)
