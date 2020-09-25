@@ -163,10 +163,10 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
             listae = formula.equivprop()
             
             listas = dict()
-#            nuevas = []
-            nuevas = formula.borraexactolim(listas, M=N3)
+            nuevas = []
+#            nuevas = formula.borraexactolim(listas, M=N3)
 
-
+ 
             listapar.append((nuevas, listas,listae))
             
             if (not nuevas) and (not listae):
@@ -1442,10 +1442,16 @@ class solveSATBack:
 def main(info,N1,N2,N3,I):
         
 
-    
+        configura = asignagreedy(info)
+        explorai(info,configura)
+        explorai2(info,configura)
+
+        print(info.solved,info.contradict)
+
         info.poda()
 
-        
+        print(info.solved,info.contradict)
+
         tapren = globalClausulas()
         path = []
         
@@ -1504,6 +1510,8 @@ writer=open('salida',"w")
 
 while reader:
     linea = reader.readline().rstrip()  
+    if not linea:
+        break
     param = linea.split()
     nombre = param[0]
     N1 = int(param[1])
@@ -1559,7 +1567,7 @@ while reader:
     print("tiempo TOTAL ",t5-t1)
     writer.write(linea+"\n")
     writer.write("tiempo TOTAL" + str(t5-t1)+"\n")
-    ttotal += t2-t1
+    ttotal += t5-t1
 
 print ("tiempo medio ", ttotal/i)
 writer.write("tiempo medio " + str(ttotal/i)+"\n")
