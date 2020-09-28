@@ -4,16 +4,19 @@ Created on Wed Mar  6 13:30:14 2019
 
 @author: Nizziho
 """
+import itertools
 import os
 import sys
+from random import *
+from time import time
 
-import itertools
-import networkx as nx    
+import networkx as nx
+
+from GlobalClausulas import *
+
 # import matplotlib.pyplot as plt
 
-from random import *
               
-from GlobalClausulas import *
 #from arbolpot import *
 #
 #x = 3434
@@ -21,7 +24,6 @@ from GlobalClausulas import *
 #    x = x*1.2
 #    print(x)
 
-from time import time
 
 def leeArchivoGlobal(Archivo):
     reader=open(Archivo,"r")
@@ -270,7 +272,8 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
 #                            print(formula.apren)
                             tapren.insertar(formula.apren)
                             return []
-                    cln =  reduce(formulan.apren,ntunit)
+                    cl = formulan.apren
+                    cln =  reduce(cl,ntunit)
                     if 0 not in cln:
                           if cln:
                              formula.refer[cln] = set(cl.intersection(tunitn))
@@ -809,7 +812,146 @@ def explorai2(formula,configura):
             formula.insertaborraypoda2(cl)
         else:
             formula.insertar(cl)
-                   
+
+def explorain(formula,configura,N5 = 3, N4 = 3):
+
+
+    mejora = True
+    total = len(formula.listaclaus)
+    actual = formula.cuenta(configura)
+    
+    nuevas = set()
+    
+    while mejora and actual<total:
+        print(actual,total)
+        mejora = False
+        for v in formula.listavar:
+            
+
+
+            if v in configura:
+                old =v
+                configura = configura - {v}
+            elif -v in configura:
+                old = -v
+                configura = configura - {-v}
+            else:
+                old=0
+                
+            npos = 0 
+            nneg = 0
+            cl1 = {0}
+            cl2 = {0}
+            if v in formula.indices:
+                
+                for cl in formula.indices[v]:
+                    if not cl.intersection(configura):
+                        npos+=1
+                        if 0 in cl1:
+                             cl1 = cl
+                        elif len(cl)<len(cl1):
+                             cl1 = cl
+                        
+            if -v in formula.indices:
+                
+                for cl in formula.indices[-v]:
+                    if not cl.intersection(configura):
+                        nneg+=1
+                        if 0 in cl2:
+                             cl2 = cl
+                        elif len(cl.union(cl1))<len(cl2.union(cl1)):
+                             cl2 = cl
+                        
+               
+    
+            if (0 not in cl1) and (0 not in cl2):
+                newcl = resolution(v,cl1,cl2)
+                
+                if 0 not in newcl and len(cl)<=N4:
+                    nuevas.add(newcl)
+                
+                cand = [v]
+                cando = [old]
+                conj = set(newcl)
+                while conj and len(cand)<= N5: 
+                    v1 = set(newcl).pop()
+                    if v1 in configura:
+                        old1 = v1
+                    else:
+                        old1 = -v1
+                    configura.discard(old1)
+                    cando.append(old1)
+                    cand.append(abs(old1))
+
+                
+                y = globalClausulas()
+                lista = set()
+                for v in conj:
+                    lista.update().formula.indices.get(v,set())
+                    lista.update().formula.indices.get(-v,set())
+                
+                for cl in lista:
+                    y.insertar(cl)
+                
+                options = product([0,1],repeat = len(cand))
+                
+
+                for o in options:
+                    configurap = configura.copy()
+                    for i in range(len(o)):
+                        if o[i]==0:
+                            configurap.add(cand[i])
+                        else;
+                            configurap.add(-cand[i])
+                    numeros[frozenset(configurap)] = y.cuenta(configurap)
+
+                  
+                
+                configurap = configura.copy()
+                for x in cando:
+                    configurap.add(x)
+                nold = numeros[frozenset(configurap)]
+                
+        
+
+                mcon = max(numeros, key=numeros.get())
+                nnew = numeros[mcon]
+
+                
+                
+                    
+                if nnew>nold:
+                    mejora = True
+                    actual += (nnew-nold)
+                configura = set(mcon)
+                
+                
+            
+            else:
+                
+                if npos>nneg:
+                    new = v
+                else:
+                    new = -v
+                configura.add(new)
+                if not new == old:
+                    actual += abs(npos-nneg)
+                    mejora = True
+                
+    print(len(nuevas))
+           
+    for cl in nuevas:
+        if not cl:
+            formula.solved = True
+            formula.contradict = True
+            return
+        
+        if len(cl)<= 2:
+            formula.insertaborraypoda2(cl)
+        else:
+            formula.insertar(cl)
+
+                          
         
 def explora3(formula, N=10000):
     
@@ -1287,33 +1429,33 @@ def obtenerVariable3d(formula,N1,N2):
 ##        print("fin ", vmax, len(apren))
 #        if frozenset({vmax}) in r.listaclaus and frozenset({-vmax}) in r.listaclaus:
 ##                    print("contra")
-#                    formula.contradict=True
-#                    formula.solved=True
-#                    formula.apren = r.refer.get(frozenset({vmax}),set()).union( r.refer.get( frozenset({-vmax}),set()))
-#                    if (not formula.apren):
-#                        print("vamx ", vmax, r.refer.get(frozenset({vmax}),set()),r.refer.get( frozenset({-vmax}),set())   )
-#                    return vmax
+                    # formula.contradict=True
+                    # formula.solved=True
+                    # formula.apren = r.refer.get(frozenset({vmax}),set()).union( r.refer.get( frozenset({-vmax}),set()))
+                    # if (not formula.apren):
+                    #     print("vamx ", vmax, r.refer.get(frozenset({vmax}),set()),r.refer.get( frozenset({-vmax}),set())   )
+                    # return vmax
 #
 #        
 ##        print("aprendidas ", len(apren))
 #                
-#        for cl in apren:
-##                print("inserto ", cl,r.refer.get(cl,set()) )
-#                formula.insertarref(cl,r.refer.get(cl,set()))
-#                if formula.contradict:
-#                    return vmax
+#         for cl in apren:
+# ##                print("inserto ", cl,r.refer.get(cl,set()) )
+#                 formula.insertarref(cl,r.refer.get(cl,set()))
+#                 if formula.contradict:
+#                     return vmax
 #        
 #        
 ##        formula.poda()
 #            
 #        
-#        if frozenset({-vmax}) in r.listaclaus:
-##            print("fneg")
-#            return -vmax
-#        
-#        if frozenset({vmax}) in r.listaclaus:
-##            print("pos")
-#            return vmax
+#         if frozenset({-vmax}) in r.listaclaus:
+# ##            print("fneg")
+#             return -vmax
+# #        
+#         if frozenset({vmax}) in r.listaclaus:
+# ##            print("pos")
+#             return vmax
         
         if len(formula.indices.get(vmax,set()))> len(formula.indices.get(-vmax,set())):
             return vmax  
@@ -1445,6 +1587,8 @@ def main(info,N1,N2,N3,I):
         configura = asignagreedy(info)
         explorai(info,configura)
         explorai2(info,configura)
+        explorai(info,configura)
+        explorai2(info,configura)
 
         print(info.solved,info.contradict)
 
@@ -1573,4 +1717,3 @@ print ("tiempo medio ", ttotal/i)
 writer.write("tiempo medio " + str(ttotal/i)+"\n")
 writer.close()
 reader.close()
-
