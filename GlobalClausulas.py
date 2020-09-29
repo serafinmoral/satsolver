@@ -1946,10 +1946,10 @@ class globalClausulas:
     
     
     
-    def borraexactolim(self,listas,M=20):
+    def borraexactolim(self,listas,M=10):
         if self.contradict:
             return[]
-        variables = set(map(abs,self.indices))
+        variables = self.listavar.copy()
         
         for v in variables:
             l1 = self.indices.get(v,set()) 

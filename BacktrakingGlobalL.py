@@ -656,6 +656,8 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
     
     nuevas = set()
     
+    print("inicial ", len(configura))
+
     while mejora and actual<total:
         print(actual,total)
         mejora = False
@@ -670,6 +672,7 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
                 old = -v
                 configura = configura - {-v}
             else:
+                print("no está")
                 old=0
                 
             npos = 0 
@@ -707,8 +710,8 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
                 cand = [v]
                 cando = [old]
                 conj = set(newcl)
-                while conj and len(cand)<= N5: 
-                    v1 = set(newcl).pop()
+                while conj and len(cand)< N5: 
+                    v1 = conj.pop()
                     if v1 in configura:
                         old1 = v1
                     else:
@@ -717,10 +720,11 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
                     cando.append(old1)
                     cand.append(abs(old1))
 
-                
+                # print(len(configura), len(cand))
+
                 y = globalClausulas()
                 lista = set()
-                for v in conj:
+                for v in cand:
                     lista.update(formula.indices.get(v,set()))
                     lista.update(formula.indices.get(-v,set()))
                 
@@ -759,7 +763,7 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
                 if nnew>nold:
                     mejora = True
                     actual += (nnew-nold)
-                    print(actual)
+                    # print(actual)
 
                 configura = set(mcon)
                 
@@ -776,10 +780,15 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
                 configura.add(new)
                 if not new == old:
                     actual += abs(npos-nneg)
-                    print(actual)
+                    # print(actual)
                     mejora = True
                 
     print(len(nuevas))
+
+    if (actual==total):
+        info.solved=True
+        info.solucion = configura
+        return
            
     for cl in nuevas:
         if not cl:
@@ -1431,19 +1440,29 @@ def main(info,N1,N2,N3,I):
         # explorain(info,configura)
 
         print(info.solved,info.contradict)
-
-        info.poda()
-
-        print(info.solved,info.contradict)
-
-        tapren = globalClausulas()
-        path = []
-        
         tuni = []
 
+
+        if not info.solved:
+            info.poda()
+
+            print(info.solved,info.contradict)
+
+            tapren = globalClausulas()
+            path = []
+        
+        # else:
+        #     configura = list(configura)
+
+        listas = dict()
+        elimina = []
         while not info.solved:
             NI = [I]
             tuni = tuni + info.unitprop()
+
+            elimina = elimina + info.borraexactolim(listas)
+            print(elimina)
+
 #            print(info.unit)
             formula = info.copia()
             configura = backtracking2(formula,tapren,path,tuni,N1,N2,N3,NI)   
@@ -1470,6 +1489,7 @@ def main(info,N1,N2,N3,I):
             
         else:
             configura = configura+tuni
+            expandesol(configura,elimina,listas,[])
 #            for (l1,l2) in lista:
 #                if l1 in configura:
 #                    configura.append(l2)
