@@ -293,173 +293,7 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
 #        formulan = formula.restringeref(variable)
 
  
-def backtracking(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
-        
-    NI[0] -= 1
-#    print(path)
 
-
-    listauni = []
-    while not formula.solved:    
-        nuni = formula.unitprop()
-        listauni = listauni + nuni
-        if formula.contradict:
-                apren = formula.apren
-                negapren = set(map(lambda x: -x,apren))
-                inter = negapren.intersection(set(listauni))
-                
-                while len(inter)>1:
-                    for i in reversed(listauni):
-                        if i in negapren:
-                            break
-                        
-                    apren.discard(-i)
-                    apren.update(formula.refer.get(frozenset({i}),set()))
-                    negapren = set(map(lambda x: -x,apren))
-                    inter = negapren.intersection(set(listauni))
-                  
-                
-                tapren.insertar(frozenset(apren))
-                return []
-        if not formula.listaclaus:
-                for v in formula.listavar:
-                    listauni.append(v)
-#                print("añado ", v , " a solucion por no clausulas ")
-                
-#            print("solucion ", asignaciones)
-                formula.compruebasol2(listauni)
-
-                
-                formula.solved = True
-                formula.contradict = False
-#            print("resuelto devuelvo ",asignaciones)
-                return listauni
-        variable = obtenerVariable3d(formula,N1,N2)
-    
-#       
-        
-        listaunin = listauni+ [variable]
-    
-        formulan = formula.restringeref(variable)
-        formulan.refer[variable] = {-variable}
-        if formulan.contradict:
-            nclau= frozenset(formulan.apren)
-            tapren.insertar(nclau)
-            formula.insertar(nclau)
-            break
-            
-            
-
-    
-
-            
-    
-    
-
-        nuni = formulan.unitprop()
-        listaunin = listaunin+nuni
-            
-        if formulan.contradict:
-                apren = formulan.apren
-                negapren = set(map(lambda x: -x,apren))
-                inter = negapren.intersection(set(listaunin))
-                
-                while len(inter)>1:
-                    for i in reversed(listaunin):
-                        if i in negapren:
-                            break
-                        
-                    
-                    apren.discard(-i)
-                    apren.update(formulan.refer.get(frozenset({i}),set()))
-                    negapren = set(map(lambda x: -x,apren))
-                    inter = negapren.intersection(set(listaunin))
-                
-                tapren.insertar(frozenset(apren))
-                if not inter:
-                    return []
-                else:
-                       cl = frozenset(apren)
-                       tunitp = tunit + listauni
-                       tunitn = set(map(lambda x: -x, tunitp))
-                       cln =  reduce(cl,tunitp)
-                       if 0 not in cln:
-                          if cln:
-                             formula.refer[cln] = cl.intersection(tunitn)
-                             formula.insertarref(cln,cl.intersection(tunitn),M=0)
-                             continue
-                             
-                     
-                          else:
-                            formula.solved = True
-                            formula.contradict = True
-                            formula.apren = cl.intersection(tunitp)
-                            tapren.insertar(formula.apren)
-                            return []
-      
-                    
-                    
-                    
-                
-        if not formulan.listaclaus:
-                for v in formula.listavar:
-                    listaunin.append(v)
-#                print("añado ", v , " a solucion por no clausulas ")
-                
-#            print("solucion ", asignaciones)
-                formula.compruebasol2(listaunin)
-
-                
-                formula.solved = True
-                formula.contradict = False
-#            print("resuelto devuelvo ",asignaciones)
-                return listaunin
-            
-        napren = globalClausulas()
-   
-        path.append(variable)
-        ntunit = tunit + listaunin
-        solucion = backtracking(formulan,napren,path,ntunit,N1,N2,N3,NI)
-        tapren.combina(napren)
-        path.pop()
-            
-        if formulan.solved and not formulan.contradict:
-                solucion = listauni + solucion 
-                formula.compruebasol2(solucion)
-                formula.solved = True
-                return solucion
-        
-        
-        
-        
-        else:
-                posclau = set(map(abs,formula.apren))
-                posuni = set(map(abs,listauni)).union({abs(variable)})
-                if not (posclau.intersection(posuni)) or NI[0]==0:
-                    formula.apren = formulan.apren
-                    formula.solved = False
-                    return []
-                else:
-                    
-                    for cl in napren.listaclaus:
-                
-                       cln =  reduce(cl,tunit)
-                       tunitn = set(map(lambda x: -x, tunit))
-                       if 0 not in cln:
-                          if cln:
-                             formula.refer[cln] = cl.intersection(tunitn)
-                             formula.insertarref(cln,cl.intersection(tunitn),M=0)
-                             
-                     
-                          else:
-                            formula.solved = True
-                            formula.contradict = True
-                            formula.apren = cl.intersection(npath)
-                            tapren.insertar(formula.apren)
-                            return []
-     
-
-#    
 
  
         
@@ -887,21 +721,22 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
                 y = globalClausulas()
                 lista = set()
                 for v in conj:
-                    lista.update().formula.indices.get(v,set())
-                    lista.update().formula.indices.get(-v,set())
+                    lista.update(formula.indices.get(v,set()))
+                    lista.update(formula.indices.get(-v,set()))
                 
                 for cl in lista:
-                    y.insertar(cl)
+                    if not cl.intersection(configura):
+                        y.insertar(cl)
                 
-                options = product([0,1],repeat = len(cand))
+                options = itertools.product([0,1],repeat = len(cand))
                 
-
+                numeros = dict()
                 for o in options:
                     configurap = configura.copy()
                     for i in range(len(o)):
                         if o[i]==0:
                             configurap.add(cand[i])
-                        else;
+                        else:
                             configurap.add(-cand[i])
                     numeros[frozenset(configurap)] = y.cuenta(configurap)
 
@@ -912,17 +747,20 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
                     configurap.add(x)
                 nold = numeros[frozenset(configurap)]
                 
-        
+                valores = list(numeros.values())
+                llaves = list(numeros.keys())
 
-                mcon = max(numeros, key=numeros.get())
-                nnew = numeros[mcon]
+                nnew = max(valores)
 
+                mcon = llaves[valores.index(nnew)]
                 
                 
                     
                 if nnew>nold:
                     mejora = True
                     actual += (nnew-nold)
+                    print(actual)
+
                 configura = set(mcon)
                 
                 
@@ -931,11 +769,14 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
                 
                 if npos>nneg:
                     new = v
-                else:
+                elif npos==nneg:
+                    new = old
+                else:    
                     new = -v
                 configura.add(new)
                 if not new == old:
                     actual += abs(npos-nneg)
+                    print(actual)
                     mejora = True
                 
     print(len(nuevas))
@@ -1584,11 +1425,10 @@ class solveSATBack:
 def main(info,N1,N2,N3,I):
         
 
-        configura = asignagreedy(info)
-        explorai(info,configura)
-        explorai2(info,configura)
-        explorai(info,configura)
-        explorai2(info,configura)
+        # configura = asignagreedy(info)
+        # explorai(info,configura)
+        # explorai2(info,configura)
+        # explorain(info,configura)
 
         print(info.solved,info.contradict)
 
