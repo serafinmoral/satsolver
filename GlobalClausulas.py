@@ -1886,8 +1886,8 @@ class globalClausulas:
         return y
     
     
-    def borraexactolim2(self,listas,M=40):
-        variables = set(map(abs,self.indices))
+    def borraexactolim2(self,listas,M=10):
+        variables = self.listavar.copy()
         
         borrar = []
         for v in variables:

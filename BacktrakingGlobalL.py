@@ -137,7 +137,7 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
         
     NI[0] -= 1
 #    print(NI[0],path)
-    if NI[0]%300 == 0:
+    if NI[0]%2000 == 0:
         print(path)
     if formula.contradict:
 #        print("contradiccion primaria")
@@ -1460,7 +1460,7 @@ def main(info,N1,N2,N3,I):
             NI = [I]
             tuni = tuni + info.unitprop()
 
-            elimina = elimina + info.borraexactolim(listas)
+            elimina = elimina + info.borraexactolim2(listas)
             print(elimina)
 
 #            print(info.unit)
