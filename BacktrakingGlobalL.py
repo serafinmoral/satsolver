@@ -509,15 +509,7 @@ def explorai(formula,configura):
                 mejora = True
     print(len(nuevas))
            
-    for cl in nuevas:
-        if not cl:
-            formula.solved = True
-            formula.contradict = True
-            return
-        if len(cl)<= 2:
-            formula.insertaborraypoda2(cl)
-        else:
-            formula.insertar(cl)
+    return nuevas
                    
     
 
@@ -537,10 +529,10 @@ def explorai2(formula,configura):
         for v in formula.listavar:
             if v in configura:
                 old =v
-                configura = configura - {v}
+                configura.discard(v)
             elif -v in configura:
                 old = -v
-                configura = configura - {-v}
+                configura.discard(-v)
             else:
                 old=0
                 
@@ -636,16 +628,7 @@ def explorai2(formula,configura):
                 
     print(len(nuevas))
            
-    for cl in nuevas:
-        if not cl:
-            formula.solved = True
-            formula.contradict = True
-            return
-        
-        if len(cl)<= 2:
-            formula.insertaborraypoda2(cl)
-        else:
-            formula.insertar(cl)
+    return nuevas
 
 def explorain(formula,configura,N5 = 3, N4 = 3):
 
@@ -667,10 +650,10 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
 
             if v in configura:
                 old =v
-                configura = configura - {v}
+                configura.discard(v)
             elif -v in configura:
                 old = -v
-                configura = configura - {-v}
+                configura.discard(-v)
             else:
                 print("no está")
                 old=0
@@ -790,16 +773,7 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
         info.solucion = configura
         return
            
-    for cl in nuevas:
-        if not cl:
-            formula.solved = True
-            formula.contradict = True
-            return
-        
-        if len(cl)<= 2:
-            formula.insertaborraypoda2(cl)
-        else:
-            formula.insertar(cl)
+    return nuevas
 
                           
         
@@ -1435,9 +1409,16 @@ def main(info,N1,N2,N3,I):
         
 
         configura = asignagreedy(info)
-        explorai(info,configura)
-        # explorai2(info,configura)
-        # explorain(info,configura)
+        nuevas = explorai(info,configura)
+        nuevas.update(explorai2(info,configura))
+        nuevas.update( explorain(info,configura,N5=4))
+
+
+        for cl in nuevas:
+            if len(cl)<=3:
+                info.insertaborraypoda2(cl)
+            else:
+                info.insertar(cl)
 
         print(info.solved,info.contradict)
         tuni = []
@@ -1460,7 +1441,7 @@ def main(info,N1,N2,N3,I):
             NI = [I]
             tuni = tuni + info.unitprop()
 
-            elimina = elimina + info.borraexactolim2(listas)
+            elimina = elimina + info.borraexactolim2(listas,M=0)
             print(elimina)
 
 #            print(info.unit)

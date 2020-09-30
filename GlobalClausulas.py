@@ -1906,7 +1906,7 @@ class globalClausulas:
             vmin = min(variables,key = self.tambor)
             n1 = len(self.indices.get(vmin,set()))
             n2 = len(self.indices.get(-vmin,set())) 
-            if  ((n1*n2-n1-n2<=M) or (n1==1) or (n2==1)) and (n1>0 or n2>0):
+            if  ((n1*n2-n1-n2<=M) or (n1<=1) or (n2<=1)) and (n1>0 or n2>0):
                 listas[vmin] = self.indices.get(vmin,set()).copy()
                 listas[-vmin] = self.indices.get(-vmin,set()) .copy()
                 for cl in listas[vmin]:
