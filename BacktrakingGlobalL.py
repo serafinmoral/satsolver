@@ -1434,8 +1434,8 @@ class solveSATBack:
 def main(info,N1,N2,N3,I):
         
 
-        # configura = asignagreedy(info)
-        # explorai(info,configura)
+        configura = asignagreedy(info)
+        explorai(info,configura)
         # explorai2(info,configura)
         # explorain(info,configura)
 
