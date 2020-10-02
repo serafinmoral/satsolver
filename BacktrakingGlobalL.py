@@ -630,13 +630,14 @@ def explorai2(formula,configura):
            
     return nuevas
 
-def explorain(formula,configura,N5 = 3, N4 = 3):
+def explorain(formula,l,N5 = 3, N4 = 3):
 
+    configura = l.pop()
 
     mejora = True
     total = len(formula.listaclaus)
     actual = formula.cuenta(configura)
-    
+
     nuevas = set()
     
     print("inicial ", len(configura))
@@ -650,10 +651,10 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
 
             if v in configura:
                 old =v
-                configura.discard(v)
+                configura = configura - {v}
             elif -v in configura:
                 old = -v
-                configura.discard(-v)
+                configura = configura - {-v}
             else:
                 print("no está")
                 old=0
@@ -767,12 +768,12 @@ def explorain(formula,configura,N5 = 3, N4 = 3):
                     mejora = True
                 
     print(len(nuevas))
+    l.append(configura)     
 
     if (actual==total):
         info.solved=True
         info.solucion = configura
-        return
-           
+        return set()
     return nuevas
 
                           
@@ -1407,18 +1408,25 @@ class solveSATBack:
     
 def main(info,N1,N2,N3,I):
         
-
+        solvedexplore = False
         configura = asignagreedy(info)
-        nuevas = explorai(info,configura)
-        nuevas.update(explorai2(info,configura))
-        nuevas.update( explorain(info,configura,N5=4))
-
-
+        nuevas = (explorai(info,configura))
         for cl in nuevas:
-            if len(cl)<=3:
                 info.insertaborraypoda2(cl)
-            else:
-                info.insertar(cl)
+        l = [configura]
+        nuevas = ( explorain(info,l,N5=2,N4=3))
+        
+        solvedexplore = info.solved
+        
+        if not info.solved:
+            print(len(nuevas))
+  
+
+       
+
+            for cl in nuevas:
+                info.insertaborraypoda2(cl)
+        
 
         print(info.solved,info.contradict)
         tuni = []
@@ -1468,7 +1476,7 @@ def main(info,N1,N2,N3,I):
             configura = []
             print("Inconsistente")
             
-        else:
+        elif not solvedexplore:
             configura = configura+tuni
             expandesol(configura,elimina,listas,[])
 #            for (l1,l2) in lista:
@@ -1476,6 +1484,11 @@ def main(info,N1,N2,N3,I):
 #                    configura.append(l2)
 #                elif -l1 in configura:
 #                    configura.append(-l2)
+            info.compruebasol2(configura)
+            print("Consistente", len(configura),configura)
+
+        else:
+            configura = l.pop()
             info.compruebasol2(configura)
             print("Consistente", len(configura),configura)
         
