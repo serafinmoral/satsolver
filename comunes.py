@@ -5,6 +5,7 @@ Created on Mon May 13 10:55:15 2019
 
 @author: smc
 """
+import networkx as nx
 
 
 def numerotodasfalsas(lclau,n):
@@ -164,3 +165,39 @@ def calculapotentials(lista,var):
         lista.remove(x)
     return result
     
+
+
+
+def calculaorden(grafo):
+    
+    orden = []
+    
+    grafoc = grafo.copy()
+    
+    
+    centra = nx.algorithms.centrality.degree_centrality(grafoc)
+
+#    print(centra)
+    ma = 0
+    i= 0
+    while grafo.nodes:
+        nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] - 0.1* centra[x])
+        orden.append(nnodo)
+        
+        veci = set(grafo[nnodo])
+        
+        grafo.remove_node(nnodo)
+        for x in veci:
+            for y in veci:
+                if not x==y:
+                    grafo.add_edge(x,y)
+                    
+                    
+    
+    
+
+    
+
+    print(orden)
+    return orden
+        

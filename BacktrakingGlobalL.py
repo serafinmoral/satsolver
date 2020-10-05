@@ -1411,7 +1411,30 @@ def main(info,N1,N2,N3,I):
         solvedexplore = False
         configura = asignagreedy(info)
         nuevas = (explorai(info,configura))
-        for cl in nuevas:
+        if not info.solved:
+             for cl in nuevas:
+                info.insertaborraypoda2(cl)
+        l = [configura]
+        nuevas = ( explorain(info,l,N5=2,N4=3))
+        
+        solvedexplore = info.solved
+
+        grafo = info.cgrafo()
+        orden = calculaorden(grafo)
+        print(orden)
+        
+        if not info.solved:
+            print(len(nuevas))
+  
+
+       
+
+            for cl in nuevas:
+                info.insertaborraypoda2(cl)
+
+        nuevas = (explorai(info,configura))
+        if not info.solved:
+            for cl in nuevas:
                 info.insertaborraypoda2(cl)
         l = [configura]
         nuevas = ( explorain(info,l,N5=2,N4=3))
@@ -1427,9 +1450,26 @@ def main(info,N1,N2,N3,I):
             for cl in nuevas:
                 info.insertaborraypoda2(cl)
         
+        nuevas = ( explorain(info,l,N5=2,N4=3))
+        
+        solvedexplore = info.solved
+        
+        if not info.solved:
+            print(len(nuevas))
+  
+
+       
+
+            for cl in nuevas:
+                info.insertaborraypoda2(cl)
+
 
         print(info.solved,info.contradict)
         tuni = []
+
+        if not info.solved:
+            info.saturaborra(orden,N=1)
+
 
 
         if not info.solved:

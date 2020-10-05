@@ -1593,6 +1593,8 @@ class globalClausulas:
         self.listaclaus.clear()
         self.listavar.clear()
         self.indices.clear()
+        self.equiv.clear()
+        self.unitprev.clear()
 
 
     def computevar(self):
@@ -1626,6 +1628,25 @@ class globalClausulas:
                 for h in self.indices[-x]:
                     total.add(h)
         return total
+
+
+    def saturaborra(self,orden,N=1):
+        r = self.copia()
+        apren = []
+
+        for v in reversed(orden):
+            apren = apren + r.marginalizalimit(v,N)
+            if r.contradict:
+                self.solved = True
+                self.contradict= True
+                return
+
+        print ("aprendidas en satura ",len(apren))
+        for cl in apren:
+            self.insertarc(cl,M=1)
+            
+
+        
             
     def borraAprox(self,var,listapos,listaneg,th,M=3000):
         
@@ -1738,6 +1759,42 @@ class globalClausulas:
                 
         return lista
     
+    def marginalizalimit(self,var,N):
+        
+        lista = []
+        r1 = list(self.indices.get(var,set()))
+        r2 = list(self.indices.get(-var,set()))
+        
+        for x in r1:
+                self.eliminar(x)
+                
+        for x in r2:
+                self.eliminar(x)
+        
+        
+       
+                
+                
+      
+        
+        
+        self.listavar.discard(var)
+        
+        for x in  list(itertools.product(r1,r2)):
+            clau = resolution(var,x[0],x[1])
+
+            if(0 not in clau) and len(clau) <= (max(len(x[0]),len(x[1])) + N):
+                self.insertar(clau)
+                if self.contradict:
+                    return lista
+            
+                lista.append(clau)
+            
+            
+                    
+
+                
+        return lista
     
     def marginalizain2(self,var,N=4):
         
