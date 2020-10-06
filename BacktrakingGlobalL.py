@@ -1408,20 +1408,64 @@ class solveSATBack:
     
 def main(info,N1,N2,N3,I):
         
+        cuenta = dict()
+        for x in info.listavar:
+            cuenta[x]= 0
+            cuenta[-x] = 0
+
         solvedexplore = False
         configura = asignagreedy(info)
         nuevas = (explorai(info,configura))
+        for x in configura:
+            cuenta[x] += 1
+            
         if not info.solved:
              for cl in nuevas:
                 info.insertaborraypoda2(cl)
         l = [configura]
         nuevas = ( explorain(info,l,N5=2,N4=3))
-        
-        solvedexplore = info.solved
 
-        grafo = info.cgrafo()
-        orden = calculaorden(grafo)
-        print(orden)
+        configura = l[0]
+        
+        for x in configura:
+            cuenta[x] += 1
+
+
+        if not info.solved:
+            print(len(nuevas))
+  
+
+       
+
+            for cl in nuevas:
+                info.insertaborraypoda2(cl)
+
+        
+        nuevas = ( explorain(info,l,N5=3,N4=3))
+        
+        configura = l[0]
+        
+        for x in configura:
+            cuenta[x] += 1
+
+
+        if not info.solved:
+            print(len(nuevas))
+  
+
+       
+
+            for cl in nuevas:
+                info.insertaborraypoda2(cl)
+        
+        nuevas = ( explorain(info,l,N5=3,N4=3))
+        configura = l[0]
+        
+        for x in configura:
+            cuenta[x] += 1
+
+
+        solvedexplore = info.solved
         
         if not info.solved:
             print(len(nuevas))
@@ -1432,12 +1476,11 @@ def main(info,N1,N2,N3,I):
             for cl in nuevas:
                 info.insertaborraypoda2(cl)
 
-        nuevas = (explorai(info,configura))
-        if not info.solved:
-            for cl in nuevas:
-                info.insertaborraypoda2(cl)
-        l = [configura]
-        nuevas = ( explorain(info,l,N5=2,N4=3))
+        nuevas = ( explorain(info,l,N5=4,N4=3))
+        configura = l[0]
+        
+        for x in configura:
+            cuenta[x] += 1
         
         solvedexplore = info.solved
         
@@ -1449,26 +1492,17 @@ def main(info,N1,N2,N3,I):
 
             for cl in nuevas:
                 info.insertaborraypoda2(cl)
-        
-        nuevas = ( explorain(info,l,N5=2,N4=3))
-        
-        solvedexplore = info.solved
-        
-        if not info.solved:
-            print(len(nuevas))
-  
-
-       
-
-            for cl in nuevas:
-                info.insertaborraypoda2(cl)
-
+        for x in info.listavar:
+            print(x,cuenta[x] - cuenta[-x])
 
         print(info.solved,info.contradict)
         tuni = []
 
-        if not info.solved:
-            info.saturaborra(orden,N=1)
+        # if not info.solved:
+        #     grafo = info.cgrafo()
+        #     orden = calculaorden(grafo)
+            
+        #     info.saturaborra(orden,N=0)
 
 
 

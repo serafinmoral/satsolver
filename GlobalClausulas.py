@@ -1783,7 +1783,7 @@ class globalClausulas:
         for x in  list(itertools.product(r1,r2)):
             clau = resolution(var,x[0],x[1])
 
-            if(0 not in clau) and len(clau) <= (max(len(x[0]),len(x[1])) + N):
+            if(0 not in clau) and len(clau) <= (max(len(x[0]),len(x[1])) + N) and len(clau) <= len(x[0])+len(x[1])-3:
                 self.insertar(clau)
                 if self.contradict:
                     return lista
