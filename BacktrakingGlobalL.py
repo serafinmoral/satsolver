@@ -1476,7 +1476,7 @@ def main(info,N1,N2,N3,I):
             for cl in nuevas:
                 info.insertaborraypoda2(cl)
 
-        for i in range(10)
+        for i in range(10):
         
             configura = asignagreedyr(info)
             nuevas = ( explorain(info,l,N5=4,N4=3))
