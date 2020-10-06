@@ -1485,6 +1485,8 @@ def main(info,N1,N2,N3,I):
                 break
             for x in configura:
                 cuenta[x] += 1
+            for cl in nuevas:
+                info.insertaborraypoda2(cl)
         
         solvedexplore = info.solved
         
