@@ -1476,11 +1476,15 @@ def main(info,N1,N2,N3,I):
             for cl in nuevas:
                 info.insertaborraypoda2(cl)
 
-        nuevas = ( explorain(info,l,N5=4,N4=3))
-        configura = l[0]
+        for i in range(10)
         
-        for x in configura:
-            cuenta[x] += 1
+            configura = asignagreedyr(info)
+            nuevas = ( explorain(info,l,N5=4,N4=3))
+            configura = l[0]
+            if info.solved:
+                break
+            for x in configura:
+                cuenta[x] += 1
         
         solvedexplore = info.solved
         
