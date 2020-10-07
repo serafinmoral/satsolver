@@ -133,7 +133,7 @@ def expandesol(sol,nuevas,listas,listae):
             
             
 
-def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
+def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI,  R = False):
         
     NI[0] -= 1
 #    print(NI[0],path)
@@ -219,7 +219,7 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
                 return listauni
             
         napren = globalClausulas()
-        variable = obtenerVariable3d(formula,N1,N2)
+        variable = obtenerVariable3e(formula)
         path.append(variable)
         formulan = formula.restringeref(variable)
         formulan.refer[variable] = {-variable}
@@ -294,8 +294,22 @@ def backtracking2(formula,tapren,path, tunit, N1,N2,N3,NI, R = False):
 
  
 
+def asignarandom(formula):
+    
+    
+    configura = set()
 
- 
+    lista = formula.listavar.copy()
+    
+    
+    
+    while lista:
+        v = lista.pop()        
+        ve = choice([v,-v])
+#        print(ve)
+        configura.add(ve)
+        
+    return configura
         
 def asignagreedy(formula):
     
@@ -632,6 +646,7 @@ def explorai2(formula,configura):
 
 def explorain(formula,l,N5 = 3, N4 = 3):
 
+    grafo = formula.cgrafo()
     configura = l.pop()
 
     mejora = True
@@ -670,8 +685,8 @@ def explorain(formula,l,N5 = 3, N4 = 3):
                         npos+=1
                         if 0 in cl1:
                              cl1 = cl
-                        elif len(cl)<len(cl1):
-                             cl1 = cl
+                        elif len(cl.union(cl2)) < len(cl1.union(cl2)):
+                            cl1 = cl
                         
             if -v in formula.indices:
                 
@@ -683,7 +698,7 @@ def explorain(formula,l,N5 = 3, N4 = 3):
                         elif len(cl.union(cl1))<len(cl2.union(cl1)):
                              cl2 = cl
                         
-               
+            
     
             if (0 not in cl1) and (0 not in cl2):
                 newcl = resolution(v,cl1,cl2)
@@ -693,7 +708,7 @@ def explorain(formula,l,N5 = 3, N4 = 3):
                 
                 cand = [v]
                 cando = [old]
-                conj = set(newcl)
+                conj = set(grafo[v])
                 while conj and len(cand)< N5: 
                     v1 = conj.pop()
                     if v1 in configura:
@@ -1213,10 +1228,29 @@ def obtenerVariablegraph(formula):
                
 
                
-    
-    
-    
-def obtenerVariable3d(formula,N1,N2):
+def obtenerVariablecuenta(formula,cuenta):
+   
+        vmax = 0
+        best = 0
+        for v in formula.listavar:
+            l1 = len(formula.indices.get(v,set()))
+            l2 = len(formula.indices.get(-v,set()))
+            if l1+l2 > best:
+                best = l1+l2
+                vmax = v
+
+        if cuenta[vmax]>= 0:
+            return vmax
+        else:
+            return -vmax
+def obtenerVariable3e(formula,N1=3,N2=3):
+#        print("inicio")
+    neg = set(map(lambda x: -x, formula.listavar))
+    candidates = formula.listavar.union(neg)
+    return max (candidates, key = lambda x: len(formula.indices.get(x,set())))
+#                
+
+def obtenerVariable3d(formula,N1=3,N2=3):
 #        print("inicio")
         vmax = 0
         best = 0
@@ -1408,16 +1442,16 @@ class solveSATBack:
     
 def main(info,N1,N2,N3,I):
         
-        cuenta = dict()
-        for x in info.listavar:
-            cuenta[x]= 0
-            cuenta[-x] = 0
+        # cuenta = dict()
+        # for x in info.listavar:
+        #     cuenta[x]= 0
+        #     cuenta[-x] = 0
 
         solvedexplore = False
         configura = asignagreedy(info)
         nuevas = (explorai(info,configura))
-        for x in configura:
-            cuenta[x] += 1
+        # for x in configura:
+        #     cuenta[x] += 1
             
         if not info.solved:
              for cl in nuevas:
@@ -1427,9 +1461,11 @@ def main(info,N1,N2,N3,I):
 
         configura = l[0]
         
-        for x in configura:
-            cuenta[x] += 1
+        # for x in configura:
+        #     cuenta[x] += 1
 
+
+        
 
         if not info.solved:
             print(len(nuevas))
@@ -1441,65 +1477,44 @@ def main(info,N1,N2,N3,I):
                 info.insertaborraypoda2(cl)
 
         
-        nuevas = ( explorain(info,l,N5=3,N4=3))
         
-        configura = l[0]
         
-        for x in configura:
-            cuenta[x] += 1
+        # nuevas = ( explorain(info,l,N5=10,N4=3))
+        # configura = l[0] 
+        
+        # # for x in configura:
+        # #     cuenta[x] += 1
 
 
-        if not info.solved:
-            print(len(nuevas))
+        # solvedexplore = info.solved
+        
+        # if not info.solved:
+        #     print(len(nuevas))
   
 
        
 
-            for cl in nuevas:
-                info.insertaborraypoda2(cl)
+        #     for cl in nuevas:
+        #         info.insertaborraypoda2(cl)
+
+        for i in range(0):
         
-        nuevas = ( explorain(info,l,N5=3,N4=3))
-        configura = l[0]
-        
-        for x in configura:
-            cuenta[x] += 1
-
-
-        solvedexplore = info.solved
-        
-        if not info.solved:
-            print(len(nuevas))
-  
-
-       
-
-            for cl in nuevas:
-                info.insertaborraypoda2(cl)
-
-        for i in range(10):
-        
-            configura = asignagreedyr(info)
-            nuevas = ( explorain(info,l,N5=4,N4=3))
-            configura = l[0]
-            if info.solved:
-                break
-            for x in configura:
-                cuenta[x] += 1
+            configura = asignarandom(info)
+            l = [configura]
+            nuevas = ( explorain(info,l,N5=8,N4=3))
+            # configura = l[0]
+            # if info.solved:
+            #     break
+            # for x in configura:
+            #     cuenta[x] += 1
             for cl in nuevas:
                 info.insertaborraypoda2(cl)
         
         solvedexplore = info.solved
         
-        if not info.solved:
-            print(len(nuevas))
-  
-
-       
-
-            for cl in nuevas:
-                info.insertaborraypoda2(cl)
-        for x in info.listavar:
-            print(x,cuenta[x] - cuenta[-x])
+        
+        # for x in info.listavar:
+        #     print(x,cuenta[x] - cuenta[-x])
 
         print(info.solved,info.contradict)
         tuni = []
