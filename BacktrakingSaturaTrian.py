@@ -104,7 +104,7 @@ def triangula(grafo):
     mv = 0
     i= 0
     while grafo.nodes:
-        nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] - centra[x])
+        nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] - 0.01*centra[x])
         print(nnodo)
         orden.append(nnodo)
         
@@ -123,25 +123,25 @@ def triangula(grafo):
                     
     
 
-    rem = orden[(ma+1):]
+    # rem = orden[(ma+1):]
     
-    orden = orden[:(ma+1)]
-    
-    
+    # orden = orden[:(ma+1)]
     
     
     
-    orden2 = []
-    while rem:
-            centra = nx.algorithms.centrality.betweenness_centrality(grafoc)
-            pr = max(rem,key = centra.get)
-            print(pr)
-            orden2.append(pr)
-            grafoc.remove_node(pr)
-            rem.remove(pr)
     
-    orden2.reverse()
-    orden = orden + orden2    
+    
+    # orden2 = []
+    # while rem:
+    #         centra = nx.algorithms.centrality.betweenness_centrality(grafoc)
+    #         pr = max(rem,key = centra.get)
+    #         print(pr)
+    #         orden2.append(pr)
+    #         grafoc.remove_node(pr)
+    #         rem.remove(pr)
+    
+    # orden2.reverse()
+    # orden = orden + orden2    
 
     print(orden)
     return orden
@@ -163,7 +163,7 @@ def triangula(grafo):
     
 def main(prob):
         
-
+        info.unitprop()
         info.contradict = False
         info.solved = False
 
@@ -173,6 +173,7 @@ def main(prob):
         grafo = info.cgrafo()
         prob.orden = triangula(grafo)
         
+
         h = sorted(prob.orden)
         prob.posvar = dict()
         for i in h:
@@ -185,8 +186,9 @@ def main(prob):
         prob.inicia()
         
         print("salgo de inicio")
+        prob.borra()
 
-        config = prob.busca()
+        # config = prob.busca()
                      
         print(prob.inicial.solved, prob.inicial.contradict, config)
                         

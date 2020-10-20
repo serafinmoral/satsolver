@@ -48,7 +48,10 @@ class problemaTrian:
     
             for cl in self.inicial.listaclaus:
 #                print("inserto " ,cl)
-                cola = cola + self.tinserta(cl)
+                if len(cl)<=self.N1:
+                    cola = cola + self.tinserta(cl)
+                else:
+                    self.insertacola(cl)
                 
             while cola:
                 cl = cola.pop()
@@ -59,6 +62,11 @@ class problemaTrian:
                     cola = cola + self.tinserta(cl)
                 else:
                     self.insertacola(cl)
+            for i in range(len(self.orden)):
+                print(self.orden[i])
+                print(len(self.lpot[i].listaclaus),len(self.lqueue[i].listaclaus))
+                print (self.lpot[i].listaclaus)
+                print (self.lqueue[i].listaclaus)
                     
     def selectval(self,i,var,config):
         return var
@@ -174,7 +182,47 @@ class problemaTrian:
         return cola
     
     
-    
+    def borra(self):
+        for i in range(len(self.orden)):
+            var = self.orden[i]
+            print("i= ", i, "var = ", self.orden[i])
+            pot = self.lqueue[i]
+            pot2 = self.lpot[i]
+            l1 = pot.indices.get(var,set())
+            l2 = pot.indices.get(-var,set())
+
+            lp1 = pot2.indices.get(var,set())
+            lp2 = pot2.indices.get(-var,set())
+            
+
+            npot = globalClausulas()
+            for cl1 in l1:
+                for cl2 in l2:
+                    cl = resolution(var,cl1,cl2)
+                    if 0 not in cl:
+                        npot.insertar(cl)
+            for cl1 in l1:
+                for cl2 in lp2:
+                    cl = resolution(var,cl1,cl2)
+                    if 0 not in cl:
+                        npot.insertar(cl)
+
+            for cl1 in lp1:
+                for cl2 in l2:
+                    cl = resolution(var,cl1,cl2)
+                    if 0 not in cl:
+                        npot.insertar(cl)
+
+
+            if npot.solved:
+                self.inicial.solved = True
+                self.inicial.contradict = self.inicial.contradict
+                break
+            npot.podaylimpia()
+            
+            for cl in npot.listaclaus:
+                self.insertacola(cl)
+
     
     def busca(self):
         
@@ -202,7 +250,7 @@ class problemaTrian:
                 l1 = filtra(pot.indices.get(var,set()),nconfig,pconfig,1)
                 l2 = filtra(pot.indices.get(-var,set()),nconfig,pconfig,1)
                 
-#                print(len(l1),len(l2))
+                # print(var,len(l1),len(l2))
 #                pot = self.lpot[i]
 #
 #                l1p = filtra(pot.indices.get(var,set()),nconfig,pconfig,1)
@@ -223,11 +271,11 @@ class problemaTrian:
                         pot.eliminar(cl)
                     lista.update(set(lista2))
                 
-                print(len(lista))
+                # print(len(lista))
                 while lista and not self.inicial.solved:
                     cl = lista.pop()
-                    print(len(lista))
-#                    print(cl)
+                    # print(len(lista))
+                    # print(cl)
                     if cl <= nconfig:
                         back = True
                         indices = map(lambda x:self.posvar[abs(x)],cl)
@@ -237,13 +285,18 @@ class problemaTrian:
                         if self.inicial.solved:
                             break
                     
-                        (n1,n2) = filtrasplit(nuevas,nconfig,pconfig,self.N2)
-                        lista.update(set(n1))
-                        lista.update(set(n2))
-                        print(len(lista))
+                        lista.update(set(nuevas))
+            
+                        # print(len(lista))
                         while lista:
                             cl = lista.pop()
-                            self.insertacola(cl)
+                            if (cl <= nconfig):
+                                indices = map(lambda x:self.posvar[abs(x)],cl)
+                                maxpos = max(min (indices),maxpos)
+                                nuevas = self.tinserta(cl)
+                                lista.update(set(nuevas))
+                            else:
+                                self.insertacola(cl)
                         break
 
 #                    if (len(n1)>0):
@@ -260,21 +313,7 @@ class problemaTrian:
                         self.insertacola(cl1)
                         
                             
-                    nuevas = self.tinserta(cl)
-#                    print(nuevas)
-                    if self.inicial.solved:
-                        break
                     
-                    (n1,n2) = filtrasplit(nuevas,nconfig,pconfig,self.N2)
-                    
-                    
-
-#                    if (len(n1)>0):
-#                        print(config)
-#                        print(n1)
-                    lista.update(set(n1))
-                    for cl1 in n2:
-                        self.insertacola(cl1)
                     
                     
                 if back:
@@ -293,7 +332,11 @@ class problemaTrian:
 
                         l1 = filtra(pot.indices.get(var,set()),nconfig,pconfig,1)
                         l2 = filtra(pot.indices.get(-var,set()),nconfig,pconfig,1)
-#                        print(len(l1),len(l2))
+                        print(len(l1),len(l2))
+
+                        if(var == 83):
+                            print(l1)
+                            print(l2)
 
                         if l1:
                             nvalue = var

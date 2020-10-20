@@ -1447,6 +1447,12 @@ def main(info,N1,N2,N3,I):
         #     cuenta[x]= 0
         #     cuenta[-x] = 0
 
+        # totalclau = info.listaclaus.copy()
+        # for cl in totalclau:
+        #     if info.bloqueogen(cl,M=1000):
+        #         print(cl, " bloqueada ")
+        #         info.eliminar(cl)
+
         solvedexplore = False
         configura = asignagreedy(info)
         nuevas = (explorai(info,configura))

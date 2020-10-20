@@ -247,6 +247,65 @@ class globalClausulas:
                                     self.equiv.add((t2,t1)) 
                                     
         return res
+
+    def unitpropc(self):
+        res = []
+        while self.unitprev:
+            p = self.unitprev.pop()
+
+            res.append(p)
+            
+            self.listavar.discard(abs(p))
+
+            if p in self.indices:
+                borrar = set()
+                for c in self.indices[p]:
+                    
+                        borrar.add(c)
+                self.indices.pop(p)
+                for c in borrar:
+                    self.eliminar(c)
+            if -p in self.indices:
+                borrar = set()
+                for c in self.indices[-p]:
+                    borrar.add(c)
+                self.indices.pop(-p)
+
+                for c in borrar:
+                    self.eliminar(c)
+#                    print("propagacion unitaria")
+#                    print(c)
+#                    print(p)
+#                    print(self.refer.get(c,set()))
+#                    print(self.refer.get(frozenset({p}),set()))
+
+                    c2 = frozenset(set(c)-{-p})
+#                    
+                    self.insertarc(c2)
+
+                    if self.contradict:
+                        return res
+                    
+                    
+                    if (len(c2)==2):
+                        self.dobles.add(c2)
+                        mc = frozenset(map(lambda x: -x, c2))
+                        if mc in self.dobles:
+#                            print(c,mc,"nueva equivalencia")
+                            par = set(c2)
+                            t1 = par.pop()
+                            t2 = -par.pop()
+                            
+                            if(abs(t1)<abs(t2)):
+                                if(not  (-t1,-t2) in self.equiv):    
+                                    self.equiv.add((t1,t2))
+#                                    print("nueva equivalencia ", t1, t2)
+#                                    time.sleep(3)
+                            else:
+                                if(not (-t2,-t1) in self.equiv):
+                                    self.equiv.add((t2,t1)) 
+                                    
+        return res
                                     
     def unitprop2(self,probs):
         while self.unitprev:
@@ -1029,6 +1088,23 @@ class globalClausulas:
         if len(x)==1:
             self.unitprev.add(set(x).pop())
             self.unit.add(set(x).pop())
+        elif len(x)==2:
+                        self.dobles.add(x)
+                        mc = frozenset(map(lambda y: -y, x))
+                        if mc in self.dobles:
+#                            print(c,mc,"nueva equivalencia")
+                            par = set(x)
+                            t1 = par.pop()
+                            t2 = -par.pop()
+                            
+                            if(abs(t1)<abs(t2)):
+                                if(not  (-t1,-t2) in self.equiv):    
+                                    self.equiv.add((t1,t2))
+#                                    print("nueva equivalencia ", t1, t2)
+#                                    time.sleep(3)
+                            else:
+                                if(not (-t2,-t1) in self.equiv):
+                                    self.equiv.add((t2,t1))
             
         if len(x)>M:
             for y in x:
@@ -1133,6 +1209,23 @@ class globalClausulas:
         if len(x)==1:
             self.unitprev.add(set(x).pop())
             self.unit.add(set(x).pop())
+        elif len(x)==2:
+                        self.dobles.add(x)
+                        mc = frozenset(map(lambda y: -y, x))
+                        if mc in self.dobles:
+#                            print(c,mc,"nueva equivalencia")
+                            par = set(x)
+                            t1 = par.pop()
+                            t2 = -par.pop()
+                            
+                            if(abs(t1)<abs(t2)):
+                                if(not  (-t1,-t2) in self.equiv):    
+                                    self.equiv.add((t1,t2))
+#                                    print("nueva equivalencia ", t1, t2)
+#                                    time.sleep(3)
+                            else:
+                                if(not (-t2,-t1) in self.equiv):
+                                    self.equiv.add((t2,t1))
             
     def insertaycomprueba(self,x):
         if len(x)==0:
@@ -1325,6 +1418,42 @@ class globalClausulas:
 #        for cl2 in borrar:
 #            self.eliminar(cl2)
         return cola
+
+
+    def saturadobles(self):
+        
+        cola = []
+        for cl in self.dobles:
+            con = set(cl)
+            v1 = con.pop()
+            v2 = con.pop()
+            if v1 in self.listavar and v2 in self.listavar:
+                cola.append(cl)
+        
+        total = set(cola)
+
+        while cola:
+            cl = cola.pop()
+            neg = set(map(lambda x: -x, cl))
+            for cl2 in total:
+                h = neg.intersection(cl2)
+                if len(h) == 1:
+                    v = h.pop()
+                    clr = resolution(v,cl,cl2)
+                    if clr not in total:
+                        self.refer[clr] = self.refer.get(cl,set()).union(self.refer.get(clr,set()))
+                    self.insertarc(clr) 
+                    cola.append(clr)
+                    total.add(clr)
+                    print("añado ",clr)
+
+                    
+                
+                
+    
+
+        
+        
         
         
         
@@ -2225,6 +2354,7 @@ class globalClausulas:
                 return False
             
         h.limpia(0.0)
+        h.poda()
         
         t = h.indices.get(var,set())
         
@@ -2238,16 +2368,7 @@ class globalClausulas:
         
         
         
-        for x in c:
-            bloque = True
-            if (-x in self.indices):
-                for y in self.indices[-x]:
-                    if len( y  & hl)==1:
-                        bloque = False 
-                        break
-            if bloque:
-                break
-        return bloque
+       
     
 
     def eliminarbloqueadas(self):
