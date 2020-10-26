@@ -192,7 +192,7 @@ class problemaTrian:
             pot.borraincluidas(cl)
             pot2.borraincluidas(cl)
             cola = pot.insertasatura(cl,var)
-
+            
             
                 
         else:
@@ -205,6 +205,68 @@ class problemaTrian:
     
         return cola
     
+    def tinsertarec(self,cl,pos=-1):
+#    print(cl)
+        cola = []
+        if not cl:
+            self.inicial.solved = True
+            self.inicial.contradict = True
+        elif len(cl)==1:
+            val = set(cl).pop()
+            var = abs(val)        
+            pos = self.posvar[var]
+            pot = self.lpot[pos]
+            self.inicial.unit.add(val)
+            self.inicial = self.inicial.restringe(val)
+            cola = cola + self.insertapu(cl,pot,val)
+#            print(cola)
+            for i in range(pos):
+            
+                pot = self.lpot[i]
+                if var in pot.listavar:
+                    cola = cola + self.podau(pot,val)
+#                    print(cola)
+                pot = self.lqueue[i]
+                if var in pot.listavar:
+                    cola = cola + self.podau(pot,val)
+#                    print(cola)
+                    
+        elif len(cl)<=self.N1:
+        
+            if (pos ==-1):
+                indices = map(lambda x:self.posvar[abs(x)],cl)
+                pos = min (indices)
+            pot = self.lpot[pos]
+            pot2 = self.lqueue[pos]
+            var = self.orden[pos]
+
+            pot.borraincluidas(cl)
+            pot2.borraincluidas(cl)
+            cola = pot.insertasatura(cl,var)
+            for i in range(pos):
+                pot = self.lpot[i]
+                if varscl <= pot.listavar:
+                    cola = cola + pot.podacola(cl)
+                pot = self.lqueue[i]
+                if varscl <= pot.listavar:
+                    cola = cola + pot.podacola(cl)
+            
+                
+        else:
+            if (pos ==-1):
+                indices = map(lambda x:self.posvar[abs(x)],cl)
+                pos = min (indices)
+            var = self.orden[pos]
+            pot = self.lpot[pos]
+            cola = pot.insertasatura(cl,var)
+    
+        for cl2 in cola:
+            indices = map(lambda x:self.posvar[abs(x)],cl2)
+            pos2 = min (indices)
+            if pos2 >= pos:
+                self.tinsertarec(cl2)
+            else:
+                self.insertacola(cl)
     
     def borra(self):
         print(len(self.orden))
