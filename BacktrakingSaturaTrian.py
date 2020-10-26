@@ -13,7 +13,7 @@ import networkx as nx
 
 from random import *
               
-from GlobalClausulas import *
+from GlobalClausulasSimple import *
 from ProblemaTrian import *
 from comunes import *
 
@@ -64,17 +64,7 @@ def leeArchivoGlobal(Archivo):
                 h = set(clausula).pop()
                 infor.unitprev.add(h)
                 infor.unit.add(h)
-            elif (len(clausula)==2):
-                infor.dobles.add(clausula)
-                mclau = frozenset(map(lambda x: -x,clausula))
-                if mclau in infor.dobles:
-                    par = set(clausula)
-                    l1 = par.pop()
-                    l2 = -par.pop()
-                    if(abs(l1)<abs(l2)):
-                        infor.equiv.add((l1,l2))
-                    else:
-                        infor.equiv.add((l2,l1))
+            
 
 
 
@@ -186,7 +176,7 @@ def main(prob):
         prob.inicia()
         
         print("salgo de inicio")
-        prob.borra()
+        prob.borra2()
 
         # config = prob.busca()
                      

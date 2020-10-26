@@ -2413,21 +2413,21 @@ class globalClausulas:
                 
 
     def poda(self):
-        print("entro en poda")
+#        print("entro en poda")
         
         lista = self.listavar.copy()
         
         for var in lista:
             self.podavar2(var)
-        print("salgo de poda")
+#        print("salgo de poda")
     
         
     def podaylimpia(self):
         y = []
         borr = []
-        print("entro en poda 2", len(self.listaclaus))
+#        print("entro en poda 2")
         lista = sorted(self.listaclaus,key = lambda x: len(x))
-        print("ordenadas")
+#        print("ordenadas")
         
         for i in range(len(lista)):
             clau1 = lista[i]
@@ -2436,10 +2436,8 @@ class globalClausulas:
                 clau2 = lista[j]
                 claudif = set(clau1-clau2)
                 if (len(claudif) ==0):
-                    print("borro", clau2)
                     borr.append(clau2)
                 elif (len(claudif) ==1):
-                    print("poda", clau2)
                     var = claudif.pop()
                     if -var in clau2:
                         y.append(frozenset(clau2-{var}))
@@ -2454,7 +2452,7 @@ class globalClausulas:
 #            print("original ibp",clau,len(self.listaclaus))
 
 #                
-        print("salgo de poda 2")
+#        print("salgo de poda 2")
 
     
     def podavar(self,var):

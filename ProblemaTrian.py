@@ -4,7 +4,7 @@ Created on Wed Aug 26 12:28:21 2020
 
 @author: Serafin
 """
-from GlobalClausulas import *
+from GlobalClausulasSimple import *
 
 def filtra(lista,nconfig,pconfig,i):
     result = []
@@ -51,7 +51,7 @@ class problemaTrian:
                 if len(cl)<=self.N1:
                     cola = cola + self.tinserta(cl)
                 else:
-                    self.insertacola(cl)
+                    self.insertaypodacola(cl)
                 
             while cola:
                 cl = cola.pop()
@@ -127,8 +127,34 @@ class problemaTrian:
           pos = min (indices) 
           pot = self.lqueue[pos]
           pot.inserts(cl)
+
+    def insertaypodacola(self,x):
+        cola = [x]
+        while cola:
+          cl = cola.pop()
+          indices = map(lambda y:self.posvar[abs(y)],cl)
+          pos = min (indices) 
+          pot = self.lqueue[pos]
+          cola = cola + pot.insertaborraypodarecnoin(cl)
+
+          if len(cl) <= self.N1:
+            varscl = set(map(abs,cl))
+            pot = self.lpot[pos]
+            if varscl <= pot.listavar:
+                cola = cola + pot.podacola(cl)
+            for i in range(pos):
+                pot = self.lpot[i]
+                if varscl <= pot.listavar:
+                    cola = cola + pot.podacola(cl)
+                pot = self.lqueue[i]
+                if varscl <= pot.listavar:
+                    cola = cola + pot.podacola(cl)
+
+          
+          if pot.contradict:
+              break
                 
-    def tinserta(self,cl):
+    def tinserta(self,cl,pos=-1):
 #    print(cl)
         cola = []
         if not cl:
@@ -156,9 +182,9 @@ class problemaTrian:
                     
         elif len(cl)<=self.N1:
         
-        
-            indices = map(lambda x:self.posvar[abs(x)],cl)
-            pos = min (indices)
+            if (pos ==-1):
+                indices = map(lambda x:self.posvar[abs(x)],cl)
+                pos = min (indices)
             pot = self.lpot[pos]
             pot2 = self.lqueue[pos]
             var = self.orden[pos]
@@ -167,14 +193,12 @@ class problemaTrian:
             pot2.borraincluidas(cl)
             cola = pot.insertasatura(cl,var)
 
-            for i in range(pos):
-                pot = self.lpot[i]
-                if cl <= pot.listavar:
-                    cola = cola + pot.podacola(cl)
+            
                 
         else:
-            indices = map(lambda x:self.posvar[abs(x)],cl)
-            pos = min (indices) 
+            if (pos ==-1):
+                indices = map(lambda x:self.posvar[abs(x)],cl)
+                pos = min (indices)
             var = self.orden[pos]
             pot = self.lpot[pos]
             cola = pot.insertasatura(cl,var)
@@ -183,9 +207,12 @@ class problemaTrian:
     
     
     def borra(self):
+        print(len(self.orden))
         for i in range(len(self.orden)):
             var = self.orden[i]
             print("i= ", i, "var = ", self.orden[i])
+            if i==140:
+                print("parada")
             pot = self.lqueue[i]
             pot2 = self.lpot[i]
             l1 = pot.indices.get(var,set())
@@ -218,10 +245,45 @@ class problemaTrian:
                 self.inicial.solved = True
                 self.inicial.contradict = self.inicial.contradict
                 break
-            npot.podaylimpia()
-            
+            print("longitud ", len(npot.listaclaus), npot.listavar , len(npot.listavar))
+ 
+            npot.podaylimpiarec()
+            print("longitud ", len(npot.listaclaus), pot.listavar)
+
             for cl in npot.listaclaus:
-                self.insertacola(cl)
+                self.insertaypodacola(cl)
+
+    def borra2(self):
+
+        nuevas = True
+        while nuevas and not self.inicial.solved:
+            print("nueva vuelta")
+            cola = []
+            for i in range(len(self.orden)):
+                
+                pot = self.lqueue[i]
+                while pot.listaclaus:
+                    cl = pot.listaclaus.pop()
+                    pot.eliminar(cl)
+                    cola = cola + self.tinserta(cl,pos=i)
+
+            if not cola:
+                nuevas = False
+            else:
+                print(len(cola))
+                for cl in cola:
+                    self.insertaypodacola(cl)
+
+                
+
+                
+
+                
+
+                
+
+
+                
 
     
     def busca(self):
