@@ -35,6 +35,7 @@ class problemaTrian:
          self.orden = []
          self.lpot = []
          self.lqueue  = []
+         self.peq = []
          self.posvar = dict()
          
          
@@ -67,6 +68,41 @@ class problemaTrian:
                 print(len(self.lpot[i].listaclaus),len(self.lqueue[i].listaclaus))
                 print (self.lpot[i].listaclaus)
                 print (self.lqueue[i].listaclaus)
+
+
+    def inicia2(self):
+            cola = []
+            for i in self.orden:
+                x = globalClausulas()
+                self.lpot.append(x)
+                y = globalClausulas()
+                self.lqueue.append(y)
+                z = globalClausulas()
+                self.peq.append(z)
+            
+            listaorden = []
+
+
+            copia = self.inicial.copia()
+            for i in reversed(range(len(self.orden))):
+                var = self.orden[i]
+                potsin = []
+                if len(copia.indices.get(var,set())) < len(copia.indices.get(-var,set())):
+                    value = -var
+                else:
+                    value = var
+                lista = copia.indices.get(value,set()).copy()
+                for cl in lista:
+                    copia.eliminar(cl)
+                    potsin.append(cl)
+                print("var ", var, len(potsin))
+                listaorden.append(potsin)                                
+                
+            print(len(listaorden))
+            return listaorden
+     
+                
+
                     
     def selectval(self,i,var,config):
         return var
@@ -142,8 +178,10 @@ class problemaTrian:
             pot = self.lpot[pos]
             if varscl <= pot.listavar:
                 cola = cola + pot.podacola(cl)
+                self.peq[pos].insertar(cl)
             for i in range(pos):
                 pot = self.lpot[i]
+                self.peq[i].insertar(cl)
                 if varscl <= pot.listavar:
                     cola = cola + pot.podacola(cl)
                 pot = self.lqueue[i]
@@ -272,7 +310,7 @@ class problemaTrian:
         print(len(self.orden))
         for i in range(len(self.orden)):
             var = self.orden[i]
-            print("i= ", i, "var = ", self.orden[i])
+            # print("i= ", i, "var = ", self.orden[i], " n. peq. ", len(self.peq[i].listaclaus),self.peq[i].listaclaus)
             if i==140:
                 print("parada")
             pot = self.lqueue[i]
@@ -302,15 +340,23 @@ class problemaTrian:
                     if 0 not in cl:
                         npot.insertar(cl)
 
+            for cl1 in l1:
+                pot2.insertar(cl1)
+            for cl2 in l2:
+                pot2.insertar(cl2)
 
+                
+            pot.anula()
             if npot.solved:
                 self.inicial.solved = True
                 self.inicial.contradict = self.inicial.contradict
                 break
-            print("longitud ", len(npot.listaclaus), npot.listavar , len(npot.listavar))
+            if len(npot.listaclaus)>0 :
+                print("longitud ", len(npot.listaclaus), npot.listavar , len(npot.listavar))
  
             npot.podaylimpiarec()
-            print("longitud ", len(npot.listaclaus), pot.listavar)
+            if len(npot.listaclaus)>0 :
+                print("longitud ", len(npot.listaclaus))
 
             for cl in npot.listaclaus:
                 self.insertaypodacola(cl)
@@ -319,6 +365,7 @@ class problemaTrian:
 
         nuevas = True
         while nuevas and not self.inicial.solved:
+            
             print("nueva vuelta")
             cola = []
             for i in range(len(self.orden)):
@@ -344,9 +391,20 @@ class problemaTrian:
 
                 
 
+    def borra4(self,listapot):
 
-                
+        while listapot:
+            
+            print (len(listapot))
+            nclau = listapot.pop()
+            print(len((nclau)))
+            for cl in nclau:
+                self.insertacola(cl)
+            self.borra()
 
+        for i in range(len(self.orden)):
+            print(self.lpot[i].listaclaus)
+       
     
     def busca(self):
         
