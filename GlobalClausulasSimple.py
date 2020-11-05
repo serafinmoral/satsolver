@@ -209,7 +209,6 @@ class globalClausulas:
                 
     def copia(self):
       nuevo = globalClausulas()
-      nuevo.apren = self.apren
       nuevo.listavar = self.listavar.copy()
       
       for x in self.listaclaus:
@@ -1098,7 +1097,7 @@ class globalClausulas:
 #                    print("poda", clau2)
                     var = claudif.pop()
                     if -var in clau2:
-                        y.append(frozenset(clau2-{var}))
+                        y.append(frozenset(clau2-{-var}))
                         borr.append(clau2)
         if(len(y) >len(borr)):
             print("añado mas que borro")
@@ -1238,7 +1237,7 @@ class globalClausulas:
 #            self.limpiarec(0.0)
                            
     
-    def podaylimpiarec(self,M=300):
+    def podaylimpiarec(self,M=4000):
         if len(self.listaclaus)<=M:
             self.podaylimpia()
         else:

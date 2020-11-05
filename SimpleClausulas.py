@@ -130,11 +130,7 @@ class simpleClausulas:
                                     
         return res
 
-   
-  
-    
 
-     
  
         
         
@@ -154,424 +150,16 @@ class simpleClausulas:
     
     
     
-                    
+
     
-        
  
-        
-                    
+            
   
-        
-     
-  
-
-        
-    def insertar(self,x):
-        if self.contradict or (0 in x):
-            return
-#        print("inserto ",x)
-        if not x:
-            self.anula()
-            self.listaclaus.append(x)
-            self.contradict=True
-            return
-        
-        
-
-        for y in x:
-            if y in self.indices:
-                self.indices[y].append(x)
-            else:
-                self.indices[y] = [x]
-            if(abs(y) not in self.listavar):
-                self.listavar.add(abs(y))
-        self.listaclaus.append(x)
-        
-        if len(x)==1:
-            p = next(iter(x))
-            self.unitprev.add(p)
-            self.unit.add(p)
-            self.unitprop()  
-           
-           
-  
+            
+    
+            
+            
    
- 
-            
-  
-            
-    
-            
-            
-    def insertaborraypoda(self,x):
-        bor = []
-        h = []
-        insertar = True
-        
-        if x not in self.listaclaus:
-            for z in self.listaclaus:
-                if x <= z:
-                    bor.append(z)
-                elif z <= x:
-                    return
-                else:
-                    for var in x:
-                        if (-var in z) and (x-{var} <= z - {-var}):
-                            h.append(frozenset(z-{-var}))
-                            if len(z-{-var})==0:
-#                                print("calusula Contradictoria ",z,x)
-                                self.contradict= True
-                                self.solved = True
-#                                time.sleep(30)
-                            elif len(z-{-var})==1:
-#                                print("calusula Unitaria ",z,x)
-                                self.unit.add((set(z-{-var})).pop())
-                                self.unitprev.add(set((z-{-var})).pop())
-                            bor.append(z)
-                        elif (-var in z) and    (z - {-var} <= x-{var}):
-                            h.append(frozenset(x-{var}))
-                            if len(x-{-var})==0:
-#                                print("calusula Contradictoria ",z,x)
-                                self.contradict= True
-                                self.solved = True
-#                                time.sleep(30)
-                            elif len(x-{-var})==1:
-#                                print("calusula Unitaria ",z,x)
-                                self.unit.add((x-{-var}).pop())
-                                self.unitprev.add((x-{-var}).pop())
-                            insertar = False
-        
-            if insertar:
-#                print("inserto ", x)
-                self.inserts(x)
-
-                
-            
-            for cl in bor:
-#                print("borro",cl,len(self.listaclaus))
-                self.eliminar(cl)
-            
-            self.unitprop()
-            
-            for cl in h:
-                
-#                print("ibp",cl)
-                if cl not in self.listaclaus:
-#                    print("insertaar ", cl, len(self.listaclaus))
-                    self.insertaborraypoda(cl)
-#                    print("insertaar ", cl, len(self.listaclaus))
-    
-                               
-                    
-    def insertaborraypodarecnoin(self,x, insert=True, M=3, N=100):
-        if self.contradict:
-            return []
-
-        bor = []
-        h = []
-#        print("inserto x",x) 
-        if x not in self.listaclaus:
-            if len(self.listaclaus)<= N:
-                lista = self.listaclaus.copy()
-            else: 
-                z = set(x)
-
-                if len(z)>M:
-                    lar = max(z,key = lambda u: len(self.indices.get(u,set())))
-                    lista = self.indices.get(lar,set()).copy()
-                    z.discard(lar)
-                else:
-                    lista = self.listaclaus.copy()
-            while len(lista)>N and len(z)>M :
-                lar = max(z,key = lambda u: len(self.indices.get(u,set())))
-                lista.intersection_update(self.indices.get(lar,set()))
-                z.discard(lar)
-            if len(lista)<=N:
-                    for cl in lista:
-                        if(len(cl) < len(x)):
-                            cl1 = cl
-                            cl2 = x
-                        else:
-                            cl1 = x
-                            cl2 = cl
-                            dif = set(cl1 - cl2)
-                            if not dif:
-                                if cl2 == x:
-                                    insert = False
-                                    break
-                                else:
-                                    bor.append(cl)
-                            elif len(dif)==1:
-                                var = dif.pop()
-                                if -var in cl2:
-                                    ncl = frozenset(cl2 - {-var})
-                                    h.append(ncl)
-                                    if not ncl:
-                                        self.solved = True
-                                        self.contradict = True
-                                    if cl2 == x:
-                                        insert = False
-                                        break
-                                    else:
-                                        bor.append(cl2)
-                                
-            else:
-                for p in z:
-                    y = set(z)-{p}
-                    if y:
-                        lista2 = lista.copy()
-                        for q in y:
-                            if q in self.indices and len(lista2)>0:
-                                lista2.intersection_update(self.indices[q])
-                            else:
-                                lista2 = set()
-                                break
-
-                        if (len(lista2)>0) and p in self.indices:
-                           lista1 = lista2.intersection(self.indices[p])
-                           for cl in lista1:
-                               bor.append(cl)
-#                               if cl == test:
-#                                   print("aqui borro incluido",x,p)
-                        if (len(lista)>0) and -p in self.indices:
-                           lista1 = lista2.intersection(self.indices[-p])
-                           for cl in lista1:
-                               bor.append(cl) 
-#                               if cl == test:
-#                                   print("aqui borro",p,x, "añado " ,frozenset(cl - {-p}))
-                               ncl = frozenset(cl - {-p})
-                               h.append(ncl)
-                               if not ncl:
-                                   self.solved = True
-                                   self.contradict = True
-                                   self.inserts(x)
-
-                                   return []
-                        
-                               
-                               
-                               
-               
-            for cl in bor:
-#                if cl == test:
-#                    print("aqui borro",x)
-#                print("borro",cl,len(self.listaclaus))
-                self.eliminar(cl)
-                
-            if insert:
-                self.inserts(x)
-
-            return h
-        else:
-            return []
-                    
-                    
-    def insertaborraypodarec(self,x,  insert=True , M=3, N=10):
-        if self.contradict:
-            return []
-
-        bor = []
-        h = []
-#        print("inserto x",x) 
-        if x not in self.listaclaus:
-            if len(self.listaclaus)<= N:
-                lista = self.listaclaus.copy()
-            else: 
-                z = set(x)
-
-                if len(z)>M:
-                    lar = max(z,key = lambda u: len(self.indices.get(u,set())))
-                    lista = self.indices.get(lar,set()).copy()
-                    z.discard(lar)
-                else:
-                    lista = self.listaclaus.copy()
-            while len(lista)>N and len(z)>M :
-                lar = max(z,key = lambda u: len(self.indices.get(u,set())))
-                lista.intersection_update(self.indices.get(lar,set()))
-                z.discard(lar)
-            if len(lista)<=N:
-                    for cl in lista:
-                        if(len(cl) < len(x)):
-                            cl1 = cl
-                            cl2 = x
-                        else:
-                            cl1 = x
-                            cl2 = cl
-                            dif = set(cl1 - cl2)
-                            if not dif:
-                                if cl2 == x:
-                                    insert = False
-                                    break
-                                else:
-                                    bor.append(cl)
-                            elif len(dif)==1:
-                                var = dif.pop()
-                                if -var in cl2:
-                                    ncl = frozenset(cl2 - {-var})
-                                    h.append(ncl)
-                                    if not ncl:
-                                        self.solved = True
-                                        self.contradict = True
-                                    if cl2 == x:
-                                        insert = False
-                                        break
-                                    else:
-                                        bor.append(cl2)
-                                
-            else:
-                for p in z:
-                    y = set(z)-{p}
-                    if y:
-                        lista2 = lista.copy()
-                        for q in y:
-                            if q in self.indices and len(lista2)>0:
-                                lista2.intersection_update(self.indices[q])
-                            else:
-                                lista2 = set()
-                                break
-
-                        if (len(lista2)>0) and p in self.indices:
-                           lista1 = lista2.intersection(self.indices[p])
-                           for cl in lista1:
-                               bor.append(cl)
-#                               if cl == test:
-#                                   print("aqui borro incluido",x,p)
-                        if (len(lista)>0) and -p in self.indices:
-                           lista1 = lista2.intersection(self.indices[-p])
-                           for cl in lista1:
-                               bor.append(cl) 
-#                               if cl == test:
-#                                   print("aqui borro",p,x, "añado " ,frozenset(cl - {-p}))
-                               ncl = frozenset(cl - {-p})
-                               h.append(ncl)
-                               if not ncl:
-                                   self.solved = True
-                                   self.contradict = True
-                                   self.inserts(x)
-
-                                   return []
-                        
-                               
-                               
-                               
-               
-            for cl in bor:
-#                if cl == test:
-#                    print("aqui borro",x)
-#                print("borro",cl,len(self.listaclaus))
-                self.eliminar(cl)
-                
-            if insert:
-                self.inserts(x)
-
-            for cl in h:
-                self.insertaborraypodarec(cl)
-        else:
-            return []
-                                    
-    def insertasatura(self,cl,var):
-        if cl in self.listaclaus:
-            return []
-        cola = []
-        self.inserts(cl)
-        if -var in cl:
-            ivar = var
-        else:
-            ivar = -var
-        
-        borrar = []
-        if ivar in self.indices:
-            for cl2 in self.indices[ivar]:
-                clr = resolution(var,cl,cl2)
-                if 0 not in clr:
-                    cola.append(clr)
-
-        return cola
-
-
-    
-
-    def podacola(self,x):
-        if self.contradict:
-            return
-        cola = []
-        bor = []
-#        print("inserto x",x) 
-        for p in x:
-               y = set(x)-{p}
-               if y:
-                   l = y.pop()
-                   lista = self.indices.get(l,set()).copy()
-                   for q in y:
-                       if q in self.indices and len(lista)>0:
-                           lista.intersection_update(self.indices[q])
-                       else:
-                           lista = set()
-                           break
-
-                   if (len(lista)>0) and p in self.indices:
-                           lista1 = lista.intersection(self.indices[p])
-                           for cl in lista1:
-                               bor.append(cl)
-#                               if cl == test:
-#                                   print("aqui borro incluido",x,p)
-                   if (len(lista)>0) and -p in self.indices:
-                           lista1 = lista.intersection(self.indices[-p])
-                           for cl in lista1:
-                               bor.append(cl) 
-#                               if cl == test:
-#                                   print("aqui borro",p,x, "añado " ,frozenset(cl - {-p}))
-                               ncl = frozenset(cl - {-p})
-                               cola.append(ncl)
- 
-                               
-                               
-                               
- 
-        for cl in bor:
-#                if cl == test:
-#                    print("aqui borro",x)
-#                print("borro",cl,len(self.listaclaus))
-                self.eliminar(cl)
-                
-        return cola
-            
-      
-
-   
-    
-            
-    def borraincluidas(self,x):
-        if len(x)==0:
-            self.listaclaus = set()
-            self.indices = dict()
-            self.contradict = True
-            self.solved = True
-            return True
-        else:
-            y = list(x)
-            z = y[0]
-            if z in self.indices:
-                inter = self.indices[z].copy()
-                for i in range(1,len(y)):
-                    z = y[i]
-                    if z in self.indices:
-                        inter.intersection_update( self.indices[z] )
-                    else:
-                        return False
-            else:
-                return False
-            if (len(inter)>0):
-                for z in inter:
-#                    print ("borrando", z)
-                    self.eliminar(z)
-                    return True
-            else:
-                return False
-                
-
- 
-                
    
             
         
@@ -583,17 +171,19 @@ class simpleClausulas:
     def anula(self):
         self.listaclaus.clear()
         self.listavar.clear()
-        self.indices.clear()
         self.unitprev.clear()
 
 
          
     
     def eliminar(self,x):
-        self.listaclaus.remove(x)
-        for y in x:
-            if y in self.indices:
-                self.indices[y].discard(x)
+        try:
+            self.listaclaus.remove(x)
+        except:
+            ValueError
+
+
+        
                 
     def eliminalista(self,x):
         for y in x:
@@ -602,18 +192,6 @@ class simpleClausulas:
             
    
 
-
-    
-        
-            
-    
-    
-    
-    
-    
-                
-                
-    
         
     def podaylimpia(self):
         inicial = len(self.listaclaus)
@@ -640,21 +218,90 @@ class simpleClausulas:
                     var = claudif.pop()
                     if -var in clau2:
                         clau2.dicard(-var)
-                        self.indices[-var].discard(clau2)
+                        y.append(clau2)
         
         for clau in borr:
             self.eliminar(clau)
         
-        for clau in y:
+        while y:
 #            print("original ibp",clau,len(self.listaclaus))
-            self.insertaborraypodarec(clau)
+            clau = y.pop()
+            y = self.podacola(clau)
 #            print("original ibp",clau,len(self.listaclaus))
 
        
+    def insertar(self,x):
+        if not x:
+            self.anula
+            self.contradict= True
+            self.listaclaus.append(set())
+            return []
+        y = []
+        borr = []
+        for cl in self.listaclaus:
+            if not x == cl:
+                if len(x) < len(cl):
+                    claudif = x-cl
+                    if not claudif:
+                        borr.append(cl)
+                    elif len(claudif) == 1:
+                        var = claudif.pop()
+                        if -var in cl:
+                            cl.discard(-var)
+                            y.append(cl)
+                else:
+                    claudif = cl-x
+                    if not claudif:
+                        return []
+                    elif len(claudif) == 1:
+                        var = claudif.pop()
+                        if -var in x:
+                            x.discard(-var)
+                            for cl in borr:
+                                self.eliminar(cl)
+                            self.insertar(x)
+                            return []
+        for cl in borr:
+            self.eliminar(cl)
+        nvar = set(map(abs,cl))
+        self.listavar.update(nvar)
+        self.listaclaus.append(x)
+        while y:
+            cl = y.pop()
+            y = y + self.podacola(cl)
 
-    
+    def combina(self,conj):
+        for cl in conj.listaclaus:
+            self.insertar(cl)
    
-    
+    def podacola(self,x):
+        y = []
+        borr = []
+        for cl in self.listaclaus:
+            if not x == cl:
+                if len(x) < len(cl):
+                    claudif = x-cl
+                    if not claudif:
+                        borr.append(cl)
+                    elif len(claudif) == 1:
+                        var = claudif.pop()
+                        if -var in cl:
+                            cl.discard(-var)
+                            y.append(cl)
+                else:
+                    claudif = cl-x
+                    if not claudif:
+                        return []
+                    elif len(claudif) == 1:
+                        var = claudif.pop()
+                        if -var in x:
+                            x.discard(-var)
+                            for cl in borr:
+                                self.eliminar(cl)
+                            return self.podacola(x)
+        for cl in borr:
+            self.eliminar(cl)
+        return y
     
     
     
