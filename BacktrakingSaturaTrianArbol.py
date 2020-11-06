@@ -13,11 +13,12 @@ import networkx as nx
 
 from random import *
               
-from GlobalClausulasSimple import *
-from ProblemaTrian import *
-from comunes import *
+from SimpleClausulas import *
+from ProblemaTrianArbol import *
+from GlobalClausulasSimple import * 
 
-from queue import PriorityQueue
+
+#  from queue import PriorityQueue
 
 #from arbolpot import *
 #
@@ -172,9 +173,9 @@ def main(prob):
 
   
         
-        listapot = prob.inicia4()     
+        prob.inicia0()     
 
-        prob.borra4(listapot)
+        prob.borra()
 
         # prob.inicia()
         
@@ -183,9 +184,7 @@ def main(prob):
 
         # config = prob.busca()
                      
-        print(prob.inicial.solved, prob.inicial.contradict, config)
-                        
-        prob.inicial.compruebasol2(config)
+        
         
         
         

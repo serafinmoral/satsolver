@@ -172,11 +172,14 @@ def main(prob):
 
   
         
-             
-        prob.inicia()
+        listapot = prob.inicia2()     
+
+        prob.borra4(listapot)
+
+        # prob.inicia()
         
         print("salgo de inicio")
-        prob.borra2()
+        # prob.borra()
 
         # config = prob.busca()
                      

@@ -102,7 +102,13 @@ class arboltriple:
         self.hijos = [None,None,None]
         self.contradict = False
     
-        
+    def anula(self):
+        self.var = 0
+        x = simpleClausulas()
+        x.insertar(set())
+        self.value = x
+        self.hijos = [None,None,None]
+
     def asignavar(self,p):
         self.var = p
         self.value = None
@@ -145,8 +151,33 @@ class arboltriple:
         
     
         
-    def select0(self,var):
+    def noesta(self,cl):
+        if self.var==0:
+            return self.value.noesta(cl)
+        else:
+            v = self.var
+            if v in cl:
+                return self.hijos[0].noesta(cl - {v}) or self.hijos[2].noesta(cl)
+            elif -v in cl:
+                return self.hijos[1].noesta(cl - {-v}) or self.hijos[2].noesta(cl)
+            else:
+                return self.hijos[2].noesta(cl)
 
+
+    def insertaclau(self,cl,tres = False):
+        if self.var == 0:
+            self.value.insertar(cl)
+        else:
+            v = self.var
+            if v in cl:
+                self.hijos[0].insertaclau(self,cl.discard(v),tres)
+            elif -v in cl:
+                self.hijos[1].insertaclau(self,cl.discard(-v),tres)
+            elif tres:
+                self.hijos[2].insertaclau(self,cl,tres)
+            else:
+                self.hijos[0].insertaclau(self,cl,tres)
+                self.hijos[1].insertaclau(self,cl.copy(),tres)
 
                 
         

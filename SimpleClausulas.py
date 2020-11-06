@@ -263,7 +263,7 @@ class simpleClausulas:
                             return []
         for cl in borr:
             self.eliminar(cl)
-        nvar = set(map(abs,cl))
+        nvar = set(map(abs,x))
         self.listavar.update(nvar)
         self.listaclaus.append(x)
         while y:
@@ -304,5 +304,31 @@ class simpleClausulas:
         return y
     
     
-    
+    def noesta(self,x):
+        y = []
+        borr = []
+        for cl in self.listaclaus:
+            if not x == cl:
+                if len(x) < len(cl):
+                    claudif = x-cl
+                    if not claudif:
+                        borr.append(cl)
+                    elif len(claudif) == 1:
+                        var = claudif.pop()
+                        if -var in cl:
+                            cl.discard(-var)
+                            y.append(cl)
+                else:
+                    claudif = cl-x
+                    if not claudif:
+                        return []
+                    elif len(claudif) == 1:
+                        var = claudif.pop()
+                        if -var in x:
+                            x.discard(-var)
+                            for cl in borr:
+                                self.eliminar(cl)
+                            self.insertar(x)
+                            return []
+        
   
