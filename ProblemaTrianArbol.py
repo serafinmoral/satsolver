@@ -217,36 +217,22 @@ class problemaTrianArbol:
 
             pot.simplifica(pot2)
 
+            pot.normaliza3()
 
-            l1 = pot.indices.get(var,set())
-            l2 = pot.indices.get(-var,set())
-
-            lp1 = pot2.indices.get(var,set())
-            lp2 = pot2.indices.get(-var,set())
+            (t0,t1,t2) = pot.splitborra(var)
+            (h0,h1,h3) = pot2.splitborra(var)
             
+            res1 = t0.combinaborra(t1)
+            res2 = t0.combinaborra(h1)
+            res3 = t1.combinaborra(h0)
+
+
+
 
             npot = arboltriple()
-            for cl1 in l1:
-                for cl2 in l2:
-                    cl = resolution(var,cl1,cl2)
-                    if 0 not in cl:
-                        npot.insertar(cl)
-            for cl1 in l1:
-                for cl2 in lp2:
-                    cl = resolution(var,cl1,cl2)
-                    if 0 not in cl:
-                        npot.insertar(cl)
+            
 
-            for cl1 in lp1:
-                for cl2 in l2:
-                    cl = resolution(var,cl1,cl2)
-                    if 0 not in cl:
-                        npot.insertar(cl)
-
-            for cl1 in l1:
-                pot2.insertar(cl1)
-            for cl2 in l2:
-                pot2.insertar(cl2)
+            
 
                 
             pot.anula()

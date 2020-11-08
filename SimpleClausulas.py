@@ -194,7 +194,6 @@ class simpleClausulas:
 
         
     def podaylimpia(self):
-        inicial = len(self.listaclaus)
         y = []
         borr = []
         # print("entro en poda 2", len(self.listaclaus))
@@ -229,6 +228,10 @@ class simpleClausulas:
             y = self.podacola(clau)
 #            print("original ibp",clau,len(self.listaclaus))
 
+    def insertars(self,x):
+        nvar = set(map(abs,x))
+        self.listavar.update(nvar)
+        self.listaclaus.append(x)
        
     def insertar(self,x):
         if not x:
@@ -273,6 +276,11 @@ class simpleClausulas:
     def combina(self,conj):
         for cl in conj.listaclaus:
             self.insertar(cl)
+
+    def advalue(self,v):
+        self.listavar.add(v)
+        for cl in self.listaclaus:
+            cl.add(v)
    
     def podacola(self,x):
         y = []
@@ -302,6 +310,26 @@ class simpleClausulas:
         for cl in borr:
             self.eliminar(cl)
         return y
+
+    def simplificaconfig(self,ref,config):
+        borrar = []
+        for cl1 in self.listaclaus:
+            cl = config.union(cl1)
+            for cl2 in ref.listaclaus:
+                if len(cl2) <= len(cl):
+                    claudif = cl2-cl
+                    if not claudif:
+                        borrar.append(cl1)
+                        break
+                    elif len(claudif)==1:
+                        var = claudif.pop()
+                        if -var in cl1:
+                            cl1.discard(-var)
+                            if not cl1:
+                                self.insertar(set())
+                                break
+        for cl in borrar:
+            self.eliminar(cl)
     
     
     def noesta(self,x):
@@ -330,5 +358,44 @@ class simpleClausulas:
                                 self.eliminar(cl)
                             self.insertar(x)
                             return []
+
+    def splitborra(self,v):
+        s1 = simpleClausulas()
+        s2 = simpleClausulas()
+        s3 = simpleClausulas()
+        if not v in self.listavar:
+            for cl in self.listaclaus:
+                s3.insertars(cl)
+        else:
+            for cl in self.listaclaus:
+                if v in cl:
+                    s1.insertars(cl.discar(v))
+                elif -v in cl:
+                    s2.insertars(cl.discard(-v))
+                else: 
+                    s3.insertars(cl)
+        return (s1,s2,s3)
+
+    def sel(self,v):
+        result = simpleClausulas()
+        for cl in self.listaclaus:
+            if v in  cl:
+                result.insertar(cl-{v})
+            elif not -v in cl:
+                result.insertar(cl)
+
+
+
+    def combinaborra(self,conj):
+        res = simpleClausulas()
+        for cl in self.listaclaus:
+            for cl2 in conj.listaclaus:
+                cpn = set(map(lambda x: -x, cl))
+                if not cpn.intersection(cl2):
+                    r = cl.union(cl2)
+                    res.insertar(r)
+        return res
+
+
         
   

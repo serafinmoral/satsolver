@@ -180,7 +180,171 @@ class arboltriple:
                 self.hijos[1].insertaclau(self,cl.copy(),tres)
 
                 
+    def simplifica(self, refarbol, config = set()):
+        if self.var == 0:
+            if refarbol.var == 0:
+                    self.value.simplificaconfig(refarbol.value,config)
+            else:
+                v = refarbol.var
+                if v in config:
+                    config.discar(v)
+                    self.simplifica(refarbol.hijos[0],config)
+                    config.add(v)
+                elif -v in config:
+                    config.discar(-v)    
+                    self.simplifica(refarbol.hijos[1],config)
+                    config.add(-v)
+                self.simplifica(refarbol.hijos[2],config)
+        else:
+            v = self.var
+            config.add(v)
+            self.simplifica(refarbol.hijos[0], config)
+            config.discard(v)
+            config.add(-v)
+            self.simplifica(refarbol.hijos[1], config)
+            config.discard(-v)
+            self.simplifica(refarbol.hijos[2], config)
+
+
+
+    def normaliza(self,N=300):
+        if self.var == 0:
+            if len(self.value.listaclaus) > N:
+                x = self.value.listaclaus
+                var = calculavar(x)    
+                (l0,l1) = split(x,var)
+                h0 = computefromLista(l0,N)
+                h1 = computefromLista(l1,N)
+                h2 = arboltriple()
+
+                self.asignavarhijos(var,h0,h1,h2)
+        else:
+            self.hijos[0].normaliza(N)   
+            self.hijos[1].normaliza(N)
+            if self.hijos[0].var == 0 and self.hijos[1].var == 0 and \
+                 (len(self.hijos[0].value.listaclaus) + len(self.hijos[1].value.listaclaus))<=N:
+                v = self.var
+                s1 = self.hijos[0].value.add(v)
+                s2 = self.hijos[1].value.add(v)
+
+                self.asignaval(  s1.combina(s2)  )
+
+    def normaliza3(self,N=300):
+        if self.var == 0:
+            if len(self.value.listaclaus) > N:
+                x = self.value.listaclaus
+                var = calculavar(x)    
+                (l0,l1,l2) = split3(x,var)
+                h0 = computefromLista(l0,N)
+                h1 = computefromLista(l1,N)
+                h2 = computefromLista(l2,N)
+
+                self.asignavarhijos(var,h0,h1,h2)
+        else:
+            self.hijos[0].normaliza(N)
+            self.hijos[1].normaliza(N)
+            self.hijos[2].normaliza(N)
+
+            if self.hijos[2].var == 0 and self.hijos[2].value.contradict:
+                h = arboltriple()
+                h.insertaclau(set())
+                self.asignaval(h)
+
+            elif self.hijos[0].var == 0 and self.hijos[1].var == 0 and \
+                self.hijos[2].var == 0 and (len(self.hijos[0].value.listaclaus) + 
+                len(self.hijos[1].value.listaclaus) +  len(self.hijos[2].value.listaclaus)  )<=N:
+                s1 = self.hijos[0].value.addvalue(v)
+                s2 = self.hijos[1].value.addvalue(-v)
+                self.asignaval(  s1.combina(s2).combina(self.hijos[2].value) )
+
+
+    def splitborra(self,v):
+        if self.var == 0:
+            (s0,s1,s2) = self.value.splitborra(v)
+            t0 = arboltriple()
+            t1 = arboltriple()
+            t2 = arboltriple()
+            t0.asignaval(s0)
+            t1.asignaval(s1)
+            t2.asignaval(s2)
+            return(t0,t1,t2)
+        else:
+            nv = self.var
+            if (nv==v):
+                return (self.hijos[0],self.hijos[1],self.hijos[2]   )
+            else:
+                (t00, t01,t02) = self.hijos[0].splitborra(v)
+                (t10, t11,t12) = self.hijos[1].splitborra(v)
+                (t20, t21,t22) = self.hijos[2].splitborra(v)
+                t0 = arboltriple()
+                t1 = arboltriple()
+                t2 = arboltriple()
+                t0.asignavarhijos(nv,t00,t10,t20)
+                t1.asignavarhijos(nv,t01,t11,t21)
+                t2.asignavarhijos(nv,t02,t12,t22)
+                return(t0,t1,t2)
+
+
+    def combinaborra(self,t,conf = set()):
+        if self.var == 0:
+            if t.var == 0:
+                if not conf:
+                    prod = self.value.combinaborra(t.value)
+                else:
+                    h = conf.pop()
+                    if h>0:
+                        vali = t.value.sel(h)
+                        tn = arboltriple()
+                        tn.asignaval(vali)
+                        r0 = self.combinaborra(tn,conf)
+                        r1 = arboltriple()
+                        r2 = arboltriple()
+                        res = arboltriple)()
+                        res.anula(abs(h),r0,r1,r2)
+                        return res
+                    elif h<0:
+                        vali = t.value.sel(h)
+                        tn = arboltriple()
+                        tn.asignaval(vali)
+                        r1 = self.combinaborra(tn,conf)
+                        r2 = arboltriple()
+                        r0 = arboltriple()
+                        res = arboltriple)()
+                        res.anula(abs(h),r0,r1,r2)
+                        return res
+
+            else:
+                v = t.var
+                if v in conf:
+                    r0 = self.combinaborra(t.hijos[0],conf.discard(v))
+                    # r2 = self.combinaborra(t.hijos[2],conf)
+                    return r0
+
+                elif -v in conf:
+                    r1 = self.combinaborra(t.hijos[1],conf.discard(-v))
+                    # r2 = self.combinaborra(t.hijos[2],conf)
+                    return r1
+                else:
+                    r0 = self.combinaborra(t.hijos[0],conf)
+                    r1 = self.combinaborra(t.hijos[1],conf.copy())
+                    r2 = arboltriple()
+                    res = arboltriple()
+                    res.asignavarhijos(v,r0,r1,r2)
+                    return res
+        else:
+            res = arboltriple()
+            v = self.var
+            r0 = self.hijos[0].combinaborra(t,conf.add(v))
+            r1 = self.hijos[1].combinaborra(t,conf.add(-v))
+            r2 = self.hijos[2].combinaborra(t,conf)
+            res.asignavarhijos(v,r0,r1,r2)
+            return res
+
+
+
         
+
+
  
             
     
