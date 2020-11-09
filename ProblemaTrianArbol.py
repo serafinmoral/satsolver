@@ -148,15 +148,25 @@ class problemaTrianArbol:
             pot = self.lqueue[pos]
             pot.insertaclau(cl)
 
-    def insertacola(self,t,conf=set())
+    def insertacola(self,t,conf=set()):
         if t.var == 0:
+            if len(t.value.listaclaus)>0:
+                indices = map(lambda x:self.posvar[abs(x)],conf.union(t.value.listavar))
+                pos = min (indices) 
+                pot = self.lqueue[pos]
+                pot.inserta3(t,conf)          
 
 
         else:
             v = t.var
             conf.add(v)
-            self.insertacola()
-    
+            self.insertacola(t.hijos[0],conf)
+            conf.discard(v)
+            conf.add(-v)
+            self.insertacola(t.hijos[1],conf)
+            conf.discard(-v)
+            self.insertacola(t.hijos[2],conf)
+
                 
     def tinserta(self,cl,pos=-1):
 #    print(cl)
@@ -215,7 +225,7 @@ class problemaTrianArbol:
         print(len(self.orden))
         for i in range(len(self.orden)):
             var = self.orden[i]
-            # print("i= ", i, "var = ", self.orden[i], " n. peq. ", len(self.peq[i].listaclaus),self.peq[i].listaclaus)
+            print("i= ", i, "var = ", self.orden[i])
      
             pot = self.lqueue[i]
             pot2 = self.lpot[i]
@@ -244,7 +254,7 @@ class problemaTrianArbol:
 
 
 
-            res1.imprime()
+            # res1.imprime()
 
             arb0 = t0 
             arb1 = arboltriple()
@@ -275,19 +285,7 @@ class problemaTrianArbol:
 
             self.insertacola(res1)
 
-            if npot.solved:
-                self.inicial.solved = True
-                self.inicial.contradict = self.inicial.contradict
-                break
-            if len(npot.listaclaus)>0 :
-                print("longitud ", len(npot.listaclaus), npot.listavar , len(npot.listavar))
- 
-            npot.podaylimpiarec()
-            if len(npot.listaclaus)>0 :
-                print("longitud ", len(npot.listaclaus))
-
-            for cl in npot.listaclaus:
-                self.insertaypodacola(cl)
+        
 
     def borra2(self):
 

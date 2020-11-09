@@ -10,6 +10,8 @@ import math
 from SimpleClausulas import * 
 
 def calculavar(lista):
+    print(len(lista))
+    # print(lista)
     cuenta = dict()
     for cl in lista:
         vars = map(abs,cl)
@@ -210,12 +212,12 @@ class arboltriple:
         else:
             v = self.var
             config.add(v)
-            self.simplifica(refarbol.hijos[0], config)
+            self.hijos[0].simplifica(refarbol, config)
             config.discard(v)
             config.add(-v)
-            self.simplifica(refarbol.hijos[1], config)
+            self.hijos[1].simplifica(refarbol, config)
             config.discard(-v)
-            self.simplifica(refarbol.hijos[2], config)
+            self.hijos[2].simplifica(refarbol, config)
 
 
 
@@ -236,8 +238,10 @@ class arboltriple:
             if self.hijos[0].var == 0 and self.hijos[1].var == 0 and \
                  (len(self.hijos[0].value.listaclaus) + len(self.hijos[1].value.listaclaus))<=N:
                 v = self.var
-                s1 = self.hijos[0].value.add(v)
-                s2 = self.hijos[1].value.add(v)
+                self.hijos[0].value.add(v)
+                self.hijos[1].value.add(v)
+                s1 = self.hijos[0]
+                s2 = self.hijos[1]
 
                 self.asignaval(  s1.combina(s2)  )
 
@@ -253,21 +257,26 @@ class arboltriple:
 
                 self.asignavarhijos(var,h0,h1,h2)
         else:
-            self.hijos[0].normaliza(N)
-            self.hijos[1].normaliza(N)
-            self.hijos[2].normaliza(N)
+            self.hijos[0].normaliza3(N)
+            self.hijos[1].normaliza3(N)
+            self.hijos[2].normaliza3(N)
 
             if self.hijos[2].var == 0 and self.hijos[2].value.contradict:
-                h = arboltriple()
-                h.insertaclau(set())
+                h = simpleClausulas()
+                h.insertar(set())
                 self.asignaval(h)
 
             elif self.hijos[0].var == 0 and self.hijos[1].var == 0 and \
                 self.hijos[2].var == 0 and (len(self.hijos[0].value.listaclaus) + 
                 len(self.hijos[1].value.listaclaus) +  len(self.hijos[2].value.listaclaus)  )<=N:
-                s1 = self.hijos[0].value.addvalue(v)
-                s2 = self.hijos[1].value.addvalue(-v)
-                self.asignaval(  s1.combina(s2).combina(self.hijos[2].value) )
+                v = self.var
+                self.hijos[0].value.advalue(v)
+                self.hijos[1].value.advalue(-v)
+                s1 = self.hijos[0].value
+                s2 = self.hijos[1].value
+                s1.combina(s2)
+                s1.combina(self.hijos[2].value)
+                self.asignaval(  s1 )
 
 
     def splitborra(self,v,n=False):
@@ -334,12 +343,14 @@ class arboltriple:
             else:
                 v = t.var
                 if v in conf:
-                    r0 = self.combinaborra(t.hijos[0],conf.discard(v))
+                    conf.discard(v)
+                    r0 = self.combinaborra(t.hijos[0],conf)
                     # r2 = self.combinaborra(t.hijos[2],conf)
                     return r0
 
                 elif -v in conf:
-                    r1 = self.combinaborra(t.hijos[1],conf.discard(-v))
+                    conf.discard(-v)
+                    r1 = self.combinaborra(t.hijos[1],conf)
                     # r2 = self.combinaborra(t.hijos[2],conf)
                     return r1
                 else:
@@ -352,8 +363,10 @@ class arboltriple:
         else:
             res = arboltriple()
             v = self.var
-            r0 = self.hijos[0].combinaborra(t,conf.add(v))
-            r1 = self.hijos[1].combinaborra(t,conf.add(-v))
+            conf.add(v)
+            r0 = self.hijos[0].combinaborra(t,conf)
+            conf.add(-v)
+            r1 = self.hijos[1].combinaborra(t,conf)
             r2 = self.hijos[2].combinaborra(t,conf)
             res.asignavarhijos(v,r0,r1,r2)
             return res

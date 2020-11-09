@@ -242,7 +242,9 @@ class simpleClausulas:
         y = []
         borr = []
         for cl in self.listaclaus:
-            if not x == cl:
+            if x == cl:
+                return
+            else:
                 if len(x) < len(cl):
                     claudif = x-cl
                     if not claudif:
@@ -399,6 +401,7 @@ class simpleClausulas:
                 result.insertar(cl-{v})
             elif not -v in cl:
                 result.insertar(cl)
+        return result
 
     def selconf(self,conf):
         res = simpleClausulas()
