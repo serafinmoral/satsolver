@@ -149,8 +149,20 @@ class arboltriple:
             self.hijos[2].imprime()
         
         
-    
-        
+    def copia(self):
+        res = arboltriple()
+
+        if self.var == 0:
+            res.asignaval(self.value.copia())
+
+        else:
+            v = self.var
+            h0 = self.hijos[0].copia()
+            h1 = self.hijos[1].copia()
+            h2 = self.hijos[2].copia()
+            res.asignavarhijos(v,h0,h1,h2)
+
+        return res
     def noesta(self,cl):
         if self.var==0:
             return self.value.noesta(cl)
@@ -258,9 +270,9 @@ class arboltriple:
                 self.asignaval(  s1.combina(s2).combina(self.hijos[2].value) )
 
 
-    def splitborra(self,v):
+    def splitborra(self,v,n=False):
         if self.var == 0:
-            (s0,s1,s2) = self.value.splitborra(v)
+            (s0,s1,s2) = self.value.splitborra(v,n)
             t0 = arboltriple()
             t1 = arboltriple()
             t2 = arboltriple()
@@ -284,12 +296,18 @@ class arboltriple:
                 t2.asignavarhijos(nv,t02,t12,t22)
                 return(t0,t1,t2)
 
+    
+
 
     def combinaborra(self,t,conf = set()):
         if self.var == 0:
             if t.var == 0:
                 if not conf:
                     prod = self.value.combinaborra(t.value)
+                    res = arboltriple()
+                    res.asignaval(prod)
+                    res.normaliza3()
+                    return res
                 else:
                     h = conf.pop()
                     if h>0:
@@ -299,8 +317,8 @@ class arboltriple:
                         r0 = self.combinaborra(tn,conf)
                         r1 = arboltriple()
                         r2 = arboltriple()
-                        res = arboltriple)()
-                        res.anula(abs(h),r0,r1,r2)
+                        res = arboltriple()
+                        res.asignavarhijos(abs(h),r0,r1,r2)
                         return res
                     elif h<0:
                         vali = t.value.sel(h)
@@ -309,8 +327,8 @@ class arboltriple:
                         r1 = self.combinaborra(tn,conf)
                         r2 = arboltriple()
                         r0 = arboltriple()
-                        res = arboltriple)()
-                        res.anula(abs(h),r0,r1,r2)
+                        res = arboltriple()
+                        res.asignavarhijos(abs(h),r0,r1,r2)
                         return res
 
             else:
@@ -343,10 +361,46 @@ class arboltriple:
 
 
         
+    def combina3(self,t):
+        res = t.copia()
+        h = self.copia()
+        h.inserta3(t)
+        return res
 
 
- 
-            
+
+    def inserta3(self,t,conf= set()):
+        if self.var == 0:
+            if t.var == 0:
+                self.value.adconfig(conf)
+                for cl in self.value.listaclaus:
+                    t.value.insertar(cl)
+                t.normaliza3()
+            else:
+                v = t.var
+                if v in conf:
+                    conf.discard(v)
+                    self.inserta3(t.hijos[0],conf)
+                elif -v in conf:
+                    conf.discard(-v)
+                    self.inserta3(t.hijos[1],conf)
+                else:
+                    (l0,l1,l2) = self.splitborra(v)
+                    l0.inserta3(t.hijos[0],conf)
+                    l1.inserta3(t.hijos[1],conf)
+                    l2.inserta3(t.hijos[2],conf)
+
+
+
+        else:
+            v = self.var
+            conf.add(v)
+            self.hijos[0].inserta3(t,conf)
+            conf.discard(v)
+            conf.add(-v)
+            self.hijos[1].inserta3(t,conf)
+            conf.discard(-v)
+            self.hijos[2].inserta3(t,conf)
     
         
  

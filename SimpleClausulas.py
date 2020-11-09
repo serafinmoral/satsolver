@@ -143,7 +143,7 @@ class simpleClausulas:
       
       
       for x in self.listaclaus:
-          nuevo.insertar(x)
+          nuevo.insertar(x.copy())
           
       return nuevo
 
@@ -281,6 +281,11 @@ class simpleClausulas:
         self.listavar.add(v)
         for cl in self.listaclaus:
             cl.add(v)
+
+    def adconfig(self,conf):
+        self.listavar.update(conf)
+        for cl in self.listaclaus:
+             cl.update(conf)
    
     def podacola(self,x):
         y = []
@@ -359,7 +364,7 @@ class simpleClausulas:
                             self.insertar(x)
                             return []
 
-    def splitborra(self,v):
+    def splitborra(self,v,n=False):
         s1 = simpleClausulas()
         s2 = simpleClausulas()
         s3 = simpleClausulas()
@@ -369,10 +374,21 @@ class simpleClausulas:
         else:
             for cl in self.listaclaus:
                 if v in cl:
-                    s1.insertars(cl.discar(v))
+                    if n:
+                        cl = cl - {v}
+                    else:
+                        cl.discard(v)
+                    
+                    s1.insertars(cl)
                 elif -v in cl:
-                    s2.insertars(cl.discard(-v))
+                    if n:
+                        cl = cl - {-v}
+                    else:
+                        cl.discard(-v)
+                    s2.insertars(cl)
                 else: 
+                    if n:
+                        cl = cl.copy()
                     s3.insertars(cl)
         return (s1,s2,s3)
 
@@ -383,6 +399,15 @@ class simpleClausulas:
                 result.insertar(cl-{v})
             elif not -v in cl:
                 result.insertar(cl)
+
+    def selconf(self,conf):
+        res = simpleClausulas()
+        for cl in self.listaclaus:
+            if cl.intersection(conf):
+                x = cl - conf
+                res.insertar(x)
+        return res
+
 
 
 

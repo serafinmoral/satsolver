@@ -221,15 +221,20 @@ class problemaTrianArbol:
 
             (t0,t1,t2) = pot.splitborra(var)
             (h0,h1,h3) = pot2.splitborra(var)
+
             
             res1 = t0.combinaborra(t1)
             res2 = t0.combinaborra(h1)
             res3 = t1.combinaborra(h0)
 
+            res1.imprime()
+            res2.imprime()
+            res3.imprime()
 
+            res1.combina3(res2).combina3(res3)
 
+            res1.imprime()
 
-            npot = arboltriple()
             
 
             
