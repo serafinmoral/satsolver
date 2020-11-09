@@ -219,7 +219,7 @@ class arboltriple:
 
 
 
-    def normaliza(self,N=300):
+    def normaliza2(self,N=300):
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.listaclaus
@@ -364,46 +364,80 @@ class arboltriple:
     def combina3(self,t):
         res = t.copia()
         h = self.copia()
-        h.inserta3(t)
+        t.inserta3(h)
         return res
 
 
 
     def inserta3(self,t,conf= set()):
-        if self.var == 0:
-            if t.var == 0:
-                self.value.adconfig(conf)
-                for cl in self.value.listaclaus:
-                    t.value.insertar(cl)
-                t.normaliza3()
+        if t.var == 0:
+            if self.var == 0:
+                t.value.adconfig(conf)
+                for cl in t.value.listaclaus:
+                    self.value.insertar(cl)
+                self.normaliza3()
             else:
-                v = t.var
+                v = self.var
                 if v in conf:
                     conf.discard(v)
-                    self.inserta3(t.hijos[0],conf)
+                    self.hijos[0].inserta3(t,conf)
                 elif -v in conf:
                     conf.discard(-v)
-                    self.inserta3(t.hijos[1],conf)
+                    self.hijos[1].inserta3(t,conf)
                 else:
-                    (l0,l1,l2) = self.splitborra(v)
-                    l0.inserta3(t.hijos[0],conf)
-                    l1.inserta3(t.hijos[1],conf)
-                    l2.inserta3(t.hijos[2],conf)
+                    (l0,l1,l2) = t.splitborra(v)
+                    self.hijos[0].inserta3(l0,conf)
+                    self.hijos[1].inserta3(l1,conf)
+                    self.hijos[2].inserta3(l2,conf)
 
 
 
         else:
-            v = self.var
+            v = t.var
             conf.add(v)
-            self.hijos[0].inserta3(t,conf)
+            self.inserta3(t.hijos[0],conf)
             conf.discard(v)
             conf.add(-v)
-            self.hijos[1].inserta3(t,conf)
+            self.inserta3(t.hijos[1],conf)
             conf.discard(-v)
-            self.hijos[2].inserta3(t,conf)
+            self.inserta3(t.hijos[2],conf)
     
         
  
+    def inserta2(self,t,conf= set()):
+        if t.var == 0:
+            if self.var == 0:
+                t.value.adconfig(conf)
+                for cl in t.value.listaclaus:
+                    self.value.insertar(cl)
+                self.normaliza2()
+            else:
+                v = self.var
+                if v in conf:
+                    conf.discard(v)
+                    self.hijos[0].inserta2(t,conf)
+                elif -v in conf:
+                    conf.discard(-v)
+                    self.hijos[1].inserta2(t,conf)
+                else:
+                    (l0,l1,l2) = t.splitborra(v)
+                    self.hijos[0].inserta2(l0,conf)
+                    self.hijos[1].inserta2(l1,conf)
+                    self.hijos[0].inserta2(l2,conf)
+                    self.hijos[1].inserta2(l2.copia(),conf)
+
+
+
+
+        else:
+            v = t.var
+            conf.add(v)
+            self.inserta2(t.hijos[0],conf)
+            conf.discard(v)
+            conf.add(-v)
+            self.inserta2(t.hijos[1],conf)
+            conf.discard(-v)
+            self.inserta2(t.hijos[2],conf)
             
     
                 

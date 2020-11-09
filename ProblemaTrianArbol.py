@@ -148,7 +148,14 @@ class problemaTrianArbol:
             pot = self.lqueue[pos]
             pot.insertaclau(cl)
 
+    def insertacola(self,t,conf=set())
+        if t.var == 0:
 
+
+        else:
+            v = t.var
+            conf.add(v)
+            self.insertacola()
     
                 
     def tinserta(self,cl,pos=-1):
@@ -227,20 +234,47 @@ class problemaTrianArbol:
             res2 = t0.combinaborra(h1)
             res3 = t1.combinaborra(h0)
 
-            res1.imprime()
-            res2.imprime()
-            res3.imprime()
+            # res1.imprime()
+            # res2.imprime()
+            # res3.imprime()
 
             res1.combina3(res2).combina3(res3)
 
+            res1.combina3(t2)
+
+
+
             res1.imprime()
 
+            arb0 = t0 
+            arb1 = arboltriple()
+            arb2 = arboltriple()
+
+            nuevo = arboltriple()
+            nuevo.asignavarhijos(var,arb0,arb1,arb2)
+
+            # pot2.imprime()
+
+            pot2.inserta2(nuevo)
+            
+            # pot2.imprime()
+            arb0 = arboltriple() 
+            arb1 = t1
+            arb2 = arboltriple()
+
+            nuevo = arboltriple()
+            nuevo.asignavarhijos(var,arb0,arb1,arb2)
+
+            pot2.inserta2(nuevo)
+
+            # pot2.imprime()
             
 
             
-
-                
             pot.anula()
+
+            self.insertacola(res1)
+
             if npot.solved:
                 self.inicial.solved = True
                 self.inicial.contradict = self.inicial.contradict
