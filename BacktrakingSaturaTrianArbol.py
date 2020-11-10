@@ -235,7 +235,8 @@ while reader:
 
 
 
-#    problema.explora()
+#    problemcd ..
+# cd exita.explora()
 
     t4 = time()
     

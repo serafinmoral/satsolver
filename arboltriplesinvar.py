@@ -10,7 +10,7 @@ import math
 from SimpleClausulas import * 
 
 def calculavar(lista):
-    print(len(lista))
+    # print(len(lista))
     # print(lista)
     cuenta = dict()
     for cl in lista:
@@ -24,18 +24,18 @@ def calculavar(lista):
 
 
 def split(lista,var):
-    lista1 = []
-    lista2 = []
+    lista1 = simpleClausulas()
+    lista2 = simpleClausulas()
     for cl in lista:
         if var in cl:
             cl.discard(var)
-            lista1.append(cl)
+            lista1.insertar(cl)
         elif -var in cl:
             cl.discard(-var)
-            lista2.append(cl)
+            lista2.insertar(cl)
         else:
-            lista1.append(cl)
-            lista2.append(cl.copy())
+            lista1.insertar(cl)
+            lista2.insertar(cl.copy())
     return (lista1,lista2)
 
 
@@ -54,21 +54,19 @@ def split3(lista,var):
             lista3.append(cl)
     return (lista1,lista2,lista3)
 
-def computefromLista(x,N):
+def computefromSimple(x,N):
 
         result = arboltriple()
         
-        if len(x)<= N:
-            valor = simpleClausulas()
-            for cl in x:
-                valor.insertar(cl)
+        if len(x.listaclaus)<= N:
+            
 
-            result.asignaval(valor)
+            result.asignaval(x)
         else:
-            var = calculavar(x)    
-            (l0,l1) = split(x,var)
-            h0 = computefromLista(l0,N)
-            h1 = computefromLista(l1,N)
+            var = calculavar(x.listaclaus)    
+            (l0,l1) = split(x.listaclaus,var)
+            h0 = computefromSimple(l0,N)
+            h1 = computefromSimple(l1,N)
             h2 = arboltriple()
 
             result.asignavarhijos(var,h0,h1,h2)
@@ -88,9 +86,9 @@ def compute3fromLista(x,N):
         else:
             var = calculavar(x)    
             (l0,l1,l2) = split3(x,var)
-            h0 = computefromLista(l0,N)
-            h1 = computefromLista(l1,N)
-            h2 = computefromLista(l2,N)
+            h0 = compute3fromLista(l0,N)
+            h1 = compute3fromLista(l1,N)
+            h2 = compute3fromLista(l2,N)
 
             result.asignavarhijos(var,h0,h1,h2)
         
@@ -227,14 +225,14 @@ class arboltriple:
                 x = self.value.listaclaus
                 var = calculavar(x)    
                 (l0,l1) = split(x,var)
-                h0 = computefromLista(l0,N)
-                h1 = computefromLista(l1,N)
+                h0 = computefromSimple(l0,N)
+                h1 = computefromSimple(l1,N)
                 h2 = arboltriple()
 
                 self.asignavarhijos(var,h0,h1,h2)
         else:
-            self.hijos[0].normaliza(N)   
-            self.hijos[1].normaliza(N)
+            self.hijos[0].normaliza2(N)   
+            self.hijos[1].normaliza2(N)
             if self.hijos[0].var == 0 and self.hijos[1].var == 0 and \
                  (len(self.hijos[0].value.listaclaus) + len(self.hijos[1].value.listaclaus))<=N:
                 v = self.var
@@ -245,15 +243,15 @@ class arboltriple:
 
                 self.asignaval(  s1.combina(s2)  )
 
-    def normaliza3(self,N=300):
+    def normaliza3(self,N=10):
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.listaclaus
                 var = calculavar(x)    
                 (l0,l1,l2) = split3(x,var)
-                h0 = computefromLista(l0,N)
-                h1 = computefromLista(l1,N)
-                h2 = computefromLista(l2,N)
+                h0 = compute3fromLista(l0,N)
+                h1 = compute3fromLista(l1,N)
+                h2 = compute3fromLista(l2,N)
 
                 self.asignavarhijos(var,h0,h1,h2)
         else:

@@ -94,44 +94,7 @@ class simpleClausulas:
         return True  
                         
             
-    def propagacion_unitaria(self):
-        self.unitprev= set()
-        for c in self.listaclaus:
-            if (len(c))== 1:
-                h = set(c).pop()
-                self.unitprev.add(h)
-                self.unit.add(h)
-            
-        self.unitprop()        
-                
-            
-    def unitprop(self):
-        res = set()
-        while self.unitprev:
-            p = self.unitprev.pop()
-
-            res.add(p)
-            
-            self.listavar.discard(abs(p))
-            borrar = []
-
-            for cl in self.listaclaus:
-                if p in cl:
-                    borrar.append(cl)
-                elif -p in cl:
-                    cl.discard(cl)
-                    if len(cl) == 1:
-                        nv = next(iter(cl))
-                        self.unitprev.add(nv)
-                    elif not cl:
-                        self.contradict = True
-                        break
    
-                                    
-        return res
-
-
- 
         
         
                 
@@ -193,58 +156,23 @@ class simpleClausulas:
    
 
         
-    def podaylimpia(self):
-        y = []
-        borr = []
-        # print("entro en poda 2", len(self.listaclaus))
-        self.listaclaus.sort(key = lambda x: len(x))
-        # print("ordenadas")
-        
-        lista = self.listaclaus
-
-        for i in range(len(lista)):
-            clau1 = lista[i]
-            for j in range(i+1,len(lista)):
-
-                clau2 = lista[j]
-                if clau2 in borr:
-                    break
-                claudif = (clau1-clau2)
-                if (len(claudif) ==0):
-                    borr.append(clau2)
-                elif (len(claudif) ==1):
-#                    print("poda", clau2)
-                    var = claudif.pop()
-                    if -var in clau2:
-                        clau2.dicard(-var)
-                        y.append(clau2)
-        
-        for clau in borr:
-            self.eliminar(clau)
-        
-        while y:
-#            print("original ibp",clau,len(self.listaclaus))
-            clau = y.pop()
-            y = self.podacola(clau)
-#            print("original ibp",clau,len(self.listaclaus))
-
+    
     def insertars(self,x):
         nvar = set(map(abs,x))
         self.listavar.update(nvar)
         self.listaclaus.append(x)
        
     def insertar(self,x):
+        if self.contradict:
+            return []
         if not x:
-            self.anula
+            self.anula()
             self.contradict= True
             self.listaclaus.append(set())
             return []
         y = []
         borr = []
         for cl in self.listaclaus:
-            if x == cl:
-                return
-            else:
                 if len(x) < len(cl):
                     claudif = x-cl
                     if not claudif:
@@ -253,6 +181,7 @@ class simpleClausulas:
                         var = claudif.pop()
                         if -var in cl:
                             cl.discard(-var)
+                            borr.append(cl)
                             y.append(cl)
                 else:
                     claudif = cl-x
@@ -271,9 +200,9 @@ class simpleClausulas:
         nvar = set(map(abs,x))
         self.listavar.update(nvar)
         self.listaclaus.append(x)
-        while y:
-            cl = y.pop()
-            y = y + self.podacola(cl)
+        for cl in y:
+            self.insertar(cl)
+            
 
     def combina(self,conj):
         for cl in conj.listaclaus:
@@ -289,34 +218,6 @@ class simpleClausulas:
         for cl in self.listaclaus:
              cl.update(conf)
    
-    def podacola(self,x):
-        y = []
-        borr = []
-        for cl in self.listaclaus:
-            if not x == cl:
-                if len(x) < len(cl):
-                    claudif = x-cl
-                    if not claudif:
-                        borr.append(cl)
-                    elif len(claudif) == 1:
-                        var = claudif.pop()
-                        if -var in cl:
-                            cl.discard(-var)
-                            y.append(cl)
-                else:
-                    claudif = cl-x
-                    if not claudif:
-                        return []
-                    elif len(claudif) == 1:
-                        var = claudif.pop()
-                        if -var in x:
-                            x.discard(-var)
-                            for cl in borr:
-                                self.eliminar(cl)
-                            return self.podacola(x)
-        for cl in borr:
-            self.eliminar(cl)
-        return y
 
     def simplificaconfig(self,ref,config):
         borrar = []
@@ -339,33 +240,7 @@ class simpleClausulas:
             self.eliminar(cl)
     
     
-    def noesta(self,x):
-        y = []
-        borr = []
-        for cl in self.listaclaus:
-            if not x == cl:
-                if len(x) < len(cl):
-                    claudif = x-cl
-                    if not claudif:
-                        borr.append(cl)
-                    elif len(claudif) == 1:
-                        var = claudif.pop()
-                        if -var in cl:
-                            cl.discard(-var)
-                            y.append(cl)
-                else:
-                    claudif = cl-x
-                    if not claudif:
-                        return []
-                    elif len(claudif) == 1:
-                        var = claudif.pop()
-                        if -var in x:
-                            x.discard(-var)
-                            for cl in borr:
-                                self.eliminar(cl)
-                            self.insertar(x)
-                            return []
-
+    
     def splitborra(self,v,n=False):
         s1 = simpleClausulas()
         s2 = simpleClausulas()
@@ -426,4 +301,102 @@ class simpleClausulas:
 
 
         
-  
+#   def podaylimpia(self):
+#         y = []
+#         borr = []
+#         # print("entro en poda 2", len(self.listaclaus))
+#         self.listaclaus.sort(key = lambda x: len(x))
+#         # print("ordenadas")
+        
+#         lista = self.listaclaus
+
+#         for i in range(len(lista)):
+#             clau1 = lista[i]
+#             for j in range(i+1,len(lista)):
+
+#                 clau2 = lista[j]
+#                 if clau2 in borr:
+#                     break
+#                 claudif = (clau1-clau2)
+#                 if (len(claudif) ==0):
+#                     borr.append(clau2)
+#                 elif (len(claudif) ==1):
+# #                    print("poda", clau2)
+#                     var = claudif.pop()
+#                     if -var in clau2:
+#                         clau2.dicard(-var)
+#                         y.append(clau2)
+        
+#         for clau in borr:
+#             self.eliminar(clau)
+        
+#         while y:
+# #            print("original ibp",clau,len(self.listaclaus))
+#             clau = y.pop()
+#             y = self.podacola(clau)
+# #            print("original ibp",clau,len(self.listaclaus))
+    # def propagacion_unitaria(self):
+    #     self.unitprev= set()
+    #     for c in self.listaclaus:
+    #         if (len(c))== 1:
+    #             h = set(c).pop()
+    #             self.unitprev.add(h)
+    #             self.unit.add(h)
+            
+    #     self.unitprop()        
+                
+            
+    # def unitprop(self):
+    #     res = set()
+    #     while self.unitprev:
+    #         p = self.unitprev.pop()
+
+    #         res.add(p)
+            
+    #         self.listavar.discard(abs(p))
+    #         borrar = []
+
+    #         for cl in self.listaclaus:
+    #             if p in cl:
+    #                 borrar.append(cl)
+    #             elif -p in cl:
+    #                 cl.discard(cl)
+    #                 if len(cl) == 1:
+    #                     nv = next(iter(cl))
+    #                     self.unitprev.add(nv)
+    #                 elif not cl:
+    #                     self.contradict = True
+    #                     break
+   
+                                    
+    #     return res
+
+
+    #  def podacola(self,x):
+    #     y = []
+    #     borr = []
+    #     for cl in self.listaclaus:
+    #         if not x == cl:
+    #             if len(x) < len(cl):
+    #                 claudif = x-cl
+    #                 if not claudif:
+    #                     borr.append(cl)
+    #                 elif len(claudif) == 1:
+    #                     var = claudif.pop()
+    #                     if -var in cl:
+    #                         cl.discard(-var)
+    #                         y.append(cl)
+    #             else:
+    #                 claudif = cl-x
+    #                 if not claudif:
+    #                     return []
+    #                 elif len(claudif) == 1:
+    #                     var = claudif.pop()
+    #                     if -var in x:
+    #                         x.discard(-var)
+    #                         for cl in borr:
+    #                             self.eliminar(cl)
+    #                         return self.podacola(x)
+    #     for cl in borr:
+    #         self.eliminar(cl)
+    #     return y

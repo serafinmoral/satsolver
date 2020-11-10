@@ -151,10 +151,13 @@ class problemaTrianArbol:
     def insertacola(self,t,conf=set()):
         if t.var == 0:
             if len(t.value.listaclaus)>0:
-                indices = map(lambda x:self.posvar[abs(x)],conf.union(t.value.listavar))
-                pos = min (indices) 
-                pot = self.lqueue[pos]
-                pot.inserta3(t,conf)          
+                if t.value.contradict and not conf:
+                    self.problemacontradict()
+                else:
+                    indices = map(lambda x:self.posvar[abs(x)],conf.union(t.value.listavar))
+                    pos = min (indices) 
+                    pot = self.lqueue[pos]
+                    pot.inserta3(t,conf)          
 
 
         else:
@@ -167,6 +170,10 @@ class problemaTrianArbol:
             conf.discard(-v)
             self.insertacola(t.hijos[2],conf)
 
+    def problemacontradict(self):
+        print("contradiccion")
+        self.inicial.solved = True
+        self.inicial.contradict = True
                 
     def tinserta(self,cl,pos=-1):
 #    print(cl)
@@ -224,34 +231,45 @@ class problemaTrianArbol:
     def borra(self):
         print(len(self.orden))
         for i in range(len(self.orden)):
+            if self.inicial.contradict:
+                break
             var = self.orden[i]
             print("i= ", i, "var = ", self.orden[i])
      
             pot = self.lqueue[i]
             pot2 = self.lpot[i]
 
-            # pot.imprime()            
+            pot.imprime()            
 
-            pot.simplifica(pot2)
+            # pot.simplifica(pot2)
 
-            pot.normaliza3()
-
+            pot.normaliza3(N=300)
+            
+            if (i>= 220):
+                pot.imprime()
             (t0,t1,t2) = pot.splitborra(var)
             (h0,h1,h3) = pot2.splitborra(var)
 
+            t0.imprime()
+            t1.imprime()
+
+            # pot.imprime()
             
             res1 = t0.combinaborra(t1)
             res2 = t0.combinaborra(h1)
             res3 = t1.combinaborra(h0)
 
+            res1.imprime()
             # res1.imprime()
             # res2.imprime()
             # res3.imprime()
 
-            res1.combina3(res2).combina3(res3)
+            res1.combina3(res2)
+
+            res1.combina3(res3)
 
             res1.combina3(t2)
-
+            # res1.imprime()
 
 
             # res1.imprime()
@@ -278,7 +296,8 @@ class problemaTrianArbol:
             pot2.inserta2(nuevo)
 
             # pot2.imprime()
-            
+            res1.normaliza3(N=10)
+            res1.imprime()
 
             
             pot.anula()
