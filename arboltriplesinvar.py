@@ -277,7 +277,7 @@ class arboltriple:
                 self.asignaval(  s1 )
 
 
-    def splitborra(self,v,n=False):
+    def splitborra(self,v,n=True):
         if self.var == 0:
             (s0,s1,s2) = self.value.splitborra(v,n)
             t0 = arboltriple()
@@ -292,9 +292,9 @@ class arboltriple:
             if (nv==v):
                 return (self.hijos[0],self.hijos[1],self.hijos[2]   )
             else:
-                (t00, t01,t02) = self.hijos[0].splitborra(v)
-                (t10, t11,t12) = self.hijos[1].splitborra(v)
-                (t20, t21,t22) = self.hijos[2].splitborra(v)
+                (t00, t01,t02) = self.hijos[0].splitborra(v,n)
+                (t10, t11,t12) = self.hijos[1].splitborra(v,n)
+                (t20, t21,t22) = self.hijos[2].splitborra(v,n)
                 t0 = arboltriple()
                 t1 = arboltriple()
                 t2 = arboltriple()
@@ -372,11 +372,7 @@ class arboltriple:
 
 
         
-    def combina3(self,t):
-        res = t.copia()
-        h = self.copia()
-        t.inserta3(h)
-        return res
+    
 
 
 

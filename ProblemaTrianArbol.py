@@ -239,7 +239,7 @@ class problemaTrianArbol:
             pot = self.lqueue[i]
             pot2 = self.lpot[i]
 
-            pot.imprime()            
+            # pot.imprime()            
 
             # pot.simplifica(pot2)
 
@@ -248,10 +248,11 @@ class problemaTrianArbol:
             if (i>= 220):
                 pot.imprime()
             (t0,t1,t2) = pot.splitborra(var)
-            (h0,h1,h3) = pot2.splitborra(var)
+            (h0,h1,h2) = pot2.splitborra(var)
 
-            t0.imprime()
-            t1.imprime()
+            # t0.imprime()
+            # t1.imprime()
+            # t2.imprime()
 
             # pot.imprime()
             
@@ -259,44 +260,47 @@ class problemaTrianArbol:
             res2 = t0.combinaborra(h1)
             res3 = t1.combinaborra(h0)
 
-            res1.imprime()
+            # res1.imprime()
             # res1.imprime()
             # res2.imprime()
             # res3.imprime()
 
-            res1.combina3(res2)
+            res1.inserta3(res2)
 
-            res1.combina3(res3)
+            res1.inserta3(res3)
 
-            res1.combina3(t2)
+            # res1.imprime()
+            res1.inserta3(t2)
             # res1.imprime()
 
 
             # res1.imprime()
 
-            arb0 = t0 
-            arb1 = arboltriple()
-            arb2 = arboltriple()
+            # arb0 = t0.copia()
+            # arb1 = arboltriple()
+            # arb2 = arboltriple()
 
-            nuevo = arboltriple()
-            nuevo.asignavarhijos(var,arb0,arb1,arb2)
+            # nuevo = arboltriple()
+            # nuevo.asignavarhijos(var,arb0,arb1,arb2)
 
-            # pot2.imprime()
+            # # pot2.imprime()
 
-            pot2.inserta2(nuevo)
+            # pot2.inserta2(nuevo)
             
+            # # pot2.imprime()
+            # arb0 = arboltriple() 
+            # arb1 = t1.copia()
+            # arb2 = arboltriple()
+
+            # nuevo = arboltriple()
+            # nuevo.asignavarhijos(var,arb0,arb1,arb2)
+
+            # pot2.inserta2(nuevo)
+
             # pot2.imprime()
-            arb0 = arboltriple() 
-            arb1 = t1
-            arb2 = arboltriple()
 
-            nuevo = arboltriple()
-            nuevo.asignavarhijos(var,arb0,arb1,arb2)
-
-            pot2.inserta2(nuevo)
-
-            # pot2.imprime()
             res1.normaliza3(N=10)
+            # print("resultado")
             res1.imprime()
 
             
