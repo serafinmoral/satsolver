@@ -248,7 +248,7 @@ class problemaTrianArbol:
             if (i>= 220):
                 pot.imprime()
             (t0,t1,t2) = pot.splitborra(var)
-            (h0,h1,h2) = pot2.splitborra(var)
+            # (h0,h1,h2) = pot2.splitborra(var)
 
             # t0.imprime()
             # t1.imprime()
@@ -257,17 +257,17 @@ class problemaTrianArbol:
             # pot.imprime()
             
             res1 = t0.combinaborra(t1)
-            res2 = t0.combinaborra(h1)
-            res3 = t1.combinaborra(h0)
+            # res2 = t0.combinaborra(h1)
+            # res3 = t1.combinaborra(h0)
 
             # res1.imprime()
             # res1.imprime()
             # res2.imprime()
             # res3.imprime()
 
-            res1.inserta3(res2)
+            # res1.inserta3(res2)
 
-            res1.inserta3(res3)
+            # res1.inserta3(res3)
 
             # res1.imprime()
             res1.inserta3(t2)

@@ -268,10 +268,11 @@ class arboltriple:
                 self.hijos[2].var == 0 and (len(self.hijos[0].value.listaclaus) + 
                 len(self.hijos[1].value.listaclaus) +  len(self.hijos[2].value.listaclaus)  )<=N:
                 v = self.var
-                self.hijos[0].value.advalue(v)
-                self.hijos[1].value.advalue(-v)
                 s1 = self.hijos[0].value
                 s2 = self.hijos[1].value
+                s1.advalue(v)
+                s2.advalue(-v)
+                
                 s1.combina(s2)
                 s1.combina(self.hijos[2].value)
                 self.asignaval(  s1 )
@@ -290,7 +291,7 @@ class arboltriple:
         else:
             nv = self.var
             if (nv==v):
-                return (self.hijos[0],self.hijos[1],self.hijos[2]   )
+                return (self.hijos[0].copia(),self.hijos[1].copia(),self.hijos[2].copia()   )
             else:
                 (t00, t01,t02) = self.hijos[0].splitborra(v,n)
                 (t10, t11,t12) = self.hijos[1].splitborra(v,n)
@@ -317,57 +318,75 @@ class arboltriple:
                     return res
                 else:
                     h = conf.pop()
+                    (t0,t1,t2) = t.value.splitborra(abs(h))
+                    r2 = arboltriple()
+                    r2.asignaval(t2)
+                    r0 = arboltriple()
+                    r1 = arboltriple()
+                    tn = arboltriple()
+                    res = arboltriple()
+
                     if h>0:
-                        vali = t.value.sel(h)
-                        tn = arboltriple()
-                        tn.asignaval(vali)
+                        tn.asignaval(t0)
                         r0 = self.combinaborra(tn,conf)
-                        r1 = arboltriple()
-                        r2 = arboltriple()
-                        res = arboltriple()
-                        res.asignavarhijos(abs(h),r0,r1,r2)
-                        return res
+                        r1.asignaval(t1)        
                     elif h<0:
-                        vali = t.value.sel(h)
-                        tn = arboltriple()
-                        tn.asignaval(vali)
+                        tn.asignaval(t1)
                         r1 = self.combinaborra(tn,conf)
-                        r2 = arboltriple()
-                        r0 = arboltriple()
-                        res = arboltriple()
-                        res.asignavarhijos(abs(h),r0,r1,r2)
-                        return res
+                        r0.asignaval(t0)      
+                    res.asignavarhijos(abs(h),r0,r1,r2)
+                    return res
 
             else:
                 v = t.var
+                res = arboltriple()
+
                 if v in conf:
                     conf.discard(v)
-                    r0 = self.combinaborra(t.hijos[0],conf)
-                    # r2 = self.combinaborra(t.hijos[2],conf)
-                    return r0
+                    r0 = self.combinaborra(t.hijos[0],conf.copy())
+                    r2 = self.combinaborra(t.hijos[2],conf)
+                    r0.inserta3(r2)
+                    r1 = arboltriple()
+                    r2 = arboltriple()
 
                 elif -v in conf:
                     conf.discard(-v)
-                    r1 = self.combinaborra(t.hijos[1],conf)
-                    # r2 = self.combinaborra(t.hijos[2],conf)
-                    return r1
-                else:
-                    r0 = self.combinaborra(t.hijos[0],conf)
                     r1 = self.combinaborra(t.hijos[1],conf.copy())
+                    r2 = self.combinaborra(t.hijos[2],conf)
+                    r1.inserta3(r2)
+                    r0 = arboltriple()
                     r2 = arboltriple()
+                else: 
+                    (t0,t1,t2) = self.splitborra(v)
+
+                    r0 = t0.combinaborra(t.hijos[0],conf.copy())
+                    r01 = t0.combinaborra(t.hijos[2])
+                    r02 = t2.combinaborra(t.hijos[0])
+                    r0.inserta3(r01)
+                    r0.inserta3(r02)
+                    r1 = t1.combinaborra(t.hijos[1],conf.copy())
+                    r11 = t1.combinaborra(t.hijos[2],conf.copy())
+                    r12 = t2.combinaborra(t.hijos[1],conf.copy())
+                    r1.inserta3(r11)
+                    r1.inserta3(r12)
+                    r2 = t2.combinaborra(t.hijos[2],conf)
                     res = arboltriple()
                     res.asignavarhijos(v,r0,r1,r2)
                     return res
+                res.asignavarhijos(v,r0,r1,r2)
+                return res
         else:
-            res = arboltriple()
             v = self.var
             conf.add(v)
-            r0 = self.hijos[0].combinaborra(t,conf)
+            r0 = self.hijos[0].combinaborra(t,conf.copy())
+            conf.discard(v)
             conf.add(-v)
-            r1 = self.hijos[1].combinaborra(t,conf)
+            r1 = self.hijos[1].combinaborra(t,conf.copy())
+            conf.discard(-v)
             r2 = self.hijos[2].combinaborra(t,conf)
-            res.asignavarhijos(v,r0,r1,r2)
-            return res
+            r0.insertar3(r1)
+            r0.insertar3(r2)
+            return r0
 
 
 
