@@ -243,7 +243,7 @@ class problemaTrianArbol:
 
             # pot.simplifica(pot2)
 
-            pot.normaliza3(N=300)
+            pot.normaliza3()
             
             if (i>= 220):
                 pot.imprime()
@@ -299,7 +299,7 @@ class problemaTrianArbol:
 
             # pot2.imprime()
 
-            res1.normaliza3(N=10)
+            res1.normaliza3()
             # print("resultado")
             res1.imprime()
 
