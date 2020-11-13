@@ -72,7 +72,7 @@ def leeArchivoGlobal(Archivo):
 
 #    print("paso a limpiar")
 #    infor.limpiarec(0.0)
-#    print("termino de limpiar")
+#    print("termi de limpiar")
     return infor  
 
   
@@ -85,6 +85,7 @@ def leeArchivoGlobal(Archivo):
 def triangula(grafo):
     
     orden = []
+    clusters = []
     
     grafoc = grafo.copy()
     
@@ -100,11 +101,13 @@ def triangula(grafo):
         print(nnodo)
         orden.append(nnodo)
         
+
         veci = set(grafo[nnodo])
-        if len(veci)> mv:
-            mv = len(veci)
-            ma = i
-            
+
+        clus = veci.union({nnodo})
+
+        clusters.append(clus)
+        print(clus) 
         i += 1
         grafo.remove_node(nnodo)
         for x in veci:
@@ -136,7 +139,7 @@ def triangula(grafo):
     # orden = orden + orden2    
 
     print(orden)
-    return orden
+    return (orden,clusters)
 
 
     
@@ -163,7 +166,7 @@ def main(prob):
 
 
         grafo = info.cgrafo()
-        prob.orden = triangula(grafo)
+        (prob.orden,prob.clusters)  = triangula(grafo)
         
 
         h = sorted(prob.orden)
@@ -176,7 +179,7 @@ def main(prob):
         
         prob.inicia0()     
 
-        prob.borra()
+        prob.borra  ()
 
         # prob.inicia()
         

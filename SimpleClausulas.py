@@ -63,7 +63,6 @@ class simpleClausulas:
          self.solved = False
          self.solution = set()
          self.unit = set()
-         self.unitprev = set()
          
      
     
@@ -134,12 +133,16 @@ class simpleClausulas:
     def anula(self):
         self.listaclaus.clear()
         self.listavar.clear()
-        self.unitprev.clear()
+        self.unit.clear()
 
 
          
     
     def eliminar(self,x):
+        if len(x)==1:
+            v = x.pop()
+            self.unit.discard(v)
+            return
         try:
             self.listaclaus.remove(x)
         except:
@@ -158,9 +161,13 @@ class simpleClausulas:
         
     
     def insertars(self,x):
+
         nvar = set(map(abs,x))
         self.listavar.update(nvar)
-        self.listaclaus.append(x)
+        if len(x)==1:
+            self.unit.add(x.pop())
+        else:
+            self.listaclaus.append(x)
        
     def insertar(self,x):
         if self.contradict:
@@ -172,7 +179,34 @@ class simpleClausulas:
             return []
         y = []
         borr = []
-        for cl in self.listaclaus:
+        if len(x) ==1:
+            v = x.pop()
+            if -v in self.unit:
+                self.insertar(set())
+            else:
+                self.listavar.add(abs(v))
+                self.unit.add(v)
+                for cl in self.listaclaus:
+                    if v in cl:
+                        borr.append(cl)
+                    if -v in cl:
+                        borr.append(cl)
+                        cl.discard(-v)
+                        y.append(cl)
+        else:
+
+            if x.intersection(self.unit):
+                return []
+            else:
+                neg = set(map(lambda x: -x, self.unit))
+                x = x-neg
+                if len(x) <= 1:
+                    self.insertar(x)
+                    return 
+            
+
+
+            for cl in self.listaclaus:
                 if len(x) < len(cl):
                     claudif = x-cl
                     if not claudif:
@@ -195,11 +229,12 @@ class simpleClausulas:
                                 self.eliminar(cl)
                             self.insertar(x)
                             return []
+            nvar = set(map(abs,x))
+            self.listavar.update(nvar)
+            self.listaclaus.append(x)
         for cl in borr:
             self.eliminar(cl)
-        nvar = set(map(abs,x))
-        self.listavar.update(nvar)
-        self.listaclaus.append(x)
+        
         for cl in y:
             self.insertar(cl)
             
@@ -212,32 +247,23 @@ class simpleClausulas:
         self.listavar.add(v)
         for cl in self.listaclaus:
             cl.add(v)
+        for x in self.unit:
+            cl = {x,v}
+            self.listaclaus.append(cl)
+        self.unit = set()
 
     def adconfig(self,conf):
-        self.listavar.update(conf)
-        for cl in self.listaclaus:
-             cl.update(conf)
+        if conf:
+            self.listavar.update(conf)
+            for cl in self.listaclaus:
+                cl.update(conf)
+            for x in self.unit:
+                cl = conf.union({x})
+                self.listaclaus.append(cl)
+            self.unit = set()
    
 
-    def simplificaconfig(self,ref,config):
-        borrar = []
-        for cl1 in self.listaclaus:
-            cl = config.union(cl1)
-            for cl2 in ref.listaclaus:
-                if len(cl2) <= len(cl):
-                    claudif = cl2-cl
-                    if not claudif:
-                        borrar.append(cl1)
-                        break
-                    elif len(claudif)==1:
-                        var = claudif.pop()
-                        if -var in cl1:
-                            cl1.discard(-var)
-                            if not cl1:
-                                self.insertar(set())
-                                break
-        for cl in borrar:
-            self.eliminar(cl)
+    
     
     
     
@@ -249,28 +275,51 @@ class simpleClausulas:
             for cl in self.listaclaus:
                 s3.insertars(cl)
         else:
-            for cl in self.listaclaus:
-                if v in cl:
-                    if n:
-                        cl = cl - {v}
-                    else:
-                        cl.discard(v)
-                    
-                    s1.insertars(cl)
-                elif -v in cl:
-                    if n:
-                        cl = cl - {-v}
-                    else:
-                        cl.discard(-v)
-                    s2.insertars(cl)
-                else: 
-                    if n:
-                        cl = cl.copy()
+            if v in self.unit:
+                s1.insertar(set())
+                for x in self.unit:
+                    if not x == v:
+                        s3.unit.add(x)
+                for cl in self.listaclaus:
                     s3.insertars(cl)
+            elif -v in self.unit:
+                s2.insertar(set())
+                for x in self.unit:
+                    if not x == -v:
+                        s3.unit.add(x)
+                for cl in self.listaclaus:
+                    s3.insertars(cl)
+            else:
+
+                s3.unit = self.unit.copy()
+
+                for cl in self.listaclaus:
+                    if v in cl:
+                        if n:
+                            cl = cl - {v}
+                        else:
+                            cl.discard(v)
+                        
+                        s1.insertars(cl)
+                    elif -v in cl:
+                        if n:
+                            cl = cl - {-v}
+                        else:
+                            cl.discard(-v)
+                        s2.insertars(cl)
+                    else: 
+                        if n:
+                            cl = cl.copy()
+                        s3.insertars(cl)
         return (s1,s2,s3)
 
     def sel(self,v):
         result = simpleClausulas()
+        if v in self.unit:
+            result.insertar(set())
+            return result
+        result.unit = self.unit.copy()
+        result.unit.discard(-v)
         for cl in self.listaclaus:
             if v in  cl:
                 result.insertar(cl-{v})
@@ -280,6 +329,14 @@ class simpleClausulas:
 
     def selconf(self,conf):
         res = simpleClausulas()
+        if conf.intersection(self.unit):
+            res.insertar(set())
+            return res
+        res.unit = self.unit.copy()
+        for v in conf:
+            res.unit.discard(-v)
+
+
         for cl in self.listaclaus:
             if cl.intersection(conf):
                 x = cl - conf
@@ -291,6 +348,24 @@ class simpleClausulas:
 
     def combinaborra(self,conj):
         res = simpleClausulas()
+        if self.contradict:
+            return conj.copia()
+        if conj.contradict:
+            return self.copia()
+        for v in self.unit:
+            for x in conj.unit:
+                if not v == -x:
+                    cl = {v,x}
+                    res.insertar(cl)
+            for cl in conj.listaclaus:
+                if -v not in cl:
+                    r = cl.union({v})
+                    res.insertar(r)
+        for x in conj.unit:
+            for cl in self.listaclaus:
+                if -x not in cl:
+                    r = cl.union({x})
+                    res.insertar(r)
         for cl in self.listaclaus:
             for cl2 in conj.listaclaus:
                 cpn = set(map(lambda x: -x, cl))
@@ -400,3 +475,22 @@ class simpleClausulas:
     #     for cl in borr:
     #         self.eliminar(cl)
     #     return y
+    # def simplificaconfig(self,ref,config):
+    #     borrar = []
+    #     for cl1 in self.listaclaus:
+    #         cl = config.union(cl1)
+    #         for cl2 in ref.listaclaus:
+    #             if len(cl2) <= len(cl):
+    #                 claudif = cl2-cl
+    #                 if not claudif:
+    #                     borrar.append(cl1)
+    #                     break
+    #                 elif len(claudif)==1:
+    #                     var = claudif.pop()
+    #                     if -var in cl1:
+    #                         cl1.discard(-var)
+    #                         if not cl1:
+    #                             self.insertar(set())
+    #                             break
+    #     for cl in borrar:
+    #         self.eliminar(cl)

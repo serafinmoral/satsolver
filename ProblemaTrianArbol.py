@@ -33,6 +33,7 @@ class problemaTrianArbol:
          self.N2 = 3
          self.inicial = info
          self.orden = []
+         self.clusters = []
          self.lpot = []
          self.lqueue  = []
          self.posvar = dict()
@@ -157,7 +158,7 @@ class problemaTrianArbol:
                     indices = map(lambda x:self.posvar[abs(x)],conf.union(t.value.listavar))
                     pos = min (indices) 
                     pot = self.lqueue[pos]
-                    pot.inserta3(t,conf)          
+                    pot.inserta(t,conf)          
 
 
         else:
@@ -234,16 +235,17 @@ class problemaTrianArbol:
             if self.inicial.contradict:
                 break
             var = self.orden[i]
-            print("i= ", i, "var = ", self.orden[i])
+            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
      
             pot = self.lqueue[i]
             pot2 = self.lpot[i]
 
             # pot.imprime()            
+            # wait = input("Press Enter to continue.")
 
             # pot.simplifica(pot2)
 
-            pot.normaliza3()
+            pot.normaliza()
             
             if (i>= 220):
                 pot.imprime()
@@ -255,8 +257,125 @@ class problemaTrianArbol:
             # t2.imprime()
 
             # pot.imprime()
+            # t0.imprime()
+            # t1.imprime()
+
+            # wait = input("Press Enter to continue.")
+
+
+            res1 = t0.combinaborra(t1)
+
+
+            res1.normaliza()
+            # res2 = t0.combinaborra(h1)
+            # res3 = t1.combinaborra(h0)
+
+            # res1.imprime()
+            # res1.imprime()
+            # res2.imprime()
+            # res3.imprime()
+
+            # res1.inserta3(res2)
+
+            # res1.inserta3(res3)
+
+            # res1.imprime()
+            res1.inserta(t2)
+            # res1.imprime()
+
+
+            # res1.imprime()
+
+            # arb0 = t0.copia()
+            # arb1 = arboltriple()
+            # arb2 = arboltriple()
+
+            # nuevo = arboltriple()
+            # nuevo.asignavarhijos(var,arb0,arb1,arb2)
+
+            # # pot2.imprime()
+
+            # pot2.inserta2(nuevo)
+            
+            # # pot2.imprime()
+            # arb0 = arboltriple() 
+            # arb1 = t1.copia()
+            # arb2 = arboltriple()
+
+            # nuevo = arboltriple()
+            # nuevo.asignavarhijos(var,arb0,arb1,arb2)
+
+            # pot2.inserta2(nuevo)
+
+            # pot2.imprime()
+
+            res1.normaliza()
+            # print("resultado")
+            # res1.imprime()
+            # wait = input("Press Enter to continue.")
+
+            
+            pot.anula()
+
+            self.insertacola(res1)
+
+    def test(self):
+        print(len(self.orden))
+        for i in range(len(self.orden)):
+            # wait = input("Press Enter to continue.")
+
+            if self.inicial.contradict:
+                break
+            var = self.orden[i]
+            print("i= ", i, "var = ", self.orden[i])
+     
+            pot = self.lqueue[i]
+            pot2 = self.lpot[i]
+            potc = pot.copia()
+            potc.imprime()            
+
+            # pot.simplifica(pot2)
+
+            pot.normaliza3(N=3)
+            pot.normaliza3(N=1000)
+            pot.imprime()
+            
+            pot.normaliza3(N=3)
+            pot.imprime()
+            
+            if (i>= 220):
+                pot.imprime()
+            (t0,t1,t2) = pot.splitborra(var)
+            (t0c,t1c,t2c) = potc.splitborra(var)
+            # (h0,h1,h2) = pot2.splitborra(var)
+
+            t0.imprime()
+            t0c.imprime()
+
+            wait = input("Press Enter to continue.")
+
+            t1.imprime()
+            t1c.imprime()
+
+            wait = input("Press Enter to continue.")
+
+            t2.imprime()
+            t2c.imprime()
+
+            wait = input("Press Enter to continue.")
+
+            # t0.imprime()
+            # t1.imprime()
+            # t2.imprime()
+
+            # pot.imprime()
             
             res1 = t0.combinaborra(t1)
+            res1c = t0c.combinaborra(t1c)
+
+            res1.imprime()
+            res1c.imprime()
+
             # res2 = t0.combinaborra(h1)
             # res3 = t1.combinaborra(h0)
 
@@ -271,6 +390,10 @@ class problemaTrianArbol:
 
             # res1.imprime()
             res1.inserta3(t2)
+            res1c.inserta3(t2c)
+
+            res1.imprime()
+            res1c.imprime()
             # res1.imprime()
 
 
@@ -306,9 +429,7 @@ class problemaTrianArbol:
             
             pot.anula()
 
-            self.insertacola(res1)
-
-        
+            self.insertacola(res1)    
 
     def borra2(self):
 
