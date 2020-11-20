@@ -29,8 +29,11 @@ def split(lista,var):
     lista1 = []
     lista2 = []
     lista3 = []
+    unit = set()
     for cl in lista:
-        if var in cl:
+        if len(cl)==1:
+            unit.add(cl.pop())
+        elif var in cl:
             cl.discard(var)
             lista1.append(cl)
         elif -var in cl:
@@ -38,7 +41,7 @@ def split(lista,var):
             lista2.append(cl)
         else:
             lista3.append(cl)
-    return (lista1,lista2,lista3)
+    return (lista1,lista2,lista3,unit)
 
 
 def computefromLista(x,N):
@@ -53,14 +56,23 @@ def computefromLista(x,N):
             result.asignaval(valor)
         else:
             var = calculavar(x)    
-            (l0,l1,l2) = split(x,var)
+            (l0,l1,l2,u) = split(x,var)
+            su = simpleClausulas()
+            su.unit= u.copy()
+            su.listavar = set(map(abs,u))
             h0 = computefromLista(l0,N)
             h1 = computefromLista(l1,N)
             h2 = computefromLista(l2,N)
 
-            result.asignavarhijos(var,h0,h1,h2)
+            result.asignavarhijos(var,h0,h1,h2,su)
         
         return result
+
+def computeSimpleSet(x):
+    res = simpleClausulas()
+    res.listavar = set(map(abs,x))
+    res.unit = x.copy()
+    return res
 
 
 class arboltriple:
@@ -79,15 +91,15 @@ class arboltriple:
 
     def asignavar(self,p):
         self.var = p
-        self.value = None
+        self.value = simpleClausulas()
 
         self.hijos[0] = arboltriple()
         self.hijos[1] = arboltriple()
         self.hijos[2] = arboltriple()
 
-    def asignavarhijos(self,p,h0,h1,h2):
+    def asignavarhijos(self,p,h0,h1,h2,val = simpleClausulas()):
         self.var = p
-        self.value = simpleClausulas()
+        self.value = val
 
         self.hijos[0] = h0
         self.hijos[1] = h1
@@ -105,11 +117,11 @@ class arboltriple:
         self.hijos[i] = t
         
     def imprime(self):
-        if (self.var == 0):
-            print("valor " , self.value.listaclaus)
-            print ("unitarias " , self.value.unit)
+       
+        print("valor " , self.value.listaclaus)
+        print ("unitarias " , self.value.unit)
 
-        else:
+        if not self.var == 0:
             print ("variable ",self.var)
             print("hijo 1")
             self.hijos[0].imprime()
@@ -122,14 +134,16 @@ class arboltriple:
     def copia(self):
         res = arboltriple()
 
-        res.asignaval(self.value.copia())
 
         if self.var>0:
             v = self.var
             h0 = self.hijos[0].copia()
             h1 = self.hijos[1].copia()
             h2 = self.hijos[2].copia()
-            res.asignavarhijos(v,h0,h1,h2)
+            res.asignavarhijos(v,h0,h1,h2,self.value.copia())
+        else:
+            res.asignaval(self.value.copia())
+
 
         return res
 
@@ -139,6 +153,10 @@ class arboltriple:
     def insertaclau(self,cl,tres = False):
         if self.var == 0:
             self.value.insertar(cl)
+        elif len(cl)==1:
+            self.value.insertar(cl)
+            self.simplificavar(cl.copy().pop())
+            self.normaliza()
         else:
             v = self.var
             if v in cl:
@@ -149,57 +167,51 @@ class arboltriple:
                 self.hijos[2].insertaclau(self,cl,tres)
             
 
-                
-    def simplifica(self, refarbol, config = set()):
-        if self.var == 0:
-            if refarbol.var == 0:
-                    self.value.simplificaconfig(refarbol.value,config)
-            else:
-                v = refarbol.var
-                if v in config:
-                    config.discar(v)
-                    self.simplifica(refarbol.hijos[0],config)
-                    config.add(v)
-                elif -v in config:
-                    config.discar(-v)    
-                    self.simplifica(refarbol.hijos[1],config)
-                    config.add(-v)
-                self.simplifica(refarbol.hijos[2],config)
+  
+    def simplificavar(self,v):
+
+        self.value.simplificavar(v)
+        if self.value.contradict:
+            self.anula()
+            return
+            
+        if self.var == abs(v):
+            if v>0:
+                base = self.hijos[0]
+            elif v<0:
+                base = self.hijos[1]
+            base.combina(self.hijos[2])
+            self = base
         else:
-            v = self.var
-            config.add(v)
-            self.hijos[0].simplifica(refarbol, config)
-            config.discard(v)
-            config.add(-v)
-            self.hijos[1].simplifica(refarbol, config)
-            config.discard(-v)
-            self.hijos[2].simplifica(refarbol, config)
-
-
-
-    
+            self.hijos[0].simplificavar(v)
+            self.hijos[1].simplificavar(v)
+            self.hijos[2].simplificavar(v)           
 
     def normaliza(self,N=200):
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.listaclaus
                 var = calculavar(x)    
-                (l0,l1,l2) = split(x,var)
+                (l0,l1,l2,u) = split(x,var)
                 h0 = computefromLista(l0,N)
                 h1 = computefromLista(l1,N)
                 h2 = computefromLista(l2,N)
+                su = computeSimpleSet(u)
 
-                self.asignavarhijos(var,h0,h1,h2)
+                self.asignavarhijos(var,h0,h1,h2,su)
         else:
             self.hijos[0].normaliza(N)
             self.hijos[1].normaliza(N)
             self.hijos[2].normaliza(N)
 
-            if self.hijos[2].var == 0 and self.hijos[2].value.contradict:
+            if  self.hijos[2].value.contradict or (  self.hijos[1].value.contradict and  self.hijos[2].value.contradict  ):
                 h = simpleClausulas()
                 h.insertar(set())
                 self.asignaval(h)
-
+            elif self.hijos[1].value.contradict:
+                self.simplificavar(self.var)
+            elif self.hijos[1].value.contradict:
+                self.simplificavar(-self.var)
             elif self.hijos[0].var == 0 and self.hijos[1].var == 0 and \
                 self.hijos[2].var == 0 and (len(self.hijos[0].value.listaclaus) + 
                 len(self.hijos[1].value.listaclaus) +  len(self.hijos[2].value.listaclaus)  )<=N:
@@ -215,19 +227,24 @@ class arboltriple:
 
 
     def splitborra(self,v,n=True):
+        (s0,s1,s2) = self.value.splitborra(v,n)
         if self.var == 0:
-            (s0,s1,s2) = self.value.splitborra(v,n)
             t0 = arboltriple()
             t1 = arboltriple()
             t2 = arboltriple()
             t0.asignaval(s0)
             t1.asignaval(s1)
             t2.asignaval(s2)
-            return(t0,t1,t2)
         else:
             nv = self.var
             if (nv==v):
-                return (self.hijos[0].copia(),self.hijos[1].copia(),self.hijos[2].copia()   )
+                t0 = self.hijos[0].copia()
+                t1 = self.hijos[1].copia()
+                t2 = self.hijos[2].copia()
+                t0.insertasimple(s0,set())
+                t1.insertasimple(s1,set())
+                t2.insertasimple(s2,set())
+
             else:
                 (t00, t01,t02) = self.hijos[0].splitborra(v,n)
                 (t10, t11,t12) = self.hijos[1].splitborra(v,n)
@@ -235,10 +252,10 @@ class arboltriple:
                 t0 = arboltriple()
                 t1 = arboltriple()
                 t2 = arboltriple()
-                t0.asignavarhijos(nv,t00,t10,t20)
-                t1.asignavarhijos(nv,t01,t11,t21)
-                t2.asignavarhijos(nv,t02,t12,t22)
-                return(t0,t1,t2)
+                t0.asignavarhijos(nv,t00,t10,t20,s0)
+                t1.asignavarhijos(nv,t01,t11,t21,s1)
+                t2.asignavarhijos(nv,t02,t12,t22,s2)
+        return(t0,t1,t2)
 
     def combinaborrasimple(self,g,conf = set()):
         if self.var == 0:
@@ -270,15 +287,22 @@ class arboltriple:
                 return res
 
         else:
-            v = self.var
+            v = self.var                                                                               
             res = arboltriple()
-
+            (s0,s1,s2) = self.value.splitborra(v)
             if v in conf:
                 conf.discard(v)
                 r0 = self.hijos[0].combinaborrasimple(g,conf)
                 r2 = self.hijos[2].combinaborrasimple(g,conf)
-                conf.add(v)
+                as0 = arboltriple()
+                as2 = arboltriple()
+                as0.asignaval(s0)
+                as2.asignaval(s2)
                 r0.inserta(r2)
+                r0.inserta(as0.combinaborrasimple(g,conf) )
+                r0.inserta(as2.combinaborrasimple(g,conf))
+                conf.add(v)
+
                 r1 = arboltriple()
                 r2 = arboltriple()
 
@@ -286,24 +310,50 @@ class arboltriple:
                 conf.discard(-v)
                 r1 = self.hijos[1].combinaborrasimple(g,conf)
                 r2 = self.hijos[2].combinaborrasimple(g,conf)
+                as1 = arboltriple()
+                as2 = arboltriple()
+                as1.asignaval(s1)
+                as2.asignaval(s2)
+                r1.inserta(r2)
+                r1.inserta(as1.combinaborrasimple(g,conf) )
+                r1.inserta(as2.combinaborrasimple(g,conf))
                 conf.add(-v)
                 r1.inserta(r2)
                 r0 = arboltriple()
                 r2 = arboltriple()
             else: 
                 (g0,g1,g2) = g.splitborra(v)
+                as0 = arboltriple()
+                as1 = arboltriple()
+                as2 = arboltriple()
+                as0.asignaval(s0)
+                as1.asignaval(s1)
+                as2.asignaval(s2)
+
 
                 r0 = self.hijos[0].combinaborrasimple(g0,conf)
                 r01 = self.hijos[2].combinaborrasimple(g0,conf)
                 r02 = self.hijos[0].combinaborrasimple(g2,conf)
+
+                r0.inserta(as0.combinaborrasimple(g0,conf))
+                r01.inserta(as2.combinaborrasimple(g0,conf)  )
+                r02.inserta(as0.combinaborrasimple(g2,conf)  )
+
                 r0.inserta(r01)
                 r0.inserta(r02)
                 r1 = self.hijos[1].combinaborrasimple(g1,conf.copy())
                 r11 = self.hijos[2].combinaborrasimple(g1,conf.copy())
                 r12 = self.hijos[1].combinaborrasimple(g2, conf.copy())
+
+                r1.inserta(as1.combinaborrasimple(g1,conf))
+                r11.inserta(as2.combinaborrasimple(g1,conf)  )
+                r12.inserta(as1.combinaborrasimple(g2,conf)  )
+
+
                 r1.inserta(r11)
                 r1.inserta(r12)
                 r2 = self.hijos[2].combinaborrasimple(g2,conf)
+                r2.inserta(as2.combinaborrasimple(g2,conf))
                 
                 
             res.asignavarhijos(v,r0,r1,r2)
@@ -311,8 +361,9 @@ class arboltriple:
 
 
     def combinaborra(self,t,conf = set()):
+        h = t.combinaborrasimple(self.value,conf)
         if self.var == 0:
-            return t.combinaborrasimple(self.value,conf)
+            return h
         else:
             v = self.var
             conf.add(v)
@@ -324,6 +375,9 @@ class arboltriple:
             r2 = self.hijos[2].combinaborra(t,conf)
             r0.inserta(r1)
             r0.inserta(r2)
+            r0.inserta(h)
+        
+            
             return r0
 
     def insertasimple(self,g,conf= set()):
@@ -489,3 +543,29 @@ class arboltriple:
 
         
     
+              
+    # def simplifica(self, refarbol, config = set()):
+    #     if self.var == 0:
+    #         if refarbol.var == 0:
+    #                 self.value.simplificaconfig(refarbol.value,config)
+    #         else:
+    #             v = refarbol.var
+    #             if v in config:
+    #                 config.discar(v)
+    #                 self.simplifica(refarbol.hijos[0],config)
+    #                 config.add(v)
+    #             elif -v in config:
+    #                 config.discar(-v)    
+    #                 self.simplifica(refarbol.hijos[1],config)
+    #                 config.add(-v)
+    #             self.simplifica(refarbol.hijos[2],config)
+    #     else:
+    #         v = self.var
+    #         config.add(v)
+    #         self.hijos[0].simplifica(refarbol, config)
+    #         config.discard(v)
+    #         config.add(-v)
+    #         self.hijos[1].simplifica(refarbol, config)
+    #         config.discard(-v)
+    #         self.hijos[2].simplifica(refarbol, config)
+
