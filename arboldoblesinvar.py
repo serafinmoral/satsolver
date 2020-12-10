@@ -39,24 +39,11 @@ def split(lista,var):
     return (lista1,lista2)
 
 
-def split3(lista,var):
-    lista1 = []
-    lista2 = []
-    lista3 = []
-    for cl in lista:
-        if var in cl:
-            cl.discard(var)
-            lista1.append(cl)
-        elif -var in cl:
-            cl.discard(-var)
-            lista2.append(cl)
-        else:
-            lista3.append(cl)
-    return (lista1,lista2,lista3)
+
 
 def computefromSimple(x,N):
 
-        result = arboltriple()
+        result = arboldoble()
         
         if len(x.listaclaus)<= N:
             
@@ -67,15 +54,15 @@ def computefromSimple(x,N):
             (l0,l1) = split(x.listaclaus,var)
             h0 = computefromSimple(l0,N)
             h1 = computefromSimple(l1,N)
-            h2 = arboltriple()
+        
 
-            result.asignavarhijos(var,h0,h1,h2)
+            result.asignavarhijos(var,h0,h1)
         
         return result
 
 def compute3fromLista(x,N):
 
-        result = arboltriple()
+        result = arboldoble()
         
         if len(x)<= N:
             valor = simpleClausulas()
