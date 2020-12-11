@@ -14,20 +14,25 @@ def calculavar(lista):
     # print(lista)
     cuenta = dict()
     for cl in lista:
-        vars = map(abs,cl)
-        for v in vars:
-            if v in cuenta:
-                cuenta[v]  += 1
-            else:
-                cuenta[v] = 1
+        if (len(cl))>1:
+            vars = map(abs,cl)
+            for v in vars:
+                if v in cuenta:
+                    cuenta[v]  += 1
+                else:
+                    cuenta[v] = 1
     return max(cuenta, key=(lambda key: cuenta[key]))
 
 
 def split(lista,var):
     lista1 = simpleClausulas()
     lista2 = simpleClausulas()
+    unit = set()
     for cl in lista:
-        if var in cl:
+        if len(cl)==1:
+            v = cl.pop()
+            unit.add(v)
+        elif var in cl:
             cl.discard(var)
             lista1.insertar(cl)
         elif -var in cl:
@@ -36,7 +41,7 @@ def split(lista,var):
         else:
             lista1.insertar(cl)
             lista2.insertar(cl.copy())
-    return (lista1,lista2)
+    return (lista1,lista2,unit)
 
 
 
@@ -51,35 +56,27 @@ def computefromSimple(x,N):
             result.asignaval(x)
         else:
             var = calculavar(x.listaclaus)    
-            (l0,l1) = split(x.listaclaus,var)
+            (l0,l1,unit) = split(x.listaclaus,var)
             h0 = computefromSimple(l0,N)
             h1 = computefromSimple(l1,N)
-        
+            value = simpleClausulas()
+            value.unit = x.unit
+            value.unit.update(unit)
 
-            result.asignavarhijos(var,h0,h1)
-        
-        return result
 
-def compute3fromLista(x,N):
-
-        result = arboldoble()
-        
-        if len(x)<= N:
-            valor = simpleClausulas()
-            for cl in x:
-                valor.insertar(cl)
-
-            result.asignaval(valor)
-        else:
-            var = calculavar(x)    
-            (l0,l1,l2) = split3(x,var)
-            h0 = compute3fromLista(l0,N)
-            h1 = compute3fromLista(l1,N)
-            h2 = compute3fromLista(l2,N)
-
-            result.asignavarhijos(var,h0,h1,h2)
+            result.asignavarhijosv(var,h0,h1,value)
         
         return result
+
+def computefromLista(x,N):
+
+        y = simpleClausulas()
+        for cl in x:
+            y.insertar(cl)
+        
+        
+        
+        return computefromSimple(y,N)
 
 
 class arboldoble:
@@ -112,6 +109,14 @@ class arboldoble:
         self.hijos[0] = h0
         self.hijos[1] = h1
 
+    def asignavarhijosv(self,p,h0,h1,v):
+        self.var = p
+        self.value = None
+
+        self.hijos[0] = h0
+        self.hijos[1] = h1
+        self.value = v
+
 
         
     def asignaval(self,x):
@@ -124,20 +129,19 @@ class arboldoble:
         self.hijos[i] = t
         
     def imprime(self):
-        if (self.var == 0):
-            print("valor " , self.value.listaclaus)
-        else:
+            print("valor clausulas" , self.value.listaclaus)
+            print("valor unit" , self.value.unit)
+
             print ("variable ",self.var)
             print("hijo 1")
             self.hijos[0].imprime()
             print("hijo 2")
             self.hijos[1].imprime()
-            print("hijo 3")
-            self.hijos[2].imprime()
+            
         
         
     def copia(self):
-        res = arboltriple()
+        res = arboldoble()
 
         if self.var == 0:
             res.asignaval(self.value.copia())
@@ -146,38 +150,55 @@ class arboldoble:
             v = self.var
             h0 = self.hijos[0].copia()
             h1 = self.hijos[1].copia()
-            h2 = self.hijos[2].copia()
-            res.asignavarhijos(v,h0,h1,h2)
+            value = self.value.copia()
+            res.asignavarhijosv(v,h0,h1,value)
 
         return res
-    def noesta(self,cl):
-        if self.var==0:
-            return self.value.noesta(cl)
-        else:
-            v = self.var
-            if v in cl:
-                return self.hijos[0].noesta(cl - {v}) or self.hijos[2].noesta(cl)
-            elif -v in cl:
-                return self.hijos[1].noesta(cl - {-v}) or self.hijos[2].noesta(cl)
-            else:
-                return self.hijos[2].noesta(cl)
+
+    
 
 
-    def insertaclau(self,cl,tres = False):
+    def insertaclau(self,cl):
         if self.var == 0:
             self.value.insertar(cl)
+            return
+        neg = set(map(lambda x:-x,self.unit))
+        cl.difference_update(neg)
+        if len(cl)==1:
+            v = cl.pop()
+            self.value.insertaunit(v)
+            self.hijos[0].simplificaunit(v)
+            self.hijos[1].simplificaunit(v)
         else:
+            
             v = self.var
             if v in cl:
-                self.hijos[0].insertaclau(self,cl.discard(v),tres)
+                self.hijos[0].insertaclau(self,cl.discard(v))
             elif -v in cl:
-                self.hijos[1].insertaclau(self,cl.discard(-v),tres)
-            elif tres:
-                self.hijos[2].insertaclau(self,cl,tres)
+                self.hijos[1].insertaclau(self,cl.discard(-v))
             else:
-                self.hijos[0].insertaclau(self,cl,tres)
-                self.hijos[1].insertaclau(self,cl.copy(),tres)
+                self.hijos[0].insertaclau(self,cl)
+                self.hijos[1].insertaclau(self,cl.copy())
 
+    def simplificaunit(self,v):
+        self.value.simplificaunit(v)
+        if self.value.contradict:
+            self.asignaval(self.value)
+            return
+        if not self.var == 0:
+            if self.var == v:
+                self.value.hijos[1].combina(self.value)
+                self = self.hijos[1]
+            
+            elif -self.var == v:
+                self = self.hijos[0]
+                self.value.hijos[0].combina(self.value)
+            else:
+                self.hijos[0].simplificaunit(v)
+                self.hijos[1].simplificaunit(v)
+
+
+                
                 
     def simplifica(self, refarbol, config = set()):
         if self.var == 0:
@@ -206,7 +227,7 @@ class arboldoble:
 
 
 
-    def normaliza2(self,N=300):
+    def normaliza(self,N=20):
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.listaclaus
@@ -214,12 +235,11 @@ class arboldoble:
                 (l0,l1) = split(x,var)
                 h0 = computefromSimple(l0,N)
                 h1 = computefromSimple(l1,N)
-                h2 = arboltriple()
 
-                self.asignavarhijos(var,h0,h1,h2)
+                self.asignavarhijos(var,h0,h1)
         else:
-            self.hijos[0].normaliza2(N)   
-            self.hijos[1].normaliza2(N)
+            self.hijos[0].normaliza(N)   
+            self.hijos[1].normaliza(N)
             if self.hijos[0].var == 0 and self.hijos[1].var == 0 and \
                  (len(self.hijos[0].value.listaclaus) + len(self.hijos[1].value.listaclaus))<=N:
                 v = self.var
@@ -230,39 +250,7 @@ class arboldoble:
 
                 self.asignaval(  s1.combina(s2)  )
 
-    def normaliza3(self,N=200):
-        if self.var == 0:
-            if len(self.value.listaclaus) > N:
-                x = self.value.listaclaus
-                var = calculavar(x)    
-                (l0,l1,l2) = split3(x,var)
-                h0 = compute3fromLista(l0,N)
-                h1 = compute3fromLista(l1,N)
-                h2 = compute3fromLista(l2,N)
-
-                self.asignavarhijos(var,h0,h1,h2)
-        else:
-            self.hijos[0].normaliza3(N)
-            self.hijos[1].normaliza3(N)
-            self.hijos[2].normaliza3(N)
-
-            if self.hijos[2].var == 0 and self.hijos[2].value.contradict:
-                h = simpleClausulas()
-                h.insertar(set())
-                self.asignaval(h)
-
-            elif self.hijos[0].var == 0 and self.hijos[1].var == 0 and \
-                self.hijos[2].var == 0 and (len(self.hijos[0].value.listaclaus) + 
-                len(self.hijos[1].value.listaclaus) +  len(self.hijos[2].value.listaclaus)  )<=N:
-                v = self.var
-                s1 = self.hijos[0].value
-                s2 = self.hijos[1].value
-                s1.advalue(v)
-                s2.advalue(-v)
-                
-                s1.combina(s2)
-                s1.combina(self.hijos[2].value)
-                self.asignaval(  s1 )
+    
 
 
     def splitborra(self,v,n=True):

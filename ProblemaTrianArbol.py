@@ -4,7 +4,7 @@ Created on Wed Aug 26 12:28:21 2020
 
 @author: Serafin
 """
-from arboltriplesinvar import *
+from arboldoblesinvar import *
 from SimpleClausulas import *
 
 def filtra(lista,nconfig,pconfig,i):
@@ -42,9 +42,9 @@ class problemaTrianArbol:
     def inicia0(self):
 
             for i in self.orden:
-                x = arboltriple()
+                x = arboldoble()
                 self.lpot.append(x)
-                y = arboltriple()
+                y = arboldoble()
                 self.lqueue.append(y)
     
             for cl in self.inicial.listaclaus:

@@ -136,7 +136,16 @@ class simpleClausulas:
         self.unit.clear()
 
 
-         
+    
+    def eliminars(self,x):
+        
+        try:
+            self.listaclaus.remove(x)
+        except:
+            ValueError
+
+
+             
     
     def eliminar(self,x):
         if len(x)==1:
@@ -233,15 +242,12 @@ class simpleClausulas:
             self.listavar.update(nvar)
             self.listaclaus.append(x)
         for cl in borr:
-            self.eliminar(cl)
+            self.eliminars(cl)
         
         for cl in y:
             self.insertar(cl)
             
 
-    def combina(self,conj):
-        for cl in conj.listaclaus:
-            self.insertar(cl)
 
     def advalue(self,v):
         self.listavar.add(v)
@@ -264,9 +270,98 @@ class simpleClausulas:
    
 
     
+
+    def combina(self,simple):
+        neg = set(map(lambda x: -x, simple.unit))
+        if neg.intersection(self.unit):
+            self.insertar(set())
+        else:
+            for v in simple.unit:
+                self.simplificaunit(v)
+            self.unit.update(simple.unit)
+        
+            for cl in simple.listaclaus:
+                self.insertar(cl)
+   
+
+
+
+
+    def combinaborra(self,conj):
+        res = simpleClausulas()
+        if self.contradict:
+            return conj.copia()
+        if conj.contradict:
+            return self.copia()
+        for v in self.unit:
+            for x in conj.unit:
+                if not v == -x:
+                    cl = {v,x}
+                    res.insertar(cl)
+            for cl in conj.listaclaus:
+                if -v not in cl:
+                    r = cl.union({v})
+                    res.insertar(r)
+        for x in conj.unit:
+            for cl in self.listaclaus:
+                if -x not in cl:
+                    r = cl.union({x})
+                    res.insertar(r)
+        for cl in self.listaclaus:
+            for cl2 in conj.listaclaus:
+                cpn = set(map(lambda x: -x, cl))
+                if not cpn.intersection(cl2):
+                    r = cl.union(cl2)
+                    res.insertar(r)
+        return res
+
+    def sel(self,v):
+        result = simpleClausulas()
+        if v in self.unit:
+            result.insertar(set())
+            return result
+        result.unit = self.unit.copy()
+        result.unit.discard(-v)
+        for cl in self.listaclaus:
+            if v in  cl:
+                result.insertar(cl-{v})
+            elif not -v in cl:
+                result.insertar(cl)
+        return result
+
+    def selconf(self,conf):
+        res = simpleClausulas()
+        if conf.intersection(self.unit):
+            res.insertar(set())
+            return res
+        res.unit = self.unit.copy()
+        for v in conf:
+            res.unit.discard(-v)
+
+
+        for cl in self.listaclaus:
+            if cl.intersection(conf):
+                x = cl - conf
+                res.insertar(x)
+        return res
+    def simplificaunit(self,v):
+        if -v in self.unit:
+            self.insertar(set())
+        else:
+            y = []
+            borr = []
+            for cl in self.listaclaus:
+                if -v in cl:
+                    borr.append(cl)
+                    cl.discard(-v)
+                    y.append(cl)
+            for cl in borr:
+                self.eliminars(cl)
+            for cl in y:
+                self.insertar(cl)
+
     
-    
-    
+
     def splitborra(self,v,n=True):
         s1 = simpleClausulas()
         s2 = simpleClausulas()
@@ -313,66 +408,6 @@ class simpleClausulas:
                         s3.insertars(cl)
         return (s1,s2,s3)
 
-    def sel(self,v):
-        result = simpleClausulas()
-        if v in self.unit:
-            result.insertar(set())
-            return result
-        result.unit = self.unit.copy()
-        result.unit.discard(-v)
-        for cl in self.listaclaus:
-            if v in  cl:
-                result.insertar(cl-{v})
-            elif not -v in cl:
-                result.insertar(cl)
-        return result
-
-    def selconf(self,conf):
-        res = simpleClausulas()
-        if conf.intersection(self.unit):
-            res.insertar(set())
-            return res
-        res.unit = self.unit.copy()
-        for v in conf:
-            res.unit.discard(-v)
-
-
-        for cl in self.listaclaus:
-            if cl.intersection(conf):
-                x = cl - conf
-                res.insertar(x)
-        return res
-
-
-
-
-    def combinaborra(self,conj):
-        res = simpleClausulas()
-        if self.contradict:
-            return conj.copia()
-        if conj.contradict:
-            return self.copia()
-        for v in self.unit:
-            for x in conj.unit:
-                if not v == -x:
-                    cl = {v,x}
-                    res.insertar(cl)
-            for cl in conj.listaclaus:
-                if -v not in cl:
-                    r = cl.union({v})
-                    res.insertar(r)
-        for x in conj.unit:
-            for cl in self.listaclaus:
-                if -x not in cl:
-                    r = cl.union({x})
-                    res.insertar(r)
-        for cl in self.listaclaus:
-            for cl2 in conj.listaclaus:
-                cpn = set(map(lambda x: -x, cl))
-                if not cpn.intersection(cl2):
-                    r = cl.union(cl2)
-                    res.insertar(r)
-        return res
 
 
         
