@@ -94,7 +94,10 @@ class simpleClausulas:
                         
             
    
-        
+    def imprime(self):
+        print("v",self.listavar)
+        print("u",self.unit)
+        print("c",self.listaclaus)  
         
                 
     def copia(self):
@@ -259,8 +262,10 @@ class simpleClausulas:
         self.unit = set()
 
     def adconfig(self,conf):
+        
         if conf:
-            self.listavar.update(conf)
+            for x in conf:
+                self.listavar.add(abs(x))
             for cl in self.listaclaus:
                 cl.update(conf)
             for x in self.unit:

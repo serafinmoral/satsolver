@@ -169,7 +169,6 @@ class problemaTrianArbol:
             conf.add(-v)
             self.insertacola(t.hijos[1],conf)
             conf.discard(-v)
-            self.insertacola(t.hijos[2],conf)
 
     def problemacontradict(self):
         print("contradiccion")
@@ -261,7 +260,8 @@ class problemaTrianArbol:
             # t1.imprime()
 
             # wait = input("Press Enter to continue.")
-
+            t0.imprime()
+            t1.imprime()
 
             res1 = t0.combinaborra(t1)
 
