@@ -49,6 +49,10 @@ class problemaTrianArbol:
     
             for cl in self.inicial.listaclaus:
                 self.insertacolaclau(set(cl))
+
+
+            for pot in self.lqueue:
+                pot.normaliza()
                 
             
 
@@ -150,8 +154,7 @@ class problemaTrianArbol:
             pot.insertaclau(cl)
 
     def insertacola(self,t,conf=set()):
-        if t.var == 0:
-            if len(t.value.listaclaus)>0:
+        if t.value.listaclaus  or t.value.unit:
                 if t.value.contradict and not conf:
                     self.problemacontradict()
                 else:
@@ -161,7 +164,7 @@ class problemaTrianArbol:
                     pot.inserta(t,conf)          
 
 
-        else:
+        if not t.var ==0:
             v = t.var
             conf.add(v)
             self.insertacola(t.hijos[0],conf)
@@ -260,13 +263,12 @@ class problemaTrianArbol:
             # t1.imprime()
 
             # wait = input("Press Enter to continue.")
-            t0.imprime()
-            t1.imprime()
+            # t0.imprime()
+            # t1.imprime()
 
             res1 = t0.combinaborra(t1)
 
 
-            res1.normaliza()
             # res2 = t0.combinaborra(h1)
             # res3 = t1.combinaborra(h0)
 
@@ -282,6 +284,7 @@ class problemaTrianArbol:
             # res1.imprime()
             res1.inserta(t2)
             # res1.imprime()
+            res1.normaliza()
 
 
             # res1.imprime()

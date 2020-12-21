@@ -349,6 +349,7 @@ class simpleClausulas:
                 x = cl - conf
                 res.insertar(x)
         return res
+    
     def simplificaunit(self,v):
         if -v in self.unit:
             self.insertar(set())
@@ -365,6 +366,25 @@ class simpleClausulas:
             for cl in y:
                 self.insertar(cl)
 
+    def simplificaunits(self,s):
+        neg = set(map (lambda x: -x,s))
+
+        if self.unit.intersection(s) in self.unit:
+            self.insertar(set())
+        else:
+            y = []
+            borr = []
+            for cl in self.listaclaus:
+    
+                if cl.intersection(neg):
+                    borr.append(cl)
+                    cl.difference_update(neg)
+                    y.append(cl)
+            for cl in borr:
+                self.eliminars(cl)
+            for cl in y:
+                self.insertar(cl)
+
     
 
     def splitborra(self,v,n=True):
@@ -374,6 +394,7 @@ class simpleClausulas:
         if not v in self.listavar:
             for cl in self.listaclaus:
                 s3.insertars(cl)
+            s3.unit = self.unit.copy()
         else:
             if v in self.unit:
                 s1.insertar(set())

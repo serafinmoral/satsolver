@@ -107,7 +107,7 @@ def triangula(grafo):
         clus = veci.union({nnodo})
 
         clusters.append(clus)
-        print(clus) 
+        print( i, clus) 
         i += 1
         grafo.remove_node(nnodo)
         for x in veci:
@@ -179,7 +179,7 @@ def main(prob):
         
         prob.inicia0()     
 
-        prob.borra  ()
+        prob.borra()
 
         # prob.inicia()
         

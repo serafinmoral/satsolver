@@ -111,12 +111,10 @@ class arboldoble:
 
     def asignavarhijosv(self,p,h0,h1,v):
         self.var = p
-        self.value = None
 
         self.hijos[0] = h0
         self.hijos[1] = h1
         self.value = v
-        self.imprime()
 
 
 
@@ -125,7 +123,6 @@ class arboldoble:
         self.var = 0
         self.value = x
         self.hijos = [None,None]
-        self.imprime()        
         
     def asignahijo(self,t,i):
         self.hijos[i] = t
@@ -181,8 +178,8 @@ class arboldoble:
             elif -v in cl:
                 self.hijos[1].insertaclau(self,cl.discard(-v))
             else:
-                self.hijos[0].insertaclau(self,cl)
-                self.hijos[1].insertaclau(self,cl.copy())
+                self.hijos[0].insertaclau(self,cl.copy())
+                self.hijos[1].insertaclau(self,cl)
 
     def simplificaunit(self,v):
         self.value.simplificaunit(v)
@@ -202,7 +199,23 @@ class arboldoble:
                 self.hijos[1].simplificaunit(v)
 
 
-                
+    def simplificaunits(self,s):
+        self.value.simplificaunits(s)
+        if self.value.contradict:
+            self.asignaval(self.value)
+            return
+        if not self.var == 0:
+            self.hijos[0].simplificaunits(s)
+            self.hijos[1].simplificaunits(s)
+            if self.var in s:
+                self.value.hijos[1].combina(self.value)
+                self = self.hijos[1]
+            
+            elif -self.var in s:
+                self.value.hijos[0].combina(self.value)
+
+                self = self.hijos[0]
+            
                 
     def simplifica(self, refarbol, config = set()):
         if self.var == 0:
@@ -246,15 +259,25 @@ class arboldoble:
         else:
             self.hijos[0].normaliza(N)   
             self.hijos[1].normaliza(N)
-            if self.hijos[0].var == 0 and self.hijos[1].var == 0 and \
+            v = self.var
+            if self.hijos[0].value.contradict:
+                self.value.insertar({v})
+                self.hijos[1].value.combina(self.value)
+                self = self.hijos[1]
+            elif self.hijos[1].value.contradict:
+                self.value.insertar({-v})
+                self.hijos[0].value.combina(self.value)
+                self = self.hijos[0]
+            elif self.hijos[0].var == 0 and self.hijos[1].var == 0 and \
                  (self.hijos[0].lon() + self.hijos[1].lon() <=N):
                 v = self.var
-                self.hijos[0].value.addvalue(v)
-                self.hijos[1].value.addvalue(-v)
+                self.hijos[0].value.advalue(v)
+                self.hijos[1].value.advalue(-v)
                 s1 = self.hijos[0].value
                 s2 = self.hijos[1].value
 
-                self.value.combina(s1).combina(s2)
+                self.value.combina(s1)
+                self.value.combina(s2)
 
     
 
@@ -311,9 +334,13 @@ class arboldoble:
                     return res
                 else:
                     h = conf.pop()
+                    
+
                     (t0,t1,t2) = t.splitborra(abs(h))
                     r2 = self.combinaborra(t2,conf)
-                   
+                    val = r2.value
+                    r2.value = simpleClausulas()
+
                     res = arboldoble()
 
                     if h>0:
@@ -327,7 +354,7 @@ class arboldoble:
              
                 
                     
-                    res.asignavarhijos(abs(h),r0,r1)
+                    res.asignavarhijosv(abs(h),r0,r1,val)
                     conf.add(h)
                     return res
 
@@ -344,6 +371,8 @@ class arboldoble:
                     r0 = self.combinaborra(q0,conf)
                     r2 = self.combinaborra(q2,conf)
                     conf.add(v)
+                    val = r2.value
+                    r2.value = simpleClausulas()
                     r0.inserta(r2)
                     r1 = arboldoble()
 
@@ -351,6 +380,8 @@ class arboldoble:
                     conf.discard(-v)
                     r1 = self.combinaborra(q1,conf)
                     r2 = self.combinaborra(q2,conf)
+                    val = r2.value
+                    r2.value = simpleClausulas()
                     conf.add(-v)
                     r1.inserta(r2)
                     r0 = arboldoble()
@@ -368,10 +399,12 @@ class arboldoble:
                     r1.inserta(r11)
                     r1.inserta(r12)
                     r2 = t2.combinaborra(q2,conf)
+                    val = r2.value
+                    r2.value = simpleClausulas()
                     r0.inserta(r2.copia()) 
                     r1.inserta(r2)                   
                     
-                res.asignavarhijos(v,r0,r1)
+                res.asignavarhijosv(v,r0,r1,val)
                 return res
         else:
             v = self.var
@@ -397,6 +430,7 @@ class arboldoble:
 
 
 
+
     def inserta(self,t,conf= set()):
         if t.var == 0:
             if self.var == 0:
@@ -405,6 +439,7 @@ class arboldoble:
                     self.value.insertar(cl)
                 self.normaliza()
             else:
+                t.simplificaunits(self.value.unit)
                 v = self.var
                 if v in conf:
                     conf.discard(v)
