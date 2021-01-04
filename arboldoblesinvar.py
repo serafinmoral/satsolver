@@ -244,7 +244,7 @@ class arboldoble:
 
 
 
-    def normaliza(self,N=20):
+    def normaliza(self,N=120):
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.listaclaus

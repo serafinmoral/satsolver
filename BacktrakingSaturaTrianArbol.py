@@ -161,6 +161,7 @@ def main(prob):
         info.unitprop()
         info.contradict = False
         info.solved = False
+        
 
         print("entro en main")
 
