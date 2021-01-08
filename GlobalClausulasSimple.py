@@ -76,6 +76,8 @@ class globalClausulas:
          self.solution = set()
          self.unit = set()
          self.unitprev = set()
+         self.equiv = set()
+         self.dobles = set()
          
      
     
@@ -156,7 +158,67 @@ class globalClausulas:
                                     
         return res
 
-   
+    def equivprop(self):
+        equival = []
+
+        print(self.equiv)
+        while self.equiv:
+            (l1,l2) = self.equiv.pop()
+            equival.append((l1,l2))
+            
+            print("equivalencia " ,l1 ,l2)
+            eliminar = set()
+            anadir = set()
+#            print("quitamos ", l2)
+            if l2 in self.indices:
+                for c in self.indices[l2]:
+                    eliminar.add(c)
+                    if not -l1 in c: 
+                        h =  frozenset(set(c)-{l2}).union({l1})
+                        anadir.add(h)
+            if -l2 in self.indices:
+                for c in self.indices[-l2]:
+                    eliminar.add(c)
+                    if not l1 in c: 
+                        h =  frozenset(set(c)-{-l2}).union({-l1})
+                        anadir.add(h)
+            for c in eliminar:
+#                    print("borramos ",c)
+                    self.eliminar(c)
+            self.listavar.discard(abs(l2))
+
+#                    if (len(c)==2):
+#                        self.equiv.discard(c)
+            for c in anadir:
+#                    print("añadimos ", c)
+              
+                    if (len(c)==2):
+                        self.dobles.add(c)
+                        mc = frozenset(map(lambda x: -x, c))
+                        if mc in self.dobles:
+                            print(c,mc,"nueva equivalencia")
+                            par = set(c)
+                            t1 = par.pop()
+                            t2 = -par.pop()
+                            
+                            if(abs(t1)<abs(t2)):
+                                if(not  (-t1,-t2) in self.equiv):    
+                                    self.equiv.add((t1,t2))
+                                    print("nueva equivalencia ", t1, t2)
+                                    time.sleep(3)
+                            else:
+                                if(not (-t2,-t1) in self.equiv):
+                                    self.equiv.add((t2,t1)) 
+                                    print("nueva equivalencia ", t2, t1)
+                                    time.sleep(3)
+                    self.insertar(c)
+                        
+
+#            self.unitprop()
+            
+        
+        return equival                        
+        
          
     def calculaconjuntos(self):
         z = globalClausulas()
