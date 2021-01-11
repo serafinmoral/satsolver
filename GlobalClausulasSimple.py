@@ -213,8 +213,9 @@ class globalClausulas:
                                     time.sleep(3)
                     self.insertar(c)
                         
-
-#            self.unitprop()
+            if self.unitprev:
+                print("nueva unitaria")
+                self.unitprop()
             
         
         return equival                        
@@ -848,7 +849,80 @@ class globalClausulas:
         return cola
 
 
-    
+    def saturaborra(self,orden,N=6,M=1):
+        r = self.copia()
+        apren = []
+
+        for v in (orden):
+            apren = apren + r.marginalizalimit(v,N,M)
+            if r.contradict:
+                self.solved = True
+                self.contradict= True
+                return
+
+        print ("aprendidas en satura ",len(apren))
+        for cl in apren:
+            self.contrastar(cl)
+
+    def contrastar(self,cl):
+        anadir = set()
+        borrar = set()
+        for cl2 in self.listaclaus:
+            dif = cl-cl2
+            if not dif:
+                print("quito ", cl2, "anado ", cl)
+                anadir.add(cl)
+                borrar.add(cl2)
+            elif len(dif) == 1:
+                v = set(dif).pop()
+                if -v in cl2:
+                    cla = frozenset(cl2-{-v})
+                    print("quito ", cl2, "anado ", cla)
+
+                    anadir.add(cla)
+                    borrar.add(cl2)
+        for cl2 in borrar:
+            self.eliminar(cl2)
+        for cl2 in anadir:
+            self.insertar(cl2)
+
+    def marginalizalimit(self,var,N,M):
+        
+        lista = []
+        r1 = list(self.indices.get(var,set()))
+        r2 = list(self.indices.get(-var,set()))
+        
+        for x in r1:
+                self.eliminar(x)
+                
+        for x in r2:
+                self.eliminar(x)
+        
+        
+       
+                
+                
+      
+        
+        
+        self.listavar.discard(var)
+        
+        for x in  list(itertools.product(r1,r2)):
+            clau = resolution(var,x[0],x[1])
+
+            if(0 not in clau) and len(clau) <= N and len(clau) <= len(x[0])+len(x[1])-M:
+                self.insertar(clau)
+                if self.contradict:
+                    return lista
+            
+                lista.append(clau)
+            
+            
+                    
+
+                
+        return lista
+            
 
     def podacola(self,x):
         if self.contradict:

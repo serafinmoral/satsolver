@@ -171,11 +171,16 @@ def main(prob):
         info.contradict = False
         info.solved = False
         
-        info.unitprop()
+        info.podaylimpia()
+        
+        while info.unitprev or info.equiv:
+            print("entro ciclo")
+            info.unitprop()
 
-        info.equivprop()
-     
+            info.equivprop()
+            info.podaylimpia()
 
+        
         print("entro en main")
 
 
@@ -188,7 +193,9 @@ def main(prob):
         for i in h:
             prob.posvar[i] = prob.orden.index(i)
             
-
+        # info.saturaborra(prob.orden)
+        # info.podaylimpia()
+  
   
         
         prob.inicia0()     

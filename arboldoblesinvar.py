@@ -24,6 +24,21 @@ def calculavar(lista):
     return max(cuenta, key=(lambda key: cuenta[key]))
 
 
+def calculavar2(lista):
+    # print(    len(lista))
+    # print(lista)
+    cuenta = dict()
+    for cl in lista:
+        if (len(cl))>1:
+            vars = map(abs,cl)
+            for v in vars:
+                if v in cuenta:
+                    cuenta[v]  = min(len(cl),cuenta[v])
+                else:
+                    cuenta[v] = len(cl)
+    return min(cuenta, key=(lambda key: cuenta[key]))
+
+
 def split(lista,var):
     lista1 = simpleClausulas()
     lista2 = simpleClausulas()
@@ -55,7 +70,7 @@ def computefromSimple(x,N):
 
             result.asignaval(x)
         else:
-            var = calculavar(x.listaclaus)    
+            var = calculavar2(x.listaclaus)    
             (l0,l1,unit) = split(x.listaclaus,var)
             h0 = computefromSimple(l0,N)
             h1 = computefromSimple(l1,N)
@@ -248,7 +263,7 @@ class arboldoble:
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.listaclaus
-                var = calculavar(x)    
+                var = calculavar2(x)    
                 (l0,l1,unit) = split(x,var)
                 ug = simpleClausulas()
                 ug.unit = unit
