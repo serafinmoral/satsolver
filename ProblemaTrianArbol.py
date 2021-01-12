@@ -159,9 +159,17 @@ class problemaTrianArbol:
                     self.problemacontradict()
                 else:
                     indices = map(lambda x:self.posvar[abs(x)],conf.union(t.value.listavar))
+                    # print(set(indices))
                     pos = min (indices) 
+                    # print(pos,self.clusters[pos])
                     pot = self.lqueue[pos]
-                    pot.inserta(t,conf)          
+                    # print("inserto en ")
+                    # pot.imprime()
+
+                    pot.inserta(t,conf) 
+                    pot.normaliza()        
+                    # print("resultado")
+                    # pot.imprime() 
 
 
         if not t.var ==0:
@@ -249,9 +257,16 @@ class problemaTrianArbol:
 
             pot.normaliza()
             
-            if (i>= 220):
+            if (i>= 40):
                 pot.imprime()
             (t0,t1,t2) = pot.splitborra(var)
+            # print("resultado split")
+            # t0.imprime()
+            # t1.imprime()
+            # t2.imprime()
+
+
+
             # (h0,h1,h2) = pot2.splitborra(var)
 
             # t0.imprime()
@@ -267,6 +282,9 @@ class problemaTrianArbol:
             # t1.imprime()
 
             res1 = t0.combinaborra(t1)
+            # print("primera combinacion")
+
+            # res1.imprime()
 
 
             # res2 = t0.combinaborra(h1)
@@ -286,7 +304,7 @@ class problemaTrianArbol:
             # res1.imprime()
             res1.normaliza()
 
-
+            # print("despues de insertar t2")
             # res1.imprime()
 
             # arb0 = t0.copia()
@@ -312,13 +330,12 @@ class problemaTrianArbol:
 
             # pot2.imprime()
 
-            res1.normaliza()
             # print("resultado")
             # res1.imprime()
             # wait = input("Press Enter to continue.")
 
             
-            pot.anula()
+            pot.void()
 
             self.insertacola(res1)
 

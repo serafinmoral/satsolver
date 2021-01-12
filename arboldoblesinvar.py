@@ -110,6 +110,13 @@ class arboldoble:
         self.unit = set()
         self.hijos = [None,None]
 
+    def void(self):
+        self.var = 0
+        self.value = simpleClausulas()
+        self.unit = set()
+        self.hijos = [None,None]
+        
+
     def asignavar(self,p):
         self.var = p
         self.value = None
@@ -259,7 +266,7 @@ class arboldoble:
 
 
 
-    def normaliza(self,N=120):
+    def normaliza(self,N=4):
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.listaclaus
@@ -450,6 +457,8 @@ class arboldoble:
         if t.var == 0:
             if self.var == 0:
                 t.value.adconfig(conf)
+                for v in t.value.unit:
+                    self.value.insertar({v})
                 for cl in t.value.listaclaus:
                     self.value.insertar(cl)
                 self.normaliza()
@@ -470,6 +479,7 @@ class arboldoble:
                     self.hijos[1].inserta(l1,conf)
                     self.hijos[0].inserta(l2.copia(),conf)
                     self.hijos[1].inserta(l2,conf)
+                    
 
 
 
