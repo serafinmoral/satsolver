@@ -161,9 +161,9 @@ class problemaTrianArbol:
                     indices = map(lambda x:self.posvar[abs(x)],conf.union(t.value.listavar))
                     # print(set(indices))
                     pos = min (indices) 
-                    # print(pos,self.clusters[pos])
+                    print(pos,self.clusters[pos])
                     pot = self.lqueue[pos]
-                    # print("inserto en ")
+                    print("inserto en ", pos)
                     # pot.imprime()
 
                     pot.inserta(t,conf) 
@@ -248,7 +248,7 @@ class problemaTrianArbol:
             print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
      
             pot = self.lqueue[i]
-            pot2 = self.lpot[i]
+            # pot2 = self.lpot[i]
 
             # pot.imprime()            
             # wait = input("Press Enter to continue.")
@@ -257,10 +257,10 @@ class problemaTrianArbol:
 
             pot.normaliza()
             
-            if (i>= 40):
+            if (i>= 0):
                 pot.imprime()
             (t0,t1,t2) = pot.splitborra(var)
-            # print("resultado split")
+            print("resultado split")
             # t0.imprime()
             # t1.imprime()
             # t2.imprime()
@@ -282,9 +282,9 @@ class problemaTrianArbol:
             # t1.imprime()
 
             res1 = t0.combinaborra(t1)
-            # print("primera combinacion")
+            print("primera combinacion")
 
-            # res1.imprime()
+            res1.imprime()
 
 
             # res2 = t0.combinaborra(h1)
@@ -304,8 +304,8 @@ class problemaTrianArbol:
             # res1.imprime()
             res1.normaliza()
 
-            # print("despues de insertar t2")
-            # res1.imprime()
+            print("despues de insertar t2")
+            res1.imprime()
 
             # arb0 = t0.copia()
             # arb1 = arboltriple()

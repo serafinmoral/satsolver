@@ -320,6 +320,47 @@ class simpleClausulas:
                     res.insertar(r)
         return res
 
+
+     def combinaborrac(self,conj,conf):
+        res = simpleClausulas()
+        if self.contradict:
+            h = conj.copia()
+            h.adconfig(conf)
+            return h
+        if conj.contradict:
+            h = self.copia()
+            h.adconfig(conf)
+            return h
+
+        confn = set(map(lambda x: -x, conf))
+
+        for v in self.unit:
+            if -v not in conf:
+                for x in conj.unit:
+                    if not v == -x:
+                        cl = conf.union({v,x})
+                        res.insertar(cl)
+                for cl in conj.listaclaus:
+                    if -v not in cl:
+                        r = cl.union({v}).union(conf)
+                        res.insertar(r)
+        for x in conj.unit:
+            for cl in self.listaclaus:
+                if not confn.intersection(cl)
+                if -x not in cl:
+                    r = cl.union({x}).union(conf)
+                    res.insertar(r)
+        for cl in self.listaclaus:
+            if not confn.intersection(cl)
+                cpn = set(map(lambda x: -x, cl))
+                for cl2 in conj.listaclaus:
+                
+                    
+                    if not cpn.intersection(cl2):
+                    r = cl.union(cl2).union(conf)
+                    res.insertar(r)
+        return res
+
     def sel(self,v):
         result = simpleClausulas()
         if v in self.unit:
@@ -399,14 +440,14 @@ class simpleClausulas:
             if v in self.unit:
                 s1.insertar(set())
                 for x in self.unit:
-                    if not x == v:
+                    if not x == v and not x==-v:
                         s3.unit.add(x)
                 for cl in self.listaclaus:
                     s3.insertars(cl)
             elif -v in self.unit:
                 s2.insertar(set())
                 for x in self.unit:
-                    if not x == -v:
+                    if  not x == v and not x==-v:
                         s3.unit.add(x)
                 for cl in self.listaclaus:
                     s3.insertars(cl)

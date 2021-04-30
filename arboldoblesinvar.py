@@ -47,6 +47,10 @@ def split(lista,var):
         if len(cl)==1:
             v = cl.pop()
             unit.add(v)
+            if v == var:
+                lista1.insertar({})
+            if v == -var:
+                lista2.insertar({})
         elif var in cl:
             cl.discard(var)
             lista1.insertar(cl)
@@ -266,14 +270,16 @@ class arboldoble:
 
 
 
-    def normaliza(self,N=4):
+    def normaliza(self,N=10):
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.listaclaus
-                var = calculavar2(x)    
+                var = calculavar(x)    
                 (l0,l1,unit) = split(x,var)
+                
                 ug = simpleClausulas()
-                ug.unit = unit
+                ug.unit = unit.copy()
+                ug.unit.update(self.unit)
                 h0 = computefromSimple(l0,N)
                 h1 = computefromSimple(l1,N)
 
@@ -346,39 +352,43 @@ class arboldoble:
 
 
     def combinaborra(self,t,conf = set()):
-        if self.var == 0:
-            if t.var == 0:
+        if  t.var == 0:
+            return self.combinaborrasimple(t.value,conf)
+        else:
+            v = t.var
+            conf.add(v)
+            r0 = self.combinaborra(t.hijos[0],conf)
+            conf.discard(v)
+            
+            conf.add(-v)
+            r1 = self.combinaborra(t.hijos[1],conf)
+            conf.discard(-v)
+        
+            r2 = self.combinaborrasimple(t.value,conf)
+
+            r0.inserta(r1)
+            r0.inserta(r2)
+            return r0
+
+
+    def combinaborrasimple(self,simple,conf)
+            if self.var == 0:
                 if not conf:
-                    prod = self.value.combinaborra(t.value)
+                    prod = self.value.combinaborra(simple)
                     res = arboldoble()
                     res.asignaval(prod)
                     res.normaliza()
                     return res
                 else:
-                    h = conf.pop()
-                    
-
-                    (t0,t1,t2) = t.splitborra(abs(h))
-                    r2 = self.combinaborra(t2,conf)
-                    val = r2.value
-                    r2.value = simpleClausulas()
-
+                    prod = self.value.combinaborrac(simple,conf)
                     res = arboldoble()
-
-                    if h>0:
-                        r0 = self.combinaborra(t0,conf)
-                        r0.inserta(r2)
-                        r1 = arboldoble()
-                    elif h<0:
-                        r1 = self.combinaborra(t1,conf)
-                        r1.inserta(r2)
-                        r0 = arboldoble()
-             
-                
-                    
-                    res.asignavarhijosv(abs(h),r0,r1,val)
-                    conf.add(h)
+                    res.asignaval(prod)
+                    res.normaliza()
                     return res
+                
+
+
+                
 
             else:
                 v = t.var
@@ -429,21 +439,7 @@ class arboldoble:
                 res.asignavarhijosv(v,r0,r1,val)
                 return res
         else:
-            v = self.var
-            conf.add(v)
-            r0 = self.hijos[0].combinaborra(t,conf)
-            conf.discard(v)
-            conf.add(-v)
-            r1 = self.hijos[1].combinaborra(t,conf)
-            conf.discard(-v)
             
-            t2 = arboldoble()
-            t2.asignaval(self.value.copia())
-            r2 = t2.combinaborra(t,conf)
-
-            r0.inserta(r1)
-            r0.inserta(r2)
-            return r0
 
 
 
