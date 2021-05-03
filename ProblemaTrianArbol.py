@@ -261,9 +261,9 @@ class problemaTrianArbol:
                 pot.imprime()
             (t0,t1,t2) = pot.splitborra(var)
             print("resultado split")
-            # t0.imprime()
-            # t1.imprime()
-            # t2.imprime()
+            t0.imprime()
+            t1.imprime()
+            t2.imprime()
 
 
 

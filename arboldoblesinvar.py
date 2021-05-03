@@ -371,7 +371,7 @@ class arboldoble:
             return r0
 
 
-    def combinaborrasimple(self,simple,conf)
+    def combinaborrasimple(self,simple,conf):
             if self.var == 0:
                 if not conf:
                     prod = self.value.combinaborra(simple)
@@ -391,54 +391,39 @@ class arboldoble:
                 
 
             else:
-                v = t.var
+                v = self.var
                 res = arboldoble()
-                q0 = t.hijos[0]
-                q1 = t.hijos[1]
-                q2 = arboldoble()
-                q2.asignaval(t.value)
+                if not conf:
+                    prod = self.value.combinaborra(simple)
+                else:
+                    prod = self.value.combinaborrac(simple,conf)
+                res1 = arboldoble()
+                res1.asignaval(prod)
+                res1.normaliza()
+                val = simpleClausulas()
+
 
                 if v in conf:
                     conf.discard(v)
-                    r0 = self.combinaborra(q0,conf)
-                    r2 = self.combinaborra(q2,conf)
+                    r0 = self.hijos[0].combinaborrasimple(simple,conf)
                     conf.add(v)
-                    val = r2.value
-                    r2.value = simpleClausulas()
-                    r0.inserta(r2)
                     r1 = arboldoble()
+                    
 
                 elif -v in conf:
                     conf.discard(-v)
-                    r1 = self.combinaborra(q1,conf)
-                    r2 = self.combinaborra(q2,conf)
-                    val = r2.value
-                    r2.value = simpleClausulas()
+                    r1 = self.hijos[1].combinaborrasimple(simple,conf)
                     conf.add(-v)
-                    r1.inserta(r2)
                     r0 = arboldoble()
-                else: 
-                    (t0,t1,t2) = self.splitborra(v)
 
-                    r0 = t0.combinaborra(q0,conf)
-                    r01 = t0.combinaborra(q2,conf)
-                    r02 = t2.combinaborra(q0,conf)
-                    r0.inserta(r01)
-                    r0.inserta(r02)
-                    r1 = t1.combinaborra(q1,conf)
-                    r11 = t1.combinaborra(q2,conf)
-                    r12 = t2.combinaborra(q1,conf)
-                    r1.inserta(r11)
-                    r1.inserta(r12)
-                    r2 = t2.combinaborra(q2,conf)
-                    val = r2.value
-                    r2.value = simpleClausulas()
-                    r0.inserta(r2.copia()) 
-                    r1.inserta(r2)                   
-                    
+                else: 
+                    r0 = self.hijos[0].combinaborrasimple(simple,conf)
+                    r1 = self.hijos[1].combinaborrasimple(simple,conf)
+
                 res.asignavarhijosv(v,r0,r1,val)
+                res.inserta(res1)
                 return res
-        else:
+                    
             
 
 
