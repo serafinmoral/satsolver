@@ -153,16 +153,16 @@ class arboldoble:
     def asignahijo(self,t,i):
         self.hijos[i] = t
         
-    def imprime(self):
-            print("valor clausulas" , self.value.listaclaus)
-            print("valor unit" , self.value.unit)
+    def imprime(self, str = ''):
+            print(str + "valor clausulas" , self.value.listaclaus)
+            print(str +"valor unit" , self.value.unit)
 
-            print ("variable ",self.var)
+            print (str +"variable ",self.var)
             if not self.var == 0:
-                print("hijo 1")
-                self.hijos[0].imprime()
-                print("hijo 2")
-                self.hijos[1].imprime()
+                print(str +"hijo 1")
+                self.hijos[0].imprime(str  + '   ')
+                print(str +"hijo 2")
+                self.hijos[1].imprime(str  + '   ')
             
     def lon(self):
         return (len(self.value.unit) + len(self.value.listaclaus))  
@@ -268,9 +268,21 @@ class arboldoble:
             config.discard(-v)
             self.hijos[2].simplifica(refarbol, config)
 
+    def tosimple(self):
+        res = simpleClausulas()
+        res.combina(self.value.copia())
+        if not self.var == 0:
+            res1 = self.hijos[0].tosimple()
+            res2 = self.hijos[1].tosimple()
+            res1.advalue(self.var)
+            res2.advalue(-self.var) 
+            res.combina(res1)
+            res.combina(res2)
+        return res
+    
 
 
-    def normaliza(self,N=10):
+    def normaliza(self,N=20):
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.listaclaus
@@ -306,7 +318,7 @@ class arboldoble:
 
                 self.value.combina(s1)
                 self.value.combina(s2)
-
+                self.var = 0
     
 
 
@@ -417,8 +429,8 @@ class arboldoble:
                     r0 = arboldoble()
 
                 else: 
-                    r0 = self.hijos[0].combinaborrasimple(simple,conf)
-                    r1 = self.hijos[1].combinaborrasimple(simple,conf)
+                    r0 = self.hijos[0].combinaborrasimple(simple.sel(v),conf)
+                    r1 = self.hijos[1].combinaborrasimple(simple.sel(-v),conf)
 
                 res.asignavarhijosv(v,r0,r1,val)
                 res.inserta(res1)

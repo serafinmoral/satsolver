@@ -112,6 +112,25 @@ class simpleClausulas:
           
       return nuevo
 
+
+    def copiac(self,conf):
+      confn= set(map(lambda x: -x ,conf))
+      varn = set(map(lambda x: abs(x) ,conf))
+      nuevo = simpleClausulas()
+      nuevo.listavar = self.listavar.union(varn)
+      for x in self.unit:
+          if -x not in conf:
+              cl = conf.union({x})
+              nuevo.insertar(cl)
+      
+      
+      for x in self.listaclaus:
+        if not confn.intersection(x):
+            cl = conf.union(x)
+            nuevo.listaclaus.append(cl)
+          
+      return nuevo
+
     
     
     
@@ -288,8 +307,16 @@ class simpleClausulas:
             for cl in simple.listaclaus:
                 self.insertar(cl)
    
-
-
+    def equal(self,simple):
+        if not self.unit == simple.unit:
+            return False
+        for cl in self.listaclaus:
+                if cl not in simple.listaclaus:
+                    return False
+        for cl in simple.listaclaus:
+                if cl not in self.listaclaus:
+                    return False
+        return True
 
 
     def combinaborra(self,conj):
@@ -328,8 +355,8 @@ class simpleClausulas:
             h.adconfig(conf)
             return h
         if conj.contradict:
-            h = self.copia()
-            h.adconfig(conf)
+            h = self.copiac(conf) 
+        
             return h
 
         confn = set(map(lambda x: -x, conf))

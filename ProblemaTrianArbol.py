@@ -161,9 +161,9 @@ class problemaTrianArbol:
                     indices = map(lambda x:self.posvar[abs(x)],conf.union(t.value.listavar))
                     # print(set(indices))
                     pos = min (indices) 
-                    print(pos,self.clusters[pos])
+                    # print(pos,self.clusters[pos])
                     pot = self.lqueue[pos]
-                    print("inserto en ", pos)
+                    # print("inserto en ", pos)
                     # pot.imprime()
 
                     pot.inserta(t,conf) 
@@ -255,15 +255,23 @@ class problemaTrianArbol:
 
             # pot.simplifica(pot2)
 
-            pot.normaliza()
+            potcopia = pot.copia()
+
+            pot.normaliza(N= 2)
+            potcopia.normaliza(N=3000)
+
+
             
-            if (i>= 0):
-                pot.imprime()
+            # if (i>= 0):
+            #     pot.imprime()
+
+        
             (t0,t1,t2) = pot.splitborra(var)
-            print("resultado split")
-            t0.imprime()
-            t1.imprime()
-            t2.imprime()
+            (t0c,t1c,t2c) = potcopia.splitborra(var)
+
+            # print("resultado split")
+            
+            
 
 
 
@@ -282,9 +290,18 @@ class problemaTrianArbol:
             # t1.imprime()
 
             res1 = t0.combinaborra(t1)
-            print("primera combinacion")
+            res1c = t0c.combinaborra(t1c)
+            s = res1.tosimple()
+            sc = res1c.tosimple()
 
-            res1.imprime()
+            if not s.equal(sc):
+                print("no iguales")
+                
+                pot.imprime()
+                t0.imprime()
+                t1.imprime()
+                res1.imprime()
+                s.imprime()
 
 
             # res2 = t0.combinaborra(h1)
@@ -304,8 +321,8 @@ class problemaTrianArbol:
             # res1.imprime()
             res1.normaliza()
 
-            print("despues de insertar t2")
-            res1.imprime()
+            # print("despues de insertar t2")
+            # res1.imprime()
 
             # arb0 = t0.copia()
             # arb1 = arboltriple()
