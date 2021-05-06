@@ -293,7 +293,6 @@ class simpleClausulas:
             self.unit = set()
    
 
-    
 
     def combina(self,simple):
         neg = set(map(lambda x: -x, simple.unit))
@@ -318,6 +317,11 @@ class simpleClausulas:
                     return False
         return True
 
+    def nulo(self):
+        if self.unit or self.listaclaus:
+            return False
+        else:
+            return True
 
     def combinaborra(self,conj):
         res = simpleClausulas()
@@ -486,21 +490,24 @@ class simpleClausulas:
                 for cl in self.listaclaus:
                     if v in cl:
                         if n:
-                            cl = cl - {v}
+                            cl1 = cl - {v}
+                            s1.insertars(cl1)
                         else:
                             cl.discard(v)
-                        
-                        s1.insertars(cl)
+                            s1.insertars(cl)
                     elif -v in cl:
                         if n:
-                            cl = cl - {-v}
+                            cl1 = cl - {-v}
+                            s2.insertars(cl1)
                         else:
                             cl.discard(-v)
-                        s2.insertars(cl)
+                            s2.insertars(cl)
                     else: 
                         if n:
-                            cl = cl.copy()
-                        s3.insertars(cl)
+                            cl1 = cl.copy()
+                            s3.insertars(cl1)
+                        else:
+                            s3.insertars(cl)
         return (s1,s2,s3)
 
 

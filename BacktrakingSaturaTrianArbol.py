@@ -50,8 +50,7 @@ def leeArchivoGlobal(Archivo):
         cadena = reader.readline()
 #    param = cadena.split()
 
-    infor = globalClausulas()
-    infor.nvar = nvar
+    infor = simpleClausulas()
     
     for cadena in reader:
 #        print (cadena)
@@ -60,23 +59,23 @@ def leeArchivoGlobal(Archivo):
             listaux=cadena.split()
             listaux.pop()
             listaux = map(int,listaux)
-            clausula= frozenset(listaux)
+            clausula= set(listaux)
             infor.insertar(clausula)
-            if(len(clausula)==1):
-                h = set(clausula).pop()
-                infor.unitprev.add(h)
-                infor.unit.add(h)
-            elif (len(clausula)==2):
-                infor.dobles.add(clausula)
-                mclau = frozenset(map(lambda x: -x,clausula))
-                if mclau in infor.dobles:
-                    par = set(clausula)
-                    l1 = par.pop()
-                    l2 = -par.pop()
-                    if(abs(l1)<abs(l2)):
-                        infor.equiv.add((l1,l2))
-                    else:
-                        infor.equiv.add((l2,l1))    
+            # if(len(clausula)==1):
+            #     h = set(clausula).pop()
+            #     infor.unitprev.add(h)
+            #     infor.unit.add(h)
+            # elif (len(clausula)==2):
+            #     infor.dobles.add(clausula)
+            #     mclau = frozenset(map(lambda x: -x,clausula))
+            #     if mclau in infor.dobles:
+            #         par = set(clausula)
+            #         l1 = par.pop()
+            #         l2 = -par.pop()
+            #         if(abs(l1)<abs(l2)):
+            #             infor.equiv.add((l1,l2))
+            #         else:
+            #             infor.equiv.add((l2,l1))    
             
 
 
@@ -171,19 +170,19 @@ def main(prob):
         info.contradict = False
         info.solved = False
         
-        info.podaylimpia()
+        # info.podaylimpia()
         
-        while info.unitprev or info.equiv:
-            print("entro ciclo")
-            info.unitprop()
+        # while info.unitprev or info.equiv:
+        #     print("entro ciclo")
+        #     info.unitprop()
 
-            info.equivprop()
-            info.podaylimpia()
+        #     info.equivprop()
+        #     info.podaylimpia()
 
         
         print("entro en main")
 
-
+        
         grafo = info.cgrafo()
         (prob.orden,prob.clusters)  = triangula(grafo)
         
@@ -196,7 +195,8 @@ def main(prob):
         # info.saturaborra(prob.orden)
         # info.podaylimpia()
   
-  
+        print(prob.inicial.listaclaus)
+        print(prob.inicial.unit)
         
         prob.inicia0()     
 
@@ -239,7 +239,7 @@ while reader:
     t1 = time()
     info = leeArchivoGlobal(nombre)
     t2= time()
-
+    info.imprime()
     prob = problemaTrianArbol(info)
     prob.N1 = N1
     prob.N2 = N2

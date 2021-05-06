@@ -15,6 +15,14 @@ def filtra(lista,nconfig,pconfig,i):
                 result.append(cl)
     return result
 
+def compruebasolsimple(pot,sol):
+    for v in pot.value.unit:
+        if -v in sol:
+            return False
+    for cl in pot.value.listaclaus:
+        if not cl.intersection(sol):
+            return False
+    return True
 
 def filtrasplit(lista,nconfig,pconfig,i):
     result1 = []
@@ -26,6 +34,7 @@ def filtrasplit(lista,nconfig,pconfig,i):
                 result2.append(cl)
                 
     return (result1,result2)
+
 
 class problemaTrianArbol:
     def __init__(self,info):
@@ -49,6 +58,8 @@ class problemaTrianArbol:
     
             for cl in self.inicial.listaclaus:
                 self.insertacolaclau(set(cl))
+     
+
 
 
             for pot in self.lqueue:
@@ -166,8 +177,13 @@ class problemaTrianArbol:
                     # print("inserto en ", pos)
                     # pot.imprime()
 
+                    
+
                     pot.inserta(t,conf) 
-                    pot.normaliza()        
+                    pot.normaliza()     
+
+
+                    
                     # print("resultado")
                     # pot.imprime() 
 
@@ -249,25 +265,21 @@ class problemaTrianArbol:
      
             pot = self.lqueue[i]
             # pot2 = self.lpot[i]
+            # pot.normaliza(N= 400)
 
             # pot.imprime()            
             # wait = input("Press Enter to continue.")
 
             # pot.simplifica(pot2)
 
-            potcopia = pot.copia()
 
-            pot.normaliza(N= 2)
-            potcopia.normaliza(N=3000)
 
 
             
-            # if (i>= 0):
-            #     pot.imprime()
 
-        
+            
             (t0,t1,t2) = pot.splitborra(var)
-            (t0c,t1c,t2c) = potcopia.splitborra(var)
+            # (t0c,t1c,t2c) = potcopia.splitborra(var)
 
             # print("resultado split")
             
@@ -277,9 +289,7 @@ class problemaTrianArbol:
 
             # (h0,h1,h2) = pot2.splitborra(var)
 
-            # t0.imprime()
-            # t1.imprime()
-            # t2.imprime()
+          
 
             # pot.imprime()
             # t0.imprime()
@@ -290,18 +300,19 @@ class problemaTrianArbol:
             # t1.imprime()
 
             res1 = t0.combinaborra(t1)
-            res1c = t0c.combinaborra(t1c)
-            s = res1.tosimple()
-            sc = res1c.tosimple()
 
-            if not s.equal(sc):
-                print("no iguales")
+            # res1c = t0c.combinaborra(t1c)
+            # s = res1.tosimple()
+            # sc = res1c.tosimple()
+
+            # if not s.equal(sc):
+            #     print("no iguales")
                 
-                pot.imprime()
-                t0.imprime()
-                t1.imprime()
-                res1.imprime()
-                s.imprime()
+            #     pot.imprime()
+            #     t0.imprime()
+            #     t1.imprime()
+            #     res1.imprime()
+            #     s.imprime()
 
 
             # res2 = t0.combinaborra(h1)
@@ -317,12 +328,17 @@ class problemaTrianArbol:
             # res1.inserta3(res3)
 
             # res1.imprime()
+            
             res1.inserta(t2)
-            # res1.imprime()
-            res1.normaliza()
 
-            # print("despues de insertar t2")
+            
+            # res1.normaliza(N=200)
+
             # res1.imprime()
+
+           
+
+            
 
             # arb0 = t0.copia()
             # arb1 = arboltriple()
