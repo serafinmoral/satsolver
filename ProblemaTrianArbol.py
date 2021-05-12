@@ -37,9 +37,8 @@ def filtrasplit(lista,nconfig,pconfig,i):
 
 
 class problemaTrianArbol:
-    def __init__(self,info):
-         self.N1 = 300
-         self.N2 = 3
+    def __init__(self,info,N=100):
+         self.N = N
          self.inicial = info
          self.orden = []
          self.clusters = []
@@ -63,17 +62,18 @@ class problemaTrianArbol:
 
 
             for pot in self.lqueue:
-                pot.normaliza()
+                pot.normaliza(self.N)
                 
             
+
 
 
     def inicia2(self):
             cola = []
             for i in self.orden:
-                x = arboltriple()
+                x = arboldoble()
                 self.lpot.append(x)
-                y = arboltriple()
+                y = arboldoble()
                 self.lqueue.append(y)
                 
             
@@ -98,6 +98,7 @@ class problemaTrianArbol:
             print(len(listaorden))
             return listaorden
      
+                
                 
 
                     
@@ -179,8 +180,8 @@ class problemaTrianArbol:
 
                     
 
-                    pot.inserta(t,conf) 
-                    pot.normaliza()     
+                    pot.inserta(t,self.N,conf) 
+                    pot.normaliza(self.N)     
 
 
                     
@@ -264,6 +265,7 @@ class problemaTrianArbol:
             print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
      
             pot = self.lqueue[i]
+            pot.normaliza(self.N)
             # pot2 = self.lpot[i]
             # pot.normaliza(N= 400)
 
@@ -299,7 +301,7 @@ class problemaTrianArbol:
             # t0.imprime()
             # t1.imprime()
 
-            res1 = t0.combinaborra(t1)
+            res1 = t0.combinaborra(t1,self.N)
 
             # res1c = t0c.combinaborra(t1c)
             # s = res1.tosimple()
@@ -329,10 +331,10 @@ class problemaTrianArbol:
 
             # res1.imprime()
             
-            res1.inserta(t2)
+            res1.inserta(t2,self.N)
 
             
-            # res1.normaliza(N=200)
+            res1.normaliza(self.N)
 
             # res1.imprime()
 

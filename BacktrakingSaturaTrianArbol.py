@@ -232,18 +232,14 @@ while reader:
     param = linea.split()
     nombre = param[0]
     N1 = int(param[1])
-    N2 = int(param[2])
-    N3 = int(param[3])
-#    I = int(param[4])
+    
     print(nombre)     
     t1 = time()
     info = leeArchivoGlobal(nombre)
     t2= time()
-    info.imprime()
-    prob = problemaTrianArbol(info)
-    prob.N1 = N1
-    prob.N2 = N2
-    prob.N3 = N3
+    # info.imprime()
+    prob = problemaTrianArbol(info,N1)
+    
 #    prob.I = I
 
 #info = leeArchivoSet('SAT_V144C560.cnf')
