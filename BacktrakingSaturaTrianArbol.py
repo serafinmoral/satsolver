@@ -7,6 +7,7 @@ Created on Wed Mar  6 13:30:14 2019
 """
 import os
 import sys
+import time
 
 import itertools
 import networkx as nx    

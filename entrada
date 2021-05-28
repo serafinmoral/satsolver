@@ -1,15 +1,13 @@
-aes_32_1_keyfind_1.cnf 80
-aes_32_1_keyfind_1.cnf 100
 aes_32_1_keyfind_1.cnf 120
-aes_32_1_keyfind_1.cnf 140
-aes_32_1_keyfind_1.cnf 160
-aes_32_1_keyfind_1.cnf 180
-aes_32_1_keyfind_1.cnf 200
-aes_32_1_keyfind_1.cnf 220
+aes_32_2_keyfind_1.cnf 120
+aes_32_1_keyfind_1.cnf 120
+aes_32_1_keyfind_1.cnf 120
 
 
 
-aes_32_2_keyfind_1.cnf 3 1 3 2000
+
+
+
 
 
 
