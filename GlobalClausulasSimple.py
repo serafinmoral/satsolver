@@ -76,6 +76,8 @@ class globalClausulas:
          self.solution = set()
          self.unit = set()
          self.unitprev = set()
+         self.equiv = set()
+         self.dobles = set()
          
      
     
@@ -156,7 +158,68 @@ class globalClausulas:
                                     
         return res
 
-   
+    def equivprop(self):
+        equival = []
+
+        print(self.equiv)
+        while self.equiv:
+            (l1,l2) = self.equiv.pop()
+            equival.append((l1,l2))
+            
+            print("equivalencia " ,l1 ,l2)
+            eliminar = set()
+            anadir = set()
+#            print("quitamos ", l2)
+            if l2 in self.indices:
+                for c in self.indices[l2]:
+                    eliminar.add(c)
+                    if not -l1 in c: 
+                        h =  frozenset(set(c)-{l2}).union({l1})
+                        anadir.add(h)
+            if -l2 in self.indices:
+                for c in self.indices[-l2]:
+                    eliminar.add(c)
+                    if not l1 in c: 
+                        h =  frozenset(set(c)-{-l2}).union({-l1})
+                        anadir.add(h)
+            for c in eliminar:
+#                    print("borramos ",c)
+                    self.eliminar(c)
+            self.listavar.discard(abs(l2))
+
+#                    if (len(c)==2):
+#                        self.equiv.discard(c)
+            for c in anadir:
+#                    print("añadimos ", c)
+              
+                    if (len(c)==2):
+                        self.dobles.add(c)
+                        mc = frozenset(map(lambda x: -x, c))
+                        if mc in self.dobles:
+                            print(c,mc,"nueva equivalencia")
+                            par = set(c)
+                            t1 = par.pop()
+                            t2 = -par.pop()
+                            
+                            if(abs(t1)<abs(t2)):
+                                if(not  (-t1,-t2) in self.equiv):    
+                                    self.equiv.add((t1,t2))
+                                    print("nueva equivalencia ", t1, t2)
+                                    time.sleep(3)
+                            else:
+                                if(not (-t2,-t1) in self.equiv):
+                                    self.equiv.add((t2,t1)) 
+                                    print("nueva equivalencia ", t2, t1)
+                                    time.sleep(3)
+                    self.insertar(c)
+                        
+            if self.unitprev:
+                print("nueva unitaria")
+                self.unitprop()
+            
+        
+        return equival                        
+        
          
     def calculaconjuntos(self):
         z = globalClausulas()
@@ -786,7 +849,80 @@ class globalClausulas:
         return cola
 
 
-    
+    def saturaborra(self,orden,N=6,M=1):
+        r = self.copia()
+        apren = []
+
+        for v in (orden):
+            apren = apren + r.marginalizalimit(v,N,M)
+            if r.contradict:
+                self.solved = True
+                self.contradict= True
+                return
+
+        print ("aprendidas en satura ",len(apren))
+        for cl in apren:
+            self.contrastar(cl)
+
+    def contrastar(self,cl):
+        anadir = set()
+        borrar = set()
+        for cl2 in self.listaclaus:
+            dif = cl-cl2
+            if not dif:
+                print("quito ", cl2, "anado ", cl)
+                anadir.add(cl)
+                borrar.add(cl2)
+            elif len(dif) == 1:
+                v = set(dif).pop()
+                if -v in cl2:
+                    cla = frozenset(cl2-{-v})
+                    print("quito ", cl2, "anado ", cla)
+
+                    anadir.add(cla)
+                    borrar.add(cl2)
+        for cl2 in borrar:
+            self.eliminar(cl2)
+        for cl2 in anadir:
+            self.insertar(cl2)
+
+    def marginalizalimit(self,var,N,M):
+        
+        lista = []
+        r1 = list(self.indices.get(var,set()))
+        r2 = list(self.indices.get(-var,set()))
+        
+        for x in r1:
+                self.eliminar(x)
+                
+        for x in r2:
+                self.eliminar(x)
+        
+        
+       
+                
+                
+      
+        
+        
+        self.listavar.discard(var)
+        
+        for x in  list(itertools.product(r1,r2)):
+            clau = resolution(var,x[0],x[1])
+
+            if(0 not in clau) and len(clau) <= N and len(clau) <= len(x[0])+len(x[1])-M:
+                self.insertar(clau)
+                if self.contradict:
+                    return lista
+            
+                lista.append(clau)
+            
+            
+                    
+
+                
+        return lista
+            
 
     def podacola(self,x):
         if self.contradict:

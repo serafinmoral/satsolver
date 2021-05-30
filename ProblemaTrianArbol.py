@@ -4,6 +4,9 @@ Created on Wed Aug 26 12:28:21 2020
 
 @author: Serafin
 """
+
+import time
+
 from arboldoblesinvar import *
 from SimpleClausulas import *
 
@@ -15,6 +18,14 @@ def filtra(lista,nconfig,pconfig,i):
                 result.append(cl)
     return result
 
+def compruebasolsimple(pot,sol):
+    for v in pot.value.unit:
+        if -v in sol:
+            return False
+    for cl in pot.value.listaclaus:
+        if not cl.intersection(sol):
+            return False
+    return True
 
 def filtrasplit(lista,nconfig,pconfig,i):
     result1 = []
@@ -27,10 +38,10 @@ def filtrasplit(lista,nconfig,pconfig,i):
                 
     return (result1,result2)
 
+
 class problemaTrianArbol:
-    def __init__(self,info):
-         self.N1 = 300
-         self.N2 = 3
+    def __init__(self,info,N=100):
+         self.N = N
          self.inicial = info
          self.orden = []
          self.clusters = []
@@ -47,22 +58,28 @@ class problemaTrianArbol:
                 y = arboldoble()
                 self.lqueue.append(y)
     
+
+            for v in self.inicial.unit:
+                self.insertacolaclau2({v})
             for cl in self.inicial.listaclaus:
-                self.insertacolaclau(set(cl))
+                self.insertacolaclau2(cl)
+     
+
 
 
             for pot in self.lqueue:
-                pot.normaliza()
+                pot.normaliza(self.N)
                 
             
+
 
 
     def inicia2(self):
             cola = []
             for i in self.orden:
-                x = arboltriple()
+                x = arboldoble()
                 self.lpot.append(x)
-                y = arboltriple()
+                y = arboldoble()
                 self.lqueue.append(y)
                 
             
@@ -87,6 +104,7 @@ class problemaTrianArbol:
             print(len(listaorden))
             return listaorden
      
+                
                 
 
                     
@@ -153,24 +171,69 @@ class problemaTrianArbol:
             pot = self.lqueue[pos]
             pot.insertaclau(cl)
 
-    def insertacola(self,t,conf=set()):
-        if t.value.listaclaus  or t.value.unit:
+    def insertacolaclau2(self,cl):
+        if not cl:
+            self.anula()
+        else:
+            
+            vars = set(map(lambda x:abs(x),cl))
+            for pos in range(len(self.clusters)):
+                if vars <= self.clusters[pos]:
+                    break
+
+            
+            pot = self.lqueue[pos]
+            pot.insertaclau(cl)
+
+    def insertacola(self,t,i,conf=set()):
+        if not t.value.nulo():
                 if t.value.contradict and not conf:
                     self.problemacontradict()
                 else:
                     indices = map(lambda x:self.posvar[abs(x)],conf.union(t.value.listavar))
+                    # print(set(indices))
                     pos = min (indices) 
+                    # print(pos,self.clusters[pos])
                     pot = self.lqueue[pos]
-                    pot.inserta(t,conf)          
+                    # print("inserto en ", pos)
+                    # pot.imprime()
+
+                    
+                    if pot.checkrep():
+                        print("repeticion antes de insertar en colar")
+                        time.sleep(50)
+                    
+
+                    pot.insertasimple(t.value,self.N,conf) 
+                    if pot.checkrep():
+                        print("repeticion despues de insertar en colar")
+                        time.sleep(50)
+
+                    if pot.checkunit():
+                        print("problema unidades despues de insertar en colar")
+                        time.sleep(50)
+                    pot.normaliza(self.N)     
+                    if pot.checkrep():
+                        print("repeticion despues de normalizar en colar")
+                        time.sleep(50)
+                    if pot.checkunit():
+                        print("problema unidades despues de normalizar en colar")
+                        time.sleep(50)
+
+
+                    
+                    # print("resultado")
+                    # pot.imprime() 
 
 
         if not t.var ==0:
+           
             v = t.var
             conf.add(v)
-            self.insertacola(t.hijos[0],conf)
+            self.insertacola(t.hijos[0],i,conf)
             conf.discard(v)
             conf.add(-v)
-            self.insertacola(t.hijos[1],conf)
+            self.insertacola(t.hijos[1],i,conf)
             conf.discard(-v)
 
     def problemacontradict(self):
@@ -238,25 +301,44 @@ class problemaTrianArbol:
                 break
             var = self.orden[i]
             print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
-     
+            
             pot = self.lqueue[i]
-            pot2 = self.lpot[i]
+            print("entro en normaliza")
+            pot.normaliza(self.N)
+            print("saldo de normaliza")
+            # pot2 = self.lpot[i]
+            # pot.normaliza(N= 400)
 
             # pot.imprime()            
             # wait = input("Press Enter to continue.")
 
             # pot.simplifica(pot2)
 
-            pot.normaliza()
+
+
+            if pot.checkrep():
+                print("repeticion antes")
+                time.sleep(50)
             
-            if (i>= 220):
-                pot.imprime()
+            if pot.checkunit():
+                print("problema unidades antes")
+                time.sleep(50)
+
+            print("entro en split")
             (t0,t1,t2) = pot.splitborra(var)
+            print("salgo de split")
+            
+            # (t0c,t1c,t2c) = potcopia.splitborra(var)
+
+            # print("resultado split")
+            
+            
+
+
+
             # (h0,h1,h2) = pot2.splitborra(var)
 
-            # t0.imprime()
-            # t1.imprime()
-            # t2.imprime()
+          
 
             # pot.imprime()
             # t0.imprime()
@@ -265,8 +347,38 @@ class problemaTrianArbol:
             # wait = input("Press Enter to continue.")
             # t0.imprime()
             # t1.imprime()
+            if t0.checkunit():
+                print("problema en t0")
+                t0.imprime()
+                time.sleep(50)
 
-            res1 = t0.combinaborra(t1)
+            if t1.checkunit():
+                print("problema en t1")
+                t1.imprime()
+                time.sleep(50)
+            print("ntro en combinaborra")
+            res1 = t0.combinaborra(t1,self.N)
+            print("salgo combinaborra")
+
+            if res1.checkrep():
+                print("repeticion en combinar")
+                time.sleep(50)
+            
+            if res1.checkunit():
+                print("problema unidades en combinar ")
+                time.sleep(50)
+            # res1c = t0c.combinaborra(t1c)
+            # s = res1.tosimple()
+            # sc = res1c.tosimple()
+
+            # if not s.equal(sc):
+            #     print("no iguales")
+                
+            #     pot.imprime()
+            #     t0.imprime()
+            #     t1.imprime()
+            #     res1.imprime()
+            #     s.imprime()
 
 
             # res2 = t0.combinaborra(h1)
@@ -282,12 +394,23 @@ class problemaTrianArbol:
             # res1.inserta3(res3)
 
             # res1.imprime()
-            res1.inserta(t2)
-            # res1.imprime()
-            res1.normaliza()
+            print("inserto t2")
+            
+            self.insertacola(t2,i)
+            
+            res1.normaliza(self.N)
 
-
             # res1.imprime()
+
+           
+            if res1.checkrep():
+                print("repeticion despues normalizar")
+                time.sleep(50)
+
+            if res1.checkunit():
+                print("problema unidades despues de normalizar")
+                time.sleep(50)
+            
 
             # arb0 = t0.copia()
             # arb1 = arboltriple()
@@ -312,15 +435,14 @@ class problemaTrianArbol:
 
             # pot2.imprime()
 
-            res1.normaliza()
             # print("resultado")
             # res1.imprime()
             # wait = input("Press Enter to continue.")
 
             
-            pot.anula()
-
-            self.insertacola(res1)
+            pot.void()
+            print("Ahora inserto en la cola")
+            self.insertacola(res1,i)
 
     def test(self):
         print(len(self.orden))

@@ -7,6 +7,7 @@ Created on Wed Mar  6 13:30:14 2019
 """
 import os
 import sys
+import time
 
 import itertools
 import networkx as nx    
@@ -50,8 +51,7 @@ def leeArchivoGlobal(Archivo):
         cadena = reader.readline()
 #    param = cadena.split()
 
-    infor = globalClausulas()
-    infor.nvar = nvar
+    infor = simpleClausulas()
     
     for cadena in reader:
 #        print (cadena)
@@ -60,12 +60,23 @@ def leeArchivoGlobal(Archivo):
             listaux=cadena.split()
             listaux.pop()
             listaux = map(int,listaux)
-            clausula= frozenset(listaux)
+            clausula= set(listaux)
             infor.insertar(clausula)
-            if(len(clausula)==1):
-                h = set(clausula).pop()
-                infor.unitprev.add(h)
-                infor.unit.add(h)
+            # if(len(clausula)==1):
+            #     h = set(clausula).pop()
+            #     infor.unitprev.add(h)
+            #     infor.unit.add(h)
+            # elif (len(clausula)==2):
+            #     infor.dobles.add(clausula)
+            #     mclau = frozenset(map(lambda x: -x,clausula))
+            #     if mclau in infor.dobles:
+            #         par = set(clausula)
+            #         l1 = par.pop()
+            #         l2 = -par.pop()
+            #         if(abs(l1)<abs(l2)):
+            #             infor.equiv.add((l1,l2))
+            #         else:
+            #             infor.equiv.add((l2,l1))    
             
 
 
@@ -157,15 +168,22 @@ def triangula(grafo):
 
     
 def main(prob):
-        
-        info.unitprop()
         info.contradict = False
         info.solved = False
         
+        # info.podaylimpia()
+        
+        # while info.unitprev or info.equiv:
+        #     print("entro ciclo")
+        #     info.unitprop()
 
+        #     info.equivprop()
+        #     info.podaylimpia()
+
+        
         print("entro en main")
 
-
+        
         grafo = info.cgrafo()
         (prob.orden,prob.clusters)  = triangula(grafo)
         
@@ -175,8 +193,11 @@ def main(prob):
         for i in h:
             prob.posvar[i] = prob.orden.index(i)
             
-
+        # info.saturaborra(prob.orden)
+        # info.podaylimpia()
   
+        print(prob.inicial.listaclaus)
+        print(prob.inicial.unit)
         
         prob.inicia0()     
 
@@ -212,18 +233,14 @@ while reader:
     param = linea.split()
     nombre = param[0]
     N1 = int(param[1])
-    N2 = int(param[2])
-    N3 = int(param[3])
-#    I = int(param[4])
+    
     print(nombre)     
     t1 = time()
     info = leeArchivoGlobal(nombre)
     t2= time()
-
-    prob = problemaTrianArbol(info)
-    prob.N1 = N1
-    prob.N2 = N2
-    prob.N3 = N3
+    # info.imprime()
+    prob = problemaTrianArbol(info,N1)
+    
 #    prob.I = I
 
 #info = leeArchivoSet('SAT_V144C560.cnf')

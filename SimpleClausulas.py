@@ -112,6 +112,36 @@ class simpleClausulas:
           
       return nuevo
 
+    def checkvars(self):
+        for x in self.unit:
+            if abs(x) not in self.listavar:
+                print("problema " , x , self.listavar)
+                return True
+        for cl in self.listaclaus:
+            for x in cl:
+              if abs(x) not in self.listavar:
+                print("problema " , cl , self.listavar)
+                return True  
+        return False
+
+    def copiac(self,conf):
+      confn= set(map(lambda x: -x ,conf))
+      varn = set(map(lambda x: abs(x) ,conf))
+      nuevo = simpleClausulas()
+      nuevo.listavar = self.listavar.union(varn)
+      for x in self.unit:
+          if -x not in conf:
+              cl = conf.union({x})
+              nuevo.insertar(cl)
+      
+      
+      for x in self.listaclaus:
+        if not confn.intersection(x):
+            cl = conf.union(x)
+            nuevo.listaclaus.append(cl)
+          
+      return nuevo
+
     
     
     
@@ -274,7 +304,6 @@ class simpleClausulas:
             self.unit = set()
    
 
-    
 
     def combina(self,simple):
         neg = set(map(lambda x: -x, simple.unit))
@@ -282,17 +311,31 @@ class simpleClausulas:
             self.insertar(set())
         else:
             for v in simple.unit:
-                self.simplificaunit(v)
-            self.unit.update(simple.unit)
+                self.insertar({v})
+        
         
             for cl in simple.listaclaus:
                 self.insertar(cl)
    
+    def equal(self,simple):
+        if not self.unit == simple.unit:
+            return False
+        for cl in self.listaclaus:
+                if cl not in simple.listaclaus:
+                    return False
+        for cl in simple.listaclaus:
+                if cl not in self.listaclaus:
+                    return False
+        return True
 
-
-
+    def nulo(self):
+        if self.unit or self.listaclaus:
+            return False
+        else:
+            return True
 
     def combinaborra(self,conj):
+        # print("combina borra" , len(self.listaclaus), len(conj.listaclaus))
         res = simpleClausulas()
         if self.contradict:
             return conj.copia()
@@ -313,19 +356,66 @@ class simpleClausulas:
                     r = cl.union({x})
                     res.insertar(r)
         for cl in self.listaclaus:
+            cpn = set(map(lambda x: -x, cl))
             for cl2 in conj.listaclaus:
-                cpn = set(map(lambda x: -x, cl))
                 if not cpn.intersection(cl2):
                     r = cl.union(cl2)
                     res.insertar(r)
+        # print("Salgo ") 
+
         return res
+
+
+    def combinaborrac(self,conj,conf):
+        # print("combina borra conf" , conf, len(self.listaclaus), len(conj.listaclaus))
+
+        res = simpleClausulas()
+        if self.contradict:
+            h = conj.copia()
+            h.adconfig(conf)
+            return h
+        if conj.contradict:
+            h = self.copiac(conf) 
+        
+            return h
+
+        confn = set(map(lambda x: -x, conf))
+
+        for v in self.unit:
+            if -v not in conf:
+                for x in conj.unit:
+                    if not v == -x:
+                        cl = conf.union({v,x})
+                        res.insertar(cl)
+                for cl in conj.listaclaus:
+                    if -v not in cl:
+                        r = cl.union({v}).union(conf)
+                        res.insertar(r)
+        for x in conj.unit:
+            for cl in self.listaclaus:
+                if not confn.intersection(cl):
+                    if -x not in cl:
+                        r = cl.union({x}).union(conf)
+                        res.insertar(r)
+        for cl in self.listaclaus:
+            if not confn.intersection(cl):
+                cpn = set(map(lambda x: -x, cl))
+                for cl2 in conj.listaclaus:
+                    if not cpn.intersection(cl2):
+                        r = cl.union(cl2).union(conf)
+         
+                        res.insertar(r)
+        # print("Salgo ") 
+        return res
+
 
     def sel(self,v):
         result = simpleClausulas()
         if v in self.unit:
             result.insertar(set())
             return result
-        result.unit = self.unit.copy()
+        for x in self.unit:
+            result.insertar({x}) 
         result.unit.discard(-v)
         for cl in self.listaclaus:
             if v in  cl:
@@ -339,13 +429,14 @@ class simpleClausulas:
         if conf.intersection(self.unit):
             res.insertar(set())
             return res
-        res.unit = self.unit.copy()
-        for v in conf:
-            res.unit.discard(-v)
+        for z in self.unit:
+            if -z not in conf:
+                res.insertars({z})
+    
 
-
+        confn= set(map(lambda x: -x, conf))
         for cl in self.listaclaus:
-            if cl.intersection(conf):
+            if not cl.intersection(confn):
                 x = cl - conf
                 res.insertar(x)
         return res
@@ -394,44 +485,50 @@ class simpleClausulas:
         if not v in self.listavar:
             for cl in self.listaclaus:
                 s3.insertars(cl)
-            s3.unit = self.unit.copy()
+            for x in self.unit:
+                s3.insertars({x})
         else:
             if v in self.unit:
                 s1.insertar(set())
                 for x in self.unit:
-                    if not x == v:
-                        s3.unit.add(x)
+                    if not x == v and not x==-v:
+                        s3.insertars({x})
                 for cl in self.listaclaus:
                     s3.insertars(cl)
             elif -v in self.unit:
                 s2.insertar(set())
                 for x in self.unit:
-                    if not x == -v:
-                        s3.unit.add(x)
+                    if  not x == v and not x==-v:
+                        s3.insertars({x})
+
                 for cl in self.listaclaus:
                     s3.insertars(cl)
             else:
 
                 s3.unit = self.unit.copy()
+                s3.listavar = set(map(lambda x: abs(x),s3.unit))
 
                 for cl in self.listaclaus:
                     if v in cl:
                         if n:
-                            cl = cl - {v}
+                            cl1 = cl - {v}
+                            s1.insertars(cl1)
                         else:
                             cl.discard(v)
-                        
-                        s1.insertars(cl)
+                            s1.insertars(cl)
                     elif -v in cl:
                         if n:
-                            cl = cl - {-v}
+                            cl1 = cl - {-v}
+                            s2.insertars(cl1)
                         else:
                             cl.discard(-v)
-                        s2.insertars(cl)
+                            s2.insertars(cl)
                     else: 
                         if n:
-                            cl = cl.copy()
-                        s3.insertars(cl)
+                            cl1 = cl.copy()
+                            s3.insertars(cl1)
+                        else:
+                            s3.insertars(cl)
         return (s1,s2,s3)
 
 
