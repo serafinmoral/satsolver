@@ -33,6 +33,11 @@ from time import time
 
 
 
+
+
+
+
+
 def leeArchivoGlobal(Archivo):
     reader=open(Archivo,"r")
     cadena = reader.readline()

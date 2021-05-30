@@ -211,6 +211,7 @@ class simpleClausulas:
         else:
             self.listaclaus.append(x)
        
+    
     def insertar(self,x):
         if self.contradict:
             return []
@@ -274,6 +275,56 @@ class simpleClausulas:
             nvar = set(map(abs,x))
             self.listavar.update(nvar)
             self.listaclaus.append(x)
+
+        for cl in borr:
+            self.eliminars(cl)
+        
+        for cl in y:
+            self.insertar(cl)
+            
+    def insertar2(self,x):
+        if self.contradict:
+            return []
+        if not x:
+            self.anula()
+            self.contradict= True
+            self.listaclaus.append(set())
+            return []
+        y = []
+        borr = []
+        if len(x) ==1:
+            v = x.pop()
+            if -v in self.unit:
+                self.insertar(set())
+            else:
+                self.listavar.add(abs(v))
+                self.unit.add(v)
+                for cl in self.listaclaus:
+                    if v in cl:
+                        borr.append(cl)
+                    if -v in cl:
+                        cl.discard(-v)
+                        if len(cl)==1:
+                            borr.append(cl)
+                            y.append(cl)
+        else:
+
+            if x.intersection(self.unit):
+                return []
+            else:
+                neg = set(map(lambda x: -x, self.unit))
+                x = x-neg
+                if len(x) <= 1:
+                    self.insertar(x)
+                    return 
+            
+
+
+            
+            nvar = set(map(abs,x))
+            self.listavar.update(nvar)
+            self.listaclaus.append(x)
+
         for cl in borr:
             self.eliminars(cl)
         
@@ -283,7 +334,11 @@ class simpleClausulas:
 
 
     def advalue(self,v):
-        self.listavar.add(v)
+        self.listavar.add(abs(v))
+        if self.contradict:
+            self.contradict = False
+            self.unit = {v}
+            self.listaclaus = []
         for cl in self.listaclaus:
             cl.add(v)
         for x in self.unit:
@@ -293,15 +348,27 @@ class simpleClausulas:
 
     def adconfig(self,conf):
         
+        
         if conf:
             for x in conf:
                 self.listavar.add(abs(x))
             for cl in self.listaclaus:
                 cl.update(conf)
-            for x in self.unit:
-                cl = conf.union({x})
-                self.listaclaus.append(cl)
-            self.unit = set()
+            if self.contradict:
+                self.contradict = False
+                if len(conf) == 1:
+                     x = next(iter(conf))
+                     self.unit = {x}
+                     self.listaclaus = []
+                else:
+                    self.listaclaus = [conf.copy()]
+                    self.unit = set()
+            
+            else:
+                for x in self.unit:
+                    cl = conf.union({x})
+                    self.listaclaus.append(cl)
+                self.unit = set()
    
 
 
@@ -415,8 +482,8 @@ class simpleClausulas:
             result.insertar(set())
             return result
         for x in self.unit:
-            result.insertar({x}) 
-        result.unit.discard(-v)
+            if not x == -v:
+                result.insertar({x}) 
         for cl in self.listaclaus:
             if v in  cl:
                 result.insertar(cl-{v})
@@ -444,6 +511,9 @@ class simpleClausulas:
     def simplificaunit(self,v):
         if -v in self.unit:
             self.insertar(set())
+        if v in self.unit:
+            self.unit.discard(v)
+            self.listavar.discard(abs(v))
         else:
             y = []
             borr = []
@@ -452,6 +522,8 @@ class simpleClausulas:
                     borr.append(cl)
                     cl.discard(-v)
                     y.append(cl)
+                elif v in cl:
+                    borr.append(cl)
             for cl in borr:
                 self.eliminars(cl)
             for cl in y:
@@ -460,9 +532,14 @@ class simpleClausulas:
     def simplificaunits(self,s):
         neg = set(map (lambda x: -x,s))
 
-        if self.unit.intersection(s) in self.unit:
+        if self.unit.intersection(neg):
             self.insertar(set())
         else:
+            absv = set(map (lambda x: abs(x),s))
+
+            self.unit.difference_update(s)
+
+            self.listavar.difference_update(absv)
             y = []
             borr = []
             for cl in self.listaclaus:
@@ -471,6 +548,8 @@ class simpleClausulas:
                     borr.append(cl)
                     cl.difference_update(neg)
                     y.append(cl)
+                elif cl.intersection(s):
+                    borr.append(cl)
             for cl in borr:
                 self.eliminars(cl)
             for cl in y:
@@ -493,22 +572,21 @@ class simpleClausulas:
                 for x in self.unit:
                     if not x == v and not x==-v:
                         s3.insertars({x})
-                for cl in self.listaclaus:
-                    s3.insertars(cl)
+                
+
             elif -v in self.unit:
                 s2.insertar(set())
                 for x in self.unit:
                     if  not x == v and not x==-v:
                         s3.insertars({x})
 
-                for cl in self.listaclaus:
-                    s3.insertars(cl)
+                
             else:
 
                 s3.unit = self.unit.copy()
                 s3.listavar = set(map(lambda x: abs(x),s3.unit))
 
-                for cl in self.listaclaus:
+            for cl in self.listaclaus:
                     if v in cl:
                         if n:
                             cl1 = cl - {v}
@@ -532,6 +610,58 @@ class simpleClausulas:
         return (s1,s2,s3)
 
 
+def splitinserta(self,v,n=True):
+        s1 = simpleClausulas()
+        s2 = simpleClausulas()
+        if not v in self.listavar:
+            s1 = self.copia() 
+            s2 = self
+        else:
+            if v in self.unit:
+                s1.insertar(set())
+                for x in self.unit:
+                    if not x == v and not x==-v:
+                        s2.insertars({x})
+                for cl in self.listaclaus:
+                    s2.insertars(cl)
+            elif -v in self.unit:
+                s2.insertar(set())
+                for x in self.unit:
+                    if  not x == v and not x==-v:
+                        s1.insertars({x})
+
+                for cl in self.listaclaus:
+                    s1.insertars(cl)
+            else:
+
+                s1.unit = self.unit.copy()
+                s2.unit = self.unit.copy()
+                s1.listavar = set(map(lambda x: abs(x),s3.unit))
+                s2.listavar = set(map(lambda x: abs(x),s3.unit))
+                for cl in self.listaclaus:
+                    if v in cl:
+                        if n:
+                            cl1 = cl - {v}
+                            s1.insertars(cl1)
+                        else:
+                            cl.discard(v)
+                            s1.insertars(cl)
+                    elif -v in cl:
+                        if n:
+                            cl1 = cl - {-v}
+                            s2.insertars(cl1)
+                        else:
+                            cl.discard(-v)
+                            s2.insertars(cl)
+                    else: 
+                        if n:
+                            cl1 = cl.copy()
+                            s1.insertars(cl1)
+                            s2.insertars(cl1.copy())
+                        else:
+                            s1.insertars(cl.copy())
+                            s2.insertars(cl)
+        return (s1,s2)
 
         
 #   def podaylimpia(self):

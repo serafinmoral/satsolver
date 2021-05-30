@@ -415,17 +415,21 @@ class arboldoble:
         return(t0,t1,t2)
 
     def combinaborra(self,t,N,conf=set()):
-        if self.checkrep():
-            print ("repeticion self")
-            time.sleep(50)
-        if t.checkrep():
-            print ("repeticion t")
-            print (conf)
-            t.imprime()
-            time.sleep(50)
+        # if self.checkrep():
+        #     print ("repeticion self")
+        #     time.sleep(50)
+        # if t.checkrep():
+        #     print ("repeticion t")
+        #     print (conf)
+        #     t.imprime()
+        #     time.sleep(50)
         if self.var == 0:
             if not self.value.nulo():
-                return t.combinaborrasimple(self.value,N,conf)
+                res =  t.combinaborrasimple(self.value,N,conf)
+                # if res.checkrep():
+                #     print("problema en combina borra res 1",self.var, conf)
+                #     res.imprime()
+                return res
             else:
                 res = arboldoble()
                 return res
@@ -443,8 +447,15 @@ class arboldoble:
             
             h = simpleClausulas()
             res.asignavarhijosv(v,h0,h1,h)
+
+            # if res.checkrep():
+            #     print("problema en combina borra res",v, conf)
+            #     res.imprime()
             if not self.value.nulo():
                 addi = t.combinaborrasimple(self.value,N,conf)
+                # if addi.checkrep():
+                #     print("problema en addi")
+                #     addi.imprime()
                 res.inserta(addi,N, norma= False)
             return res
 
@@ -468,11 +479,20 @@ class arboldoble:
                 t = simpleClausulas()
                 res = arboldoble()
                 res.asignavarhijosv(v,h0,h1,t)
+
             s2  = self.value.selconf(conf)
+            # if res.checkrep():
+            #     print("problema en combina borra res",v, conf)
+            #     res.imprime()
             if not s2.nulo():
                     sc = simple.combinaborra(s2)
+                    
                     res2= arboldoble()
                     res2.asignaval(sc)
+                    # if res2.checkrep():
+                    #     print("poblema en res2")
+                    #     s2.imprime()
+
                     res.inserta(res2,N,norma = False)
         return res
 
@@ -610,15 +630,35 @@ class arboldoble:
     
     def insertasimple(self,simple,N,conf=set(), norma = True):
         
-        if simple.checkvars():
-            print("problema en inserta simle con simple ")
-        if self.checkrep():
-            print ("repeticion antes de inserta simple ")
+        # if simple.checkvars():
+        #     print("problema en inserta simle con simple ")
+        # if self.checkrep():
+        #     print ("repeticion antes de inserta simple ")
         poscon = set(map(lambda x: abs(x), conf))
-        if poscon.intersection(simple.listavar):
-            print("problema " , conf)
-            simple.imprime()
-            time.sleep(40)
+        # if poscon.intersection(simple.listavar):
+        #     print("problema " , conf)
+        #     simple.imprime()
+        #     time.sleep(40)
+        if self.value.unit:
+            simple.simplificaunits(self.value.unit)
+        if simple.contradict:
+            if not conf:
+                self.value.insertar(set())
+                self.var = 0
+                self.hijos = [None,None]
+                return
+            elif len(conf)==1:
+                self.insertaunits(conf)
+                return
+
+        if not conf and simple.unit:
+                # print ("entro en poda")
+                self.insertaunits(simple.unit)
+                simple.unit = set()
+        # if self.checkrep():
+        #         print ("repeticion despues de inserta simple  despues de insertar unitarias")
+        
+
         if self.var==0:
             simple.adconfig(conf)
             for v in simple.unit:
@@ -627,110 +667,109 @@ class arboldoble:
                 self.value.insertar(cl)
             if norma:
                 self.normaliza(N)
-            if self.checkrep():
-                print ("repeticion despues de inserta simple  con self.var ) = 0")
+            # if self.checkrep():
+            #     print ("repeticion despues de inserta simple  con self.var ) = 0")
 
         else:
-            simple.simplificaunits(self.value.unit)
-            if not conf and simple.unit:
-                # print ("entro en poda")
-                self.insertaunits(simple.unit)
-                simple.unit = set()
-            if self.checkrep():
-                print ("repeticion despues de inserta simple  despues de insertar unitarias")
+            
             v = self.var
-            if v==0:
-                simple.adconfig(conf)
-                for v in simple.unit:
-                    self.value.insertar({v})
-                for cl in simple.listaclaus:
-                    self.value.insertar(cl)
-                if norma: 
-                    self.normaliza(N)
-                if self.checkrep():
-                    print ("repeticion despues de inserta simple  con self.var ) = 0 y despues de insertar unitarias")
-
-                if self.checkvars():
-                    print ("problema con variables despues de inserta simple  con self.var ) = 0 y despues de insertar unitarias")
+            
+            if v in conf:
+                conf.discard(v)
+                self.hijos[0].insertasimple(simple,N,conf, norma)
+                conf.add(v)
+                # if self.checkrep():
+                #     print ("repeticion despues de insertar en hijo0 con v en conf" , conf, v)
+                #     simple.imprime()
+            elif -v in conf:
+                conf.discard(-v)
+                self.hijos[1].insertasimple(simple,N,conf, norma)
+                conf.add(-v)
+                # if self.checkrep():
+                #     print ("repeticion despues de insertar en hijo0 con -v en conf")
             else:
-                if v in conf:
-                    conf.discard(v)
-                    self.hijos[0].insertasimple(simple,N,conf, norma)
-                    conf.add(v)
-                    if self.checkrep():
-                        print ("repeticion despues de insertar en hijo0 con v en conf" , conf, v)
-                        simple.imprime()
-                elif -v in conf:
-                    conf.discard(-v)
-                    self.hijos[1].insertasimple(simple,N,conf, norma)
-                    conf.add(-v)
-                    if self.checkrep():
-                        print ("repeticion despues de insertar en hijo0 con -v en conf")
-                else:
-                    (l0,l1,l2) = simple.splitborra(v)
-                    # print(" v", v , "hijos ", self.hijos)
-                    self.hijos[0].insertasimple(l0,N,conf, norma)
-                    if self.checkrep():
-                        print ("repeticion despues de insertar en hijo0 sin v in conf")
-                    self.hijos[1].insertasimple(l1,N,conf, norma)
-                    if self.checkrep():
-                        print ("repeticion despues de insertar en hijo1 sin v in conf")
-                    self.hijos[0].insertasimple(l2.copia(),N,conf, norma)
-                    if self.checkrep():
-                        print ("repeticion despues de insertar en hijo0 parte sin v", v)
-                        l2.imprime()
-                    self.hijos[1].insertasimple(l2.copia(),N,conf, norma)  
-                    if self.checkrep():
-                        print ("repeticion despues de insertar en hijo1 parte sin v",v )
-                        l2.imprime()
+                
+                (l0,l1,l2) = simple.splitborra(v)
+                
+                    
+                # print(" v", v , "hijos ", self.hijos)
+                self.hijos[0].insertasimple(l0,N,conf, norma)
+                # if self.checkrep():
+                #     print ("repeticion despues de insertar en hijo0 sin v in conf")
+                #     l0.imprime()
+                #     l1.imprime()
+                #     l2.imprime()
+                #     simple.imprime()
+                self.hijos[1].insertasimple(l1,N,conf, norma)
+                # if self.checkrep():
+                #     print ("repeticion despues de insertar en hijo1 sin v in conf")
+                #     l0.imprime()
+                #     l1.imprime()
+                #     l2.imprime()
+                #     simple.imprime()
+                self.hijos[0].insertasimple(l2.copia(),N,conf, norma)
+                # if self.checkrep():
+                #     print ("repeticion despues de insertar en hijo0 parte sin v", v, conf)
+                #     l2.imprime()
+                #     l0.imprime()
+                #     l1.imprime()
+                #     l2.imprime()
+                #     simple.imprime()
+                self.hijos[1].insertasimple(l2,N,conf, norma)  
+                # if self.checkrep():
+                #     print ("repeticion despues de insertar en hijo1 parte sin v",v, conf )
+                #     l0.imprime()
+                #     l1.imprime()
+                #     l2.imprime()
+                #     simple.imprime()
 
     def inserta(self,t,N,conf= set(), norma = True):
-        if self.checkrep():
-            print("repeticion antes de insertar ")
-            time.sleep(30)
-        if t.checkrep():
-            print("repeticion antes de insertar en t")
-            t.imprime()
-            time.sleep(30)
-        if t.checkunit():
-            print("problema en lo insertado ")
-            print(conf)
-            t.imprime()
-            time.sleep(30)
+        # if self.checkrep():
+        #     print("repeticion antes de insertar ")
+        #     time.sleep(30)
+        # if t.checkrep():
+        #     print("repeticion antes de insertar en t")
+        #     t.imprime()
+        #     time.sleep(30)
+        # if t.checkunit():
+        #     print("problema en lo insertado ")
+        #     print(conf)
+        #     t.imprime()
+        #     time.sleep(30)
         if t.var == 0:
 
             if not t.value.nulo():
-                r = t.value.copia()
-                for y in t.value.unit:
-                    if not abs(y) in t.value.listavar:
-                        print ("problema de variables " )
-                        t.value.imprime()
-                        time.sleep(49)
+                # r = t.value.copia()
+                # for y in t.value.unit:
+                    # if not abs(y) in t.value.listavar:
+                    #     print ("problema de variables " )
+                    #     t.value.imprime()
+                    #     time.sleep(49)
                 self.insertasimple(t.value,N,conf, norma)
-            if self.checkrep():
-                print("repeticion despues de inserta simple de insertar ", conf)
-                r.imprime()
+            # if self.checkrep():
+            #     print("repeticion despues de inserta simple de insertar ", conf)
+            #     r.imprime()
                 
-                time.sleep(30)
+                # time.sleep(30)
         else:
             v = t.var
             conf.add(v)
             self.inserta(t.hijos[0],N,conf,norma)
-            if self.checkrep():
-                print("repeticion despues de inserta el primer hijo de t ")
-                time.sleep(30)
+            # if self.checkrep():
+            #     print("repeticion despues de inserta el primer hijo de t ")
+            #     time.sleep(30)
             conf.discard(v)
             conf.add(-v)
             self.inserta(t.hijos[1],N,conf,norma)
-            if self.checkrep():
-                print("repeticion despues de inserta el segundo hijo de t ")
-                time.sleep(30)
+            # if self.checkrep():
+            #     print("repeticion despues de inserta el segundo hijo de t ")
+            #     time.sleep(30)
             conf.discard(-v)
             if not t.value.nulo():
                 self.insertasimple(t.value,N,conf,norma)
-            if self.checkrep():
-                print("repeticion despues de segundo inserta simple ")
-                time.sleep(30)
+            # if self.checkrep():
+            #     print("repeticion despues de segundo inserta simple ")
+            #     time.sleep(30)
     
         
  
