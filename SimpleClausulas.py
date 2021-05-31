@@ -373,6 +373,8 @@ class simpleClausulas:
 
 
     def combina(self,simple):
+        if self.contradict:
+            return
         neg = set(map(lambda x: -x, simple.unit))
         if neg.intersection(self.unit):
             self.insertar(set())
@@ -544,12 +546,14 @@ class simpleClausulas:
             borr = []
             for cl in self.listaclaus:
     
-                if cl.intersection(neg):
+                if cl.intersection(s):
+                    borr.append(cl)
+                elif cl.intersection(neg):
                     borr.append(cl)
                     cl.difference_update(neg)
                     y.append(cl)
-                elif cl.intersection(s):
-                    borr.append(cl)
+         
+
             for cl in borr:
                 self.eliminars(cl)
             for cl in y:

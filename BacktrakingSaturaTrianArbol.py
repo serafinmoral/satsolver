@@ -63,6 +63,7 @@ def leeArchivoGlobal(Archivo):
         if (cadena[0]!='c'):
             cadena.strip()
             listaux=cadena.split()
+            
             listaux.pop()
             listaux = map(int,listaux)
             clausula= set(listaux)
