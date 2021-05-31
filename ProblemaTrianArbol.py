@@ -181,7 +181,7 @@ class problemaTrianArbol:
                 if vars <= self.clusters[pos]:
                     break
 
-            
+            print(vars,self.clusters[pos])
             pot = self.lqueue[pos]
             pot.insertaclau(cl)
 
@@ -194,6 +194,18 @@ class problemaTrianArbol:
                     # print(set(indices))
                     pos = min (indices) 
                     # print(pos,self.clusters[pos])
+                    j = i+1
+                    vars = set(map(lambda x: abs(x),conf.union(t.value.listavar)) )
+                    print(vars)
+                    while not vars <= self.clusters[j]:
+                        if j== 299:
+                            print(conf)
+                            t.imprime()
+                            print( self.clusters[243])
+                        j += 1
+
+
+                    print(j, pos)
                     pot = self.lqueue[pos]
                     # print("inserto en ", pos)
                     # pot.imprime()
@@ -206,7 +218,9 @@ class problemaTrianArbol:
 
                     pot.insertasimple(t.value,self.N,conf) 
                     if pot.checkrep():
-                        print("repeticion despues de insertar en colar")
+                        print("repeticion despues de insertar en colar", conf)
+                        t.value.imprime()
+
                         time.sleep(50)
 
                     if pot.checkunit():
@@ -314,7 +328,12 @@ class problemaTrianArbol:
 
             # pot.simplifica(pot2)
 
+            if i==235:
+                pot.imprime()
 
+                wait = input("Press Enter to continue.")
+
+            
 
             if pot.checkrep():
                 print("repeticion antes")
@@ -395,7 +414,9 @@ class problemaTrianArbol:
 
             # res1.imprime()
             print("inserto t2")
-            
+            if i==235:
+                print (" t2 ")
+                t2.imprime()
             self.insertacola(t2,i)
             
             res1.normaliza(self.N)

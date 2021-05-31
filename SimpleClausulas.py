@@ -561,52 +561,49 @@ class simpleClausulas:
         s1 = simpleClausulas()
         s2 = simpleClausulas()
         s3 = simpleClausulas()
-        if not v in self.listavar:
-            for cl in self.listaclaus:
-                s3.insertars(cl)
+        
+        if v in self.unit:
+            s1.insertar(set())
             for x in self.unit:
-                s3.insertars({x})
+                if not x == v and not x==-v:
+                    s3.insertars({x})
+            
+
+        elif -v in self.unit:
+            s2.insertar(set())
+            for x in self.unit:
+                if  not x == v and not x==-v:
+                    s3.insertars({x})
+
+            
         else:
-            if v in self.unit:
-                s1.insertar(set())
-                for x in self.unit:
-                    if not x == v and not x==-v:
-                        s3.insertars({x})
-                
 
-            elif -v in self.unit:
-                s2.insertar(set())
-                for x in self.unit:
-                    if  not x == v and not x==-v:
-                        s3.insertars({x})
+            s3.unit = self.unit.copy()
+            s3.listavar = set(map(lambda x: abs(x),s3.unit))
 
-                
-            else:
-
-                s3.unit = self.unit.copy()
-                s3.listavar = set(map(lambda x: abs(x),s3.unit))
-
-            for cl in self.listaclaus:
-                    if v in cl:
-                        if n:
-                            cl1 = cl - {v}
-                            s1.insertars(cl1)
-                        else:
-                            cl.discard(v)
-                            s1.insertars(cl)
-                    elif -v in cl:
-                        if n:
-                            cl1 = cl - {-v}
-                            s2.insertars(cl1)
-                        else:
-                            cl.discard(-v)
-                            s2.insertars(cl)
-                    else: 
-                        if n:
-                            cl1 = cl.copy()
-                            s3.insertars(cl1)
-                        else:
-                            s3.insertars(cl)
+        for cl in self.listaclaus:
+                if v in cl:
+                    if n:
+                        cl1 = cl - {v}
+                        s1.insertars(cl1)
+                    else:
+                        cl.discard(v)
+                        s1.insertars(cl)
+                elif -v in cl:
+                    if n:
+                        cl1 = cl - {-v}
+                        s2.insertars(cl1)
+                    else:
+                        cl.discard(-v)
+                        s2.insertars(cl)
+                else: 
+                    if n:
+                        cl1 = cl.copy()
+                        s3.insertars(cl1)
+                    else:
+                        s3.insertars(cl)
+        if -98 in s3.unit:
+            print(v, " para ..... ")
         return (s1,s2,s3)
 
 
