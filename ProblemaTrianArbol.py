@@ -190,9 +190,9 @@ class problemaTrianArbol:
                 if t.value.contradict and not conf:
                     self.problemacontradict()
                 else:
-                    indices = map(lambda x:self.posvar[abs(x)],conf.union(t.value.listavar))
-                    # print(set(indices))
-                    pos = min (indices) 
+                    # indices = map(lambda x:self.posvar[abs(x)],conf.union(t.value.listavar))
+                    # # print(set(indices))
+                    # pos = min (indices) 
                     # print(pos,self.clusters[pos])
                     j = i+1
                     vars = set(map(lambda x: abs(x),conf.union(t.value.listavar)) )
@@ -314,6 +314,9 @@ class problemaTrianArbol:
             pot = self.lqueue[i]
             print("entro en normaliza")
             pot.normaliza(self.N)
+            if pot.value.contradict:
+                print("contradiccion ")
+                break
             print("saldo de normaliza")
             # pot2 = self.lpot[i]
             # pot.normaliza(N= 400)
@@ -419,9 +422,7 @@ class problemaTrianArbol:
 
             # res1.imprime()
             print("inserto t2")
-            if i==235:
-                print (" t2 ")
-                t2.imprime()
+            
             self.insertacola(t2,i)
             
             res1.normaliza(self.N)

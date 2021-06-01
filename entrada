@@ -1,4 +1,6 @@
+SAT_V153C408.cnf 4 100
 aes_32_1_keyfind_1.cnf 100
+
 aes_32_2_keyfind_1.cnf 120
 aes_32_1_keyfind_1.cnf 120
 aes_32_1_keyfind_1.cnf 120
@@ -11,7 +13,6 @@ aes_32_1_keyfind_1.cnf 120
 
 
 
-SAT_V130C370.cnf  4 10 10 10000000000
 
 SAT_V20C91_01.cnf  4 10 10 10000000000
 
