@@ -211,23 +211,26 @@ class problemaTrianArbol:
                         time.sleep(50)
                     
 
+
+
                     pot.insertasimple(t.value,self.N,conf) 
                     if pot.checkrep():
                         print("repeticion despues de insertar en colar", conf)
                         t.value.imprime()
+                        pot.imprime()
 
-                        time.sleep(50)
+                        time.sleep(500)
 
                     if pot.checkunit():
                         print("problema unidades despues de insertar en colar")
                         time.sleep(50)
                     pot.normaliza(self.N)     
-                    if pot.checkrep():
-                        print("repeticion despues de normalizar en colar")
-                        time.sleep(50)
-                    if pot.checkunit():
-                        print("problema unidades despues de normalizar en colar")
-                        time.sleep(50)
+                    # if pot.checkrep():
+                    #     print("repeticion despues de normalizar en colar")
+                    #     time.sleep(50)
+                    # if pot.checkunit():
+                    #     print("problema unidades despues de normalizar en colar")
+                    #     time.sleep(50)
 
 
                     
@@ -317,7 +320,7 @@ class problemaTrianArbol:
             if pot.value.contradict:
                 print("contradiccion ")
                 break
-            print("saldo de normaliza")
+            # print("saldo de normaliza")
             # pot2 = self.lpot[i]
             # pot.normaliza(N= 400)
 
@@ -343,7 +346,6 @@ class problemaTrianArbol:
 
             print("entro en split")
             (t0,t1,t2) = pot.splitborra(var)
-            print("salgo de split")
             
             # (t0c,t1c,t2c) = potcopia.splitborra(var)
 
@@ -383,9 +385,17 @@ class problemaTrianArbol:
                 print("problema en t1")
                 t1.imprime()
                 time.sleep(50)
+
+            if t2.checkrep():
+                print("problema en t2")
+                t2.imprime()
+                time.sleep(50)
+
+
+
+       
             print("ntro en combinaborra")
             res1 = t0.combinaborra(t1,self.N)
-            print("salgo combinaborra")
 
             if res1.checkrep():
                 print("repeticion en combinar")

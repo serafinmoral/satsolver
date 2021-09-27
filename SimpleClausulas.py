@@ -41,9 +41,7 @@ def leeArchivoGlobal(Archivo):
             listaux = map(int,listaux)
             clausula= set(listaux)
             infor.insertar(clausula)
-            if(len(clausula)==1):
-                h = set(clausula).pop()
-                infor.unitprev.add(h)
+            
            
 
 
@@ -198,10 +196,6 @@ class simpleClausulas:
             self.eliminar(y)
             
             
-   
-
-        
-    
     def insertars(self,x):
 
         nvar = set(map(abs,x))
@@ -210,6 +204,56 @@ class simpleClausulas:
             self.unit.add(x.pop())
         else:
             self.listaclaus.append(x)
+        
+    
+    def insertar2(self,x):
+
+        if self.contradict:
+            return []
+        if not x:
+            self.anula()
+            self.contradict= True
+            self.listaclaus.append(set())
+            return []
+        y = []
+        borr = []
+        if len(x) ==1:
+            v = x.pop()
+            if -v in self.unit:
+                self.insertar(set())
+            else:
+                self.listavar.add(abs(v))
+                self.unit.add(v)
+                for cl in self.listaclaus:
+                    if v in cl:
+                        borr.append(cl)
+                    if -v in cl:
+                        borr.append(cl)
+                        cl.discard(-v)
+                        y.append(cl)
+        else:
+
+            if x.intersection(self.unit):
+                return []
+            else:
+                neg = set(map(lambda x: -x, self.unit))
+                x = x-neg
+                if len(x) <= 1:
+                    self.insertar(x)
+                    return 
+            
+
+
+            
+            nvar = set(map(abs,x))
+            self.listavar.update(nvar)
+            self.listaclaus.append(x)
+
+        for cl in borr:
+            self.eliminars(cl)
+        
+        for cl in y:
+            self.insertar(cl)
        
     
     def insertar(self,x):
@@ -282,56 +326,7 @@ class simpleClausulas:
         for cl in y:
             self.insertar(cl)
             
-    def insertar2(self,x):
-        if self.contradict:
-            return []
-        if not x:
-            self.anula()
-            self.contradict= True
-            self.listaclaus.append(set())
-            return []
-        y = []
-        borr = []
-        if len(x) ==1:
-            v = x.pop()
-            if -v in self.unit:
-                self.insertar(set())
-            else:
-                self.listavar.add(abs(v))
-                self.unit.add(v)
-                for cl in self.listaclaus:
-                    if v in cl:
-                        borr.append(cl)
-                    if -v in cl:
-                        cl.discard(-v)
-                        if len(cl)==1:
-                            borr.append(cl)
-                            y.append(cl)
-        else:
-
-            if x.intersection(self.unit):
-                return []
-            else:
-                neg = set(map(lambda x: -x, self.unit))
-                x = x-neg
-                if len(x) <= 1:
-                    self.insertar(x)
-                    return 
-            
-
-
-            
-            nvar = set(map(abs,x))
-            self.listavar.update(nvar)
-            self.listaclaus.append(x)
-
-        for cl in borr:
-            self.eliminars(cl)
-        
-        for cl in y:
-            self.insertar(cl)
-            
-
+    
 
     def advalue(self,v):
         self.listavar.add(abs(v))
@@ -606,8 +601,7 @@ class simpleClausulas:
                         s3.insertars(cl1)
                     else:
                         s3.insertars(cl)
-        if -98 in s3.unit:
-            print(v, " para ..... ")
+        
         return (s1,s2,s3)
 
 

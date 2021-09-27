@@ -15,7 +15,6 @@ import networkx as nx
 
 from random import *
               
-from SimpleClausulas import *
 from ProblemaTrianArbol import *
 from GlobalClausulasSimple import * 
 

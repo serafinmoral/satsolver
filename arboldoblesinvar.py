@@ -7,7 +7,7 @@ This is a temporary script file.
 
 import os
 import math
-from SimpleClausulas import *
+from SimpleClausulasD import *
 
 def calculavar(lista):
     # print(    len(lista))
@@ -18,9 +18,9 @@ def calculavar(lista):
             vars = map(abs,cl)
             for v in vars:
                 if v in cuenta:
-                    cuenta[v]  += 1
+                    cuenta[v]  += 1/len(cl)
                 else:
-                    cuenta[v] = 1
+                    cuenta[v] = 1/len(cl)
     return max(cuenta, key=(lambda key: cuenta[key]))
 
 
@@ -74,8 +74,12 @@ def computefromSimple(x,N):
 
             result.asignaval(x)
         else:
-            var = calculavar2(x.listaclaus)
-            (l0,l1,unit) = split(x.listaclaus,var)
+            lista = x.listaclaus
+            for r1 in x.two:
+                for r2 in x.two[r1]:
+                    lista.append({r1,r2})
+            var = calculavar2(lista)
+            (l0,l1,unit) = split(lista,var)
             h0 = computefromSimple(l0,N)
             h1 = computefromSimple(l1,N)
             value = simpleClausulas()
@@ -156,8 +160,7 @@ class arboldoble:
         self.hijos[i] = t
 
     def imprime(self, str = ''):
-            print(str + "valor clausulas" , self.value.listaclaus)
-            print(str +"valor unit" , self.value.unit)
+            self.value.imprime()
 
             print (str +"variable ",self.var)
             if not self.var == 0:
@@ -297,6 +300,8 @@ class arboldoble:
     def checkrep(self, vars = set()):
         if self.value.listavar.intersection(vars):
             print( "Intersecio ", self.value.listavar.intersection(vars))
+            self.imprime()
+            print (vars)
             return True
         if self.var == 0:
             return False
@@ -319,8 +324,8 @@ class arboldoble:
 
 
     def normaliza(self,N=100):
-        if self.checkunit():
-            print("problema antes de normalizar")
+        # if self.checkunit():
+        #     print("problema antes de normalizar")
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.listaclaus
@@ -393,9 +398,7 @@ class arboldoble:
             t1 = arboldoble()
             t2 = self.copia()
             t2.value = s2
-            if v==98:
-                print(" En split borra arbol t2")
-                t2.imprime()
+            
             t0.asignaval(s0)
             t1.asignaval(s1)
         else:
@@ -822,12 +825,12 @@ class arboldoble:
         if t.var == 0:
 
             if not t.value.nulo():
-                r = t.value.copia()
-                for y in t.value.unit:
-                    if not abs(y) in t.value.listavar:
-                        print ("problema de variables " )
-                        t.value.imprime()
-                        time.sleep(49)
+                # r = t.value.copia()
+                # for y in t.value.unit:
+                #     if not abs(y) in t.value.listavar:
+                #         print ("problema de variables " )
+                #         t.value.imprime()
+                #         time.sleep(49)
                 self.insertasimple(t.value,N,conf, norma)
             # if self.checkrep():
             #     print("repeticion despues de inserta simple de insertar ", conf)
@@ -835,6 +838,8 @@ class arboldoble:
 
             #     time.sleep(30)
         else:
+            if not t.value.nulo():
+                self.insertasimple(t.value,N,conf,norma)
             v = t.var
             conf.add(v)
             self.inserta(t.hijos[0],N,conf,norma)
@@ -848,8 +853,7 @@ class arboldoble:
             #     print("repeticion despues de inserta el segundo hijo de t ")
             #     time.sleep(30)
             conf.discard(-v)
-            if not t.value.nulo():
-                self.insertasimple(t.value,N,conf,norma)
+            
             # if self.checkrep():
             #     print("repeticion despues de segundo inserta simple ", conf)
             #     print("t value")
