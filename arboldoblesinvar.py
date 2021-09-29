@@ -505,32 +505,7 @@ class arboldoble:
                     res.inserta(res2,N,norma = False)
         return res
 
-    # def combinaborra2(self,t,N,conf = set()):
-    #     # print("entro combina")
-    #         # simple.imprime()
-    #     # print(conf)
-    #         # self.imprime()
-    #     if  t.var == 0:
-    #         # print("entro en combinaborra simple desde combina borra")
-    #         return self.combinaborrasimple(t.value,N,conf)
-    #         # print("salgo de combinaborra ")
-    #     else:
-    #         v = t.var
-    #         conf.add(v)
-    #         r0 = self.combinaborra(t.hijos[0],N,conf)
-    #         conf.discard(v)
-
-    #         conf.add(-v)
-    #         r1 = self.combinaborra(t.hijos[1],N,conf)
-    #         conf.discard(-v)
-
-    #         r2 = self.combinaborrasimple(t.value,N,conf)
-
-    #         r0.inserta(r1,N)
-    #         r0.inserta(r2,N)
-    #         return r0
-
-
+    
    
     def insertaunits(self,sunits):
         # print("inserta ", sunits)
