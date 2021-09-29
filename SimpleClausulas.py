@@ -294,7 +294,7 @@ class simpleClausulas:
 
 
             for cl in self.listaclaus:
-                if len(x) < len(cl):
+                if len(x) <= len(cl):
                     claudif = x-cl
                     if not claudif:
                         borr.append(cl)
@@ -304,7 +304,7 @@ class simpleClausulas:
                             cl.discard(-var)
                             borr.append(cl)
                             y.append(cl)
-                else:
+                if len(cl) <= len(x):
                     claudif = cl-x
                     if not claudif:
                         return []

@@ -81,6 +81,15 @@ class simpleClausulas:
             for v in self.two[u]:
                grafo.add_edge(abs(u),abs(v))                  
         return grafo  
+
+
+    def calculalistatotal(self):
+        
+        lista = self.listaclaus.copy()
+        for x in self.two:
+             for y in self.two[x]:
+                 lista.append({x,y})
+        return lista
     
         
     def compruebasol2(self,config):
@@ -289,7 +298,7 @@ class simpleClausulas:
             if -v in self.unit:
                 self.insertar(set())
                 return []
-            else:
+            elif v not in self.unit:
                 self.listavar.add(abs(v))
                 self.unit.add(v)
                 if v in self.two and self.two[v]:
@@ -298,6 +307,13 @@ class simpleClausulas:
                     listau = self.two.pop(-v)
                     for r in listau:
                         y.append({r})
+                for z in self.two:
+                    if v in self.two[z]:
+                        self.two[z].discard(v)
+                    elif -v in self.two[z]:
+                        self.two[z] = set()
+                        y.append({z})
+
                 for cl in self.listaclaus:
                     if v in cl:
                         borr.append(cl)
@@ -319,7 +335,7 @@ class simpleClausulas:
                     return []
 
                 ox = list(x)
-                ox.sort()
+                ox.sort(key = lambda h: abs(h))
 
                 for i in range(len(ox)):
                     for j in range(i+1,len(ox)):
@@ -384,7 +400,7 @@ class simpleClausulas:
     
 
                     for cl in borr:
-                        self.eliminars(cl)
+                        self.eliminar(cl)
         
                     for cl in y:
                         self.insertar(cl)
@@ -401,7 +417,7 @@ class simpleClausulas:
 
 
             for cl in self.listaclaus:
-                if len(x) < len(cl):
+                if len(x) <= len(cl):
                     claudif = x-cl
                     if not claudif:
                         borr.append(cl)
@@ -411,7 +427,7 @@ class simpleClausulas:
                             cl.discard(-var)
                             borr.append(cl)
                             y.append(cl)
-                else:
+                if len(cl) <= len(x):
                     claudif = cl-x
                     if not claudif:
                         return []
@@ -428,7 +444,7 @@ class simpleClausulas:
             self.listaclaus.append(x)
 
         for cl in borr:
-            self.eliminars(cl)
+            self.eliminar(cl)
         
         for cl in y:
             self.insertar(cl)
@@ -484,6 +500,7 @@ class simpleClausulas:
             
             for x in self.unit:
                     cl = conf.union({x})
+                    
                     self.listaclaus.append(cl)
             self.unit = set()
 
@@ -513,16 +530,7 @@ class simpleClausulas:
             for cl in simple.listaclaus:
                 self.insertar(cl)
    
-    # def equal(self,simple):
-    #     if not self.unit == simple.unit:
-    #         return False
-    #     for cl in self.listaclaus:
-    #             if cl not in simple.listaclaus:
-    #                 return False
-    #     for cl in simple.listaclaus:
-    #             if cl not in self.listaclaus:
-    #                 return False
-    #     return True
+   
 
     def nulo(self):
         if self.unit or self.listaclaus:

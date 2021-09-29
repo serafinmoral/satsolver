@@ -74,10 +74,7 @@ def computefromSimple(x,N):
 
             result.asignaval(x)
         else:
-            lista = x.listaclaus
-            for r1 in x.two:
-                for r2 in x.two[r1]:
-                    lista.append({r1,r2})
+            lista = x.calculalistatotal()
             var = calculavar2(lista)
             (l0,l1,unit) = split(lista,var)
             h0 = computefromSimple(l0,N)
@@ -223,8 +220,8 @@ class arboldoble:
                 self = self.hijos[1]
 
             elif -self.var == v:
-                self = self.hijos[0]
                 self.value.hijos[0].combina(self.value)
+                self = self.hijos[0]
             else:
                 self.hijos[0].simplificaunit(v)
                 self.hijos[1].simplificaunit(v)
@@ -260,30 +257,7 @@ class arboldoble:
 
 
 
-    def simplifica(self, refarbol, config = set()):
-        if self.var == 0:
-            if refarbol.var == 0:
-                    self.value.simplificaconfig(refarbol.value,config)
-            else:
-                v = refarbol.var
-                if v in config:
-                    config.discar(v)
-                    self.simplifica(refarbol.hijos[0],config)
-                    config.add(v)
-                elif -v in config:
-                    config.discar(-v)
-                    self.simplifica(refarbol.hijos[1],config)
-                    config.add(-v)
-                self.simplifica(refarbol.hijos[2],config)
-        else:
-            v = self.var
-            config.add(v)
-            self.hijos[0].simplifica(refarbol, config)
-            config.discard(v)
-            config.add(-v)
-            self.hijos[1].simplifica(refarbol, config)
-            config.discard(-v)
-            self.hijos[2].simplifica(refarbol, config)
+   
 
     def tosimple(self):
         res = simpleClausulas()
@@ -328,7 +302,7 @@ class arboldoble:
         #     print("problema antes de normalizar")
         if self.var == 0:
             if len(self.value.listaclaus) > N:
-                x = self.value.listaclaus
+                x = self.value.calculalistatotal()
                 var = calculavar(x)
                 (l0,l1,unit) = split(x,var)
 
@@ -338,7 +312,7 @@ class arboldoble:
                 for z in self.value.unit:
                     ug.insertar({z})
 
-                h0 = computefromSimple(l0,N)
+                h0 =computefromSimple(l0,N)
                 h1 = computefromSimple(l1,N)
 
                 self.asignavarhijosv(var,h0,h1,ug)
@@ -531,128 +505,33 @@ class arboldoble:
                     res.inserta(res2,N,norma = False)
         return res
 
-    def combinaborra2(self,t,N,conf = set()):
-        # print("entro combina")
-            # simple.imprime()
-        # print(conf)
-            # self.imprime()
-        if  t.var == 0:
-            # print("entro en combinaborra simple desde combina borra")
-            return self.combinaborrasimple(t.value,N,conf)
-            # print("salgo de combinaborra ")
-        else:
-            v = t.var
-            conf.add(v)
-            r0 = self.combinaborra(t.hijos[0],N,conf)
-            conf.discard(v)
+    # def combinaborra2(self,t,N,conf = set()):
+    #     # print("entro combina")
+    #         # simple.imprime()
+    #     # print(conf)
+    #         # self.imprime()
+    #     if  t.var == 0:
+    #         # print("entro en combinaborra simple desde combina borra")
+    #         return self.combinaborrasimple(t.value,N,conf)
+    #         # print("salgo de combinaborra ")
+    #     else:
+    #         v = t.var
+    #         conf.add(v)
+    #         r0 = self.combinaborra(t.hijos[0],N,conf)
+    #         conf.discard(v)
 
-            conf.add(-v)
-            r1 = self.combinaborra(t.hijos[1],N,conf)
-            conf.discard(-v)
+    #         conf.add(-v)
+    #         r1 = self.combinaborra(t.hijos[1],N,conf)
+    #         conf.discard(-v)
 
-            r2 = self.combinaborrasimple(t.value,N,conf)
+    #         r2 = self.combinaborrasimple(t.value,N,conf)
 
-            r0.inserta(r1,N)
-            r0.inserta(r2,N)
-            return r0
-
-
-    def combinaborrasimple2(self,simple,N,conf):
-            # print("entro combinasimple" , self.var)
-            # simple.imprime()
-            print(conf)
-            if simple.nulo():
-                res = arboldoble()
-                return res
-            # self.imprime()
-            if self.var == 0:
-
-                if not conf:
-                    prod = self.value.combinaborra(simple)
-                    res = arboldoble()
-                    res.asignaval(prod)
-                    # print("empiezo a normalizar")
-                    res.normaliza(N)
-                    # print("termino de normalizar")
-                    # res.imprime()
-                    return res
-                else:
-                    prod = self.value.combinaborrac(simple,conf)
-                    res = arboldoble()
-                    res.asignaval(prod)
-                    # print("empiezo a normalizar")
-
-                    res.normaliza(N)
-                    # print("termino de normalizar")
-
-                    # res.imprime()
-                    return res
+    #         r0.inserta(r1,N)
+    #         r0.inserta(r2,N)
+    #         return r0
 
 
-
-
-
-            else:
-                v = self.var
-
-                res = arboldoble()
-                if not conf:
-                    prod = self.value.combinaborra(simple)
-                else:
-                    prod = self.value.combinaborrac(simple,conf)
-                res1 = arboldoble()
-                res1.asignaval(prod)
-                # print("empiezo a normalizar")
-
-                res1.normaliza(N)
-                # print("termino de normalizar")
-
-                val = simpleClausulas()
-                # print("res1")
-                # res1.imprime()
-
-                if v in conf:
-                    # print("v in conf")
-                    conf.discard(v)
-                    r0 = self.hijos[0].combinaborrasimple(simple,N,conf)
-                    conf.add(v)
-                    r1 = arboldoble()
-
-
-                elif -v in conf:
-                    # print("v in conf")
-                    conf.discard(-v)
-                    r1 = self.hijos[1].combinaborrasimple(simple,N,conf)
-                    conf.add(-v)
-                    r0 = arboldoble()
-
-                else:
-                    # print ("nada de lso dos")
-                    r0 = self.hijos[0].combinaborrasimple(simple.sel(v),N,conf)
-                    r1 = self.hijos[1].combinaborrasimple(simple.sel(-v),N,conf)
-
-
-                res.asignavarhijosv(v,r0,r1,val)
-                # if (v==226):
-                #     self.imprime()
-                #     r0.imprime()
-                #     r1.imprime()
-                #     res.imprime()
-                # print("res ")
-                # res.imprime()
-                # print("inserto en combina borra simple")
-                # res1.imprime()
-                res.inserta(res1,N)
-                # print("termino")
-                # res.imprime()
-                # print("comienzo a normalizar")
-                res.normaliza(N)
-                # print ("termino")
-                return res
-
-
-
-
+   
     def insertaunits(self,sunits):
         # print("inserta ", sunits)
         self.simplificaunits(sunits)
@@ -665,7 +544,7 @@ class arboldoble:
 
 
     def insertasimple(self,simple,N,conf=set(), norma = True):
-
+        conf2 = conf.copy()
         if self.value.contradict:
             return
         # if simple.checkvars():
@@ -681,63 +560,33 @@ class arboldoble:
         #     simple.imprime()
         #     time.sleep(40)
         if self.value.unit:
-            if conf.intersection(self.value.unit):
+            if conf2.intersection(self.value.unit):
                 return
             else:
                 neg= set(map(lambda x: -x, self.value.unit))
-                conf2 = conf-neg
-            simple.simplificaunits(self.value.unit)
+                conf2 = conf2-neg
 
-        else:
-            conf2 = conf
-        if simple.contradict:
-            if not conf2:
-                self.value.insertar(set())
-                self.var = 0
-                self.hijos = [None,None]
-                return
-            elif len(conf2)==1:
 
-                self.insertaunits(conf2)
-                # if self.checkrep():
-                #     print ("repeticion despues de insertaunits conf2 " , conf2)
-                #     self.imprime()
-                #     print(" simple ", conf2)
-                #     simple.imprime()
-                #     time.sleep(40)
-                return
-
-        elif not conf2 and simple.unit:
-                # print ("entro en poda")
-                self.insertaunits(simple.unit)
-                if self.value.contradict:
-                    return
-                simple.unit = set()
-                self.insertasimple(simple,N,conf2,norma)
-                return
-        # if self.checkrep():
-        #         print ("repeticion despues de inserta simple  despues de insertar unitarias")
-        #         self.imprime()
-        #         print(" simple ", conf2)
-        #         time.sleep(40)
+       
+        
 
         if self.var==0:
 
 
             simple.adconfig(conf2)
-            for v in simple.unit:
-                self.value.insertar({v})
-            for cl in simple.listaclaus:
-                self.value.insertar(cl)
+            self.value.combina(simple)
             if norma:
                 self.normaliza(N)
             # if self.checkrep():
             #     print ("repeticion despues de inserta simple  con self.var ) = 0")
 
         else:
+            if not conf2 and simple.unit:
+                self.simplificaunits(simple.unit)
+                self.value.unit.update(simple.unit)
 
             v = self.var
-
+            simple.simplificaunits(self.value.unit)
             if v in conf2:
 
 

@@ -188,6 +188,9 @@ class problemaTrianArbol:
     def insertacola(self,t,i,conf=set()):
         if not t.value.nulo():
                 if t.value.contradict and not conf:
+                    print("contradiccion c", conf)
+                    t.imprime()
+                    
                     self.problemacontradict()
                 else:
                     # indices = map(lambda x:self.posvar[abs(x)],conf.union(t.value.listavar))
@@ -202,6 +205,8 @@ class problemaTrianArbol:
 
 
                     pot = self.lqueue[j]
+                    if pot.value.contradict:
+                        print("contradiccion antes")
                     # print("inserto en ", pos)
                     # pot.imprime()
 
@@ -210,7 +215,8 @@ class problemaTrianArbol:
                         print("repeticion antes de insertar en colar")
                         time.sleep(50)
                     
-
+                    if i== 225:
+                        print("posible problema")
 
 
                     pot.insertasimple(t.value,self.N,conf) 
@@ -220,6 +226,10 @@ class problemaTrianArbol:
                         pot.imprime()
 
                         time.sleep(500)
+                    if pot.value.contradict:
+                        print("contradiccion despues")
+                        pot.value.imprime()
+                        pot.imprime()
 
                     if pot.checkunit():
                         print("problema unidades despues de insertar en colar")
@@ -315,10 +325,13 @@ class problemaTrianArbol:
             print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
             
             pot = self.lqueue[i]
+            if pot.value.contradict:
+                print("contradiccion antes de normalizar ")
+                break
             print("entro en normaliza")
             pot.normaliza(self.N)
             if pot.value.contradict:
-                print("contradiccion ")
+                print("contradiccion después de normalizar ")
                 break
             # print("saldo de normaliza")
             # pot2 = self.lpot[i]
@@ -436,6 +449,9 @@ class problemaTrianArbol:
             self.insertacola(t2,i)
             
             res1.normaliza(self.N)
+
+            if res1.value.contradict:
+                print("contradiccion en resultado")
 
             # res1.imprime()
 
