@@ -191,8 +191,11 @@ class arboldoble:
         if self.var == 0:
             self.value.insertar(cl)
             return
+        
         neg = set(map(lambda x:-x,self.value.unit))
         cl.difference_update(neg)
+        if not cl:
+            self.anula()
         if len(cl)==1:
             v = cl.pop()
             self.value.insertar({v})
@@ -495,7 +498,9 @@ class arboldoble:
         conf2 = conf.copy()
         if self.value.contradict:
             return
-
+        if simple.contradict:
+                    self.insertaclau(conf2)
+                    return
     
         if self.value.unit:
             simple.simplificaunits(self.value.unit)
