@@ -111,56 +111,7 @@ class problemaTrianArbol:
     def selectval(self,i,var,config):
         return var
                     
-                
-    def insertapu(self,cl,pot,val):
-        borrar = []
-        cola = []
-        if -val in pot.indices:
-            for clau in pot.indices[-val]:
-                cl1 = frozenset(clau-{-val})
-                if not cl1:
-                    self.solved = True
-                    self.contradict = True
-                    break
-                cola.append(cl1)
-                borrar.append(clau)
-        if val in pot.indices:
-            for clau in pot.indices[val]:
-                borrar.append(clau)
-        pot.inserts(cl)
-    
-        for clau in borrar:
-            pot.eliminar(clau)
-            
-            
-        return cola
 
-    def podau(self,pot,val):
-    
-        borrar = []
-        cola = []
-        if -val in pot.indices:
-            for clau in pot.indices[-val]:
-                cl1 = frozenset(clau-{-val})
-                cola.append(cl1)
-                if not cl1:
-                    self.solved = True
-                    self.contradict = True
-                    break
-                borrar.append(clau)
-        if val in pot.indices:
-            for clau in pot.indices[val]:
-                borrar.append(clau)
-                
-        
-    
-        for clau in borrar:
-            pot.eliminar(clau)
-        
-        
-        
-        
-        return cola
             
     def insertacolaclau(self,cl):
         if not cl:
@@ -181,7 +132,6 @@ class problemaTrianArbol:
                 if vars <= self.clusters[pos]:
                     break
 
-            print(vars,self.clusters[pos])
             pot = self.lqueue[pos]
             pot.insertaclau(cl)
 
@@ -210,18 +160,21 @@ class problemaTrianArbol:
                     # print("inserto en ", pos)
                     # pot.imprime()
 
-                    
+                    if pot.checkunit():
+                        print("problema unidades antes de insertar en colar")
+                        time.sleep(50)
+
                     if pot.checkrep():
                         print("repeticion antes de insertar en colar")
                         time.sleep(50)
                     
-                    if i== 225:
-                        print("posible problema")
+                    # if i== 225:
+                    #     print("posible problema")
 
-
+                    
                     pot.insertasimple(t.value,self.N,conf) 
                     if pot.checkrep():
-                        print("repeticion despues de insertar en colar", conf)
+                        print("repeticion despues de insertar en colar ", conf)
                         t.value.imprime()
                         pot.imprime()
 
@@ -233,6 +186,11 @@ class problemaTrianArbol:
 
                     if pot.checkunit():
                         print("problema unidades despues de insertar en colar")
+                        
+                        t.value.imprime()
+
+                        pot.imprime()
+
                         time.sleep(50)
                     pot.normaliza(self.N)     
                     # if pot.checkrep():

@@ -266,8 +266,9 @@ class simpleClausulas:
         if len(x)==1:
             self.unit.add(x.copy().pop())
         elif len(x) == 2:
-            t1 = x.pop()
-            t2 = x.pop()
+            xc = x.copy()
+            t1 = xc.pop()
+            t2 = xc.pop()
             if abs(t1) <= abs(t2):
                 r1 = t1
                 r2 = t2
@@ -319,8 +320,9 @@ class simpleClausulas:
                         borr.append(cl)
                     if -v in cl:
                         borr.append(cl)
-                        cl.discard(-v)
-                        y.append(cl)
+                        cl1 = cl.copy()
+                        cl1.discard(-v)
+                        y.append(cl1)
         else:
 
             if x.intersection(self.unit):
@@ -328,13 +330,13 @@ class simpleClausulas:
             else:
                 neg = set(map(lambda x: -x, self.unit))
 
-                x = x-neg
+                xc = x-neg
 
-                if len(x) <= 1:
-                    self.insertar(x)
+                if len(xc) <= 1:
+                    self.insertar(xc)
                     return []
 
-                ox = list(x)
+                ox = list(xc)
                 ox.sort(key = lambda h: abs(h))
 
                 for i in range(len(ox)):
@@ -342,22 +344,14 @@ class simpleClausulas:
                         r1 = ox[i]
                         r2 = ox[j]
                         if r2 in self.two.get(r1,set()):
-                            for cl in borr:
-                                self.eliminar(cl)
                             return[]
                         if r2 in self.two.get(-r1,set()):
-                            x.discard(r1)
-                            borr.append(x)
-                            for cl in borr:
-                                self.eliminar(cl)
-                            self.insertar(x)
+                            xc.discard(r1)
+                            self.insertar(xc)
                             return []   
                         if -r2 in self.two.get(r1,set()):
-                            x.discard(r2)
-                            borr.append(x)
-                            for cl in borr:
-                                self.eliminar(cl)
-                            self.insertar(x)
+                            xc.discard(r2)
+                            self.insertar(xc)
                             return []  
 
                             
@@ -366,9 +360,10 @@ class simpleClausulas:
                 
                 
 
-                if len(x) == 2:
-                    t1 = x.pop()
-                    t2 = x.pop()
+                if len(xc) == 2:
+                   
+                    t1 = xc.pop()
+                    t2 = xc.pop()
                     if abs(t1) <= abs(t2):
                         r1 = t1
                         r2 = t2
@@ -382,13 +377,17 @@ class simpleClausulas:
                             if r2 in cl:
                                 borr.append(cl)
                             elif -r2 in cl:
-                                cl.discard(-r2)
+                                clc = cl.copy()
+                                clc.discard(-r2)
+                                
+                                y.append(clc)
                                 borr.append(cl)
-                                y.append(cl)
                         if -r1 in cl and r2 in cl:
-                                cl.discard(-r1)
+                                clc = cl.copy()
+                                clc.discard(-r1)
+                                
+                                y.append(clc)
                                 borr.append(cl)
-                                y.append(cl)
                         
                     
                     if r1 in self.two:
@@ -417,31 +416,30 @@ class simpleClausulas:
 
 
             for cl in self.listaclaus:
-                if len(x) <= len(cl):
-                    claudif = x-cl
+                if len(xc) <= len(cl):
+                    claudif = xc-cl
                     if not claudif:
                         borr.append(cl)
                     elif len(claudif) == 1:
                         var = claudif.pop()
                         if -var in cl:
-                            cl.discard(-var)
+                            clc = cl.copy()
+                            clc.discard(-var)
                             borr.append(cl)
-                            y.append(cl)
-                if len(cl) <= len(x):
-                    claudif = cl-x
+                            y.append(clc)
+                if len(cl) <= len(xc):
+                    claudif = cl-xc
                     if not claudif:
                         return []
                     elif len(claudif) == 1:
                         var = claudif.pop()
-                        if -var in x:
-                            x.discard(-var)
-                            for cl in borr:
-                                self.eliminar(cl)
-                            self.insertar(x)
+                        if -var in xc:
+                            xc.discard(-var)
+                            self.insertar(xc)
                             return []
-            nvar = set(map(abs,x))
+            nvar = set(map(abs,xc))
             self.listavar.update(nvar)
-            self.listaclaus.append(x)
+            self.listaclaus.append(xc)
 
         for cl in borr:
             self.eliminar(cl)
@@ -457,6 +455,7 @@ class simpleClausulas:
             self.contradict = False
             self.unit = {v}
             self.listaclaus = []
+            self.two = dict()
             return
         for cl in self.listaclaus:
             cl.add(v)
@@ -508,6 +507,7 @@ class simpleClausulas:
                 for y in self.two[x]:
                     cl = conf.union({x,y})
                     self.listaclaus.append(cl)
+                self.two[x] = set()
 
 
     def combina(self,simple):
@@ -584,7 +584,7 @@ class simpleClausulas:
                             cl = {v,x,y}
                             res.insertar(cl)
             for cl in self.listaclaus:
-                if -x not in cl:
+                if not -x in cl:
                     r = cl.union({x})
                     res.insertar(r)
 
@@ -645,7 +645,7 @@ class simpleClausulas:
             if v in  cl:
                 result.insertar(cl-{v})
             elif not -v in cl:
-                result.insertar(cl)
+                result.insertar(cl.copy())
         return result
 
     def selconf(self,conf):
@@ -716,8 +716,8 @@ class simpleClausulas:
             for cl in self.listaclaus:
                 if -v in cl:
                     borr.append(cl)
-                    cl.discard(-v)
-                    ins.append(cl)
+                    clc = cl-{v}
+                    ins.append(clc)
                 elif v in cl:
                     borr.append(cl)
             for cl in borr:
@@ -767,8 +767,8 @@ class simpleClausulas:
                     borr.append(cl)
                 elif cl.intersection(neg):
                     borr.append(cl)
-                    cl.difference_update(neg)
-                    ins.append(cl)
+                    cl2 = cl-neg
+                    ins.append(cl2)
          
 
             for cl in borr:
