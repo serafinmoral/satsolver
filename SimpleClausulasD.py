@@ -716,7 +716,7 @@ class simpleClausulas:
             for cl in self.listaclaus:
                 if -v in cl:
                     borr.append(cl)
-                    clc = cl-{v}
+                    clc = cl-{-v}
                     ins.append(clc)
                 elif v in cl:
                     borr.append(cl)

@@ -208,6 +208,8 @@ class arboldoble:
             return
         if len(clc)==1:
             v = clc.pop()
+    
+            
             if v==-207:
                 print("posible problema")
             self.simplificaunit(v)
