@@ -708,8 +708,8 @@ class simpleClausulas:
                         if -v == y:
                             ins.append({x})
                             break
-                    if v in self.two[x]:
-                            self.two[x].discard(v)    
+                    
+                    self.two[x].discard(v)    
                             
 
 
@@ -743,7 +743,11 @@ class simpleClausulas:
             for x in self.two:
                 if -x in s:
                     for y in self.two[x]:
-                        ins.append({y})
+                        if -y in s:
+                            self.insertar(set())
+                            return
+                        elif y not in s:
+                            ins.append({y})
                     self.two[x] = set()
 
                 elif x in s:

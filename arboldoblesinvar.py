@@ -190,30 +190,54 @@ class arboldoble:
     def insertaclau(self,cl):
         if self.var == 0:
             self.value.insertar(cl)
+            if self.checkrep():
+                print("problema con var=0", cl)
             return
         
         neg = set(map(lambda x:-x,self.value.unit))
-        cl.difference_update(neg)
-        if not cl:
+        clc = cl-neg
+        
+        if not clc:
             self.anula()
-        if len(cl)==1:
-            v = cl.pop()
+            if self.checkrep():
+                print("problema con anula", self.unit, cl, clc)
+            return 
+        if self.value.unit.intersection(clc):
+            if self.checkrep():
+                print("problema con interseccion", self.unit, cl, clc)
+            return
+        if len(clc)==1:
+            v = clc.pop()
+            if v==-207:
+                print("posible problema")
+            self.simplificaunit(v)
+            
+                
             self.value.insertar({v})
-            self.hijos[0].simplificaunit(v)
-            self.hijos[1].simplificaunit(v)
-            self.normaliza()
-        else:
+            if self.checkrep():
+                print("problema con clauslua 1", self.unit, cl, v)
+                self.imprime()
+            return
+        
 
-            v = self.var
-            if v in cl:
-                cl.discard(v)
-                self.hijos[0].insertaclau(cl)
-            elif -v in cl:
-                cl.discard(-v)
-                self.hijos[1].insertaclau(cl)
-            else:
-                self.hijos[0].insertaclau(cl.copy())
-                self.hijos[1].insertaclau(cl)
+        v = self.var
+        if v in clc:
+            clc.discard(v)
+            self.hijos[0].insertaclau(clc)
+            if self.checkrep():
+                print("problema con hijos 0", self.unit, cl, clc)
+        elif -v in clc:
+            clc.discard(-v)
+            self.hijos[1].insertaclau(clc)
+            if self.checkrep():
+                print("problema con hijos 1", self.unit, cl, clc)
+        else:
+            self.hijos[0].insertaclau(clc)
+            if self.checkrep():
+                print("problema con hijos 0 sin v", self.unit, cl, clc)
+            self.hijos[1].insertaclau(clc)
+            if self.checkrep():
+                print("problema con hijos 1 sin v", self.unit, cl, clc)
 
     def simplificaunit(self,v):
         self.value.simplificaunit(v)
@@ -222,12 +246,16 @@ class arboldoble:
             return
         if not self.var == 0:
             if self.var == v:
-                self.value.hijos[1].combina(self.value)
-                self = self.hijos[1]
+                self.hijos[1].value.combina(self.value)
+                self.value = self.hijos[1].value
+                self.var = self.hijos[1].var
+                self.hijos = self.hijos[1].hijos
 
             elif -self.var == v:
-                self.value.hijos[0].combina(self.value)
-                self = self.hijos[0]
+                self.hijos[0].value.combina(self.value)
+                self.value = self.hijos[0].value
+                self.var = self.hijos[0].var
+                self.hijos = self.hijos[0].hijos
             else:
                 self.hijos[0].simplificaunit(v)
                 self.hijos[1].simplificaunit(v)
@@ -257,9 +285,7 @@ class arboldoble:
                 self.hijos[0].simplificaunits(s)
                 self.hijos[1].simplificaunits(s)
 
-                if self.hijos[0].value.contradict or self.hijos[1].value.contradict:
-                    self.normaliza()
-
+    
 
 
 
@@ -287,6 +313,8 @@ class arboldoble:
             return False
         elif self.var in vars:
             print ("var ",self.var)
+            self.imprime()
+
             return True
         else:
 
@@ -491,15 +519,22 @@ class arboldoble:
 
     def insertasimple(self,simple,N,conf=set(), norma = True):
 
-        # if self.checkrep():
-        #     print("repeticion antes")
-        #     time.sleep(40)
+        if self.checkrep():
+            print("repeticion antes")
+            time.sleep(40)
+
+        if simple.nulo():
+            return
 
         conf2 = conf.copy()
         if self.value.contradict:
             return
         if simple.contradict:
                     self.insertaclau(conf2)
+                    if self.checkrep():
+                        print("repeticion despues de insertar clausula" , conf2)
+                        time.sleep(40)
+                        self.imprime()
                     return
     
         if self.value.unit:
@@ -513,6 +548,8 @@ class arboldoble:
             if simple.contradict:
                     self.insertaclau(conf2)
                     return
+            if simple.nulo():
+                return
 
             
             
@@ -561,26 +598,27 @@ class arboldoble:
             v = self.var
 
             
+     
             if v in conf2:
 
 
                 conf2.discard(v)
                 self.hijos[0].insertasimple(simple,N,conf2, norma)
                 conf2.add(v)
-                # if self.checkrep():
-                #     print ("repeticion despues de insertar en hijo0 con v en conf" , conf2, v)
-                #     self.hijos[0].imprime()
-                #     simple.imprime()
-                #     time.sleep(40)
+                if self.checkrep():
+                    print ("repeticion despues de insertar en hijo0 con v en conf" , conf2, v)
+                    self.hijos[0].imprime()
+                    simple.imprime()
+                    time.sleep(40)
 
 
             elif -v in conf2:
                 conf2.discard(-v)
                 self.hijos[1].insertasimple(simple,N,conf2, norma)
                 conf2.add(-v)
-                # if self.checkrep():
-                #     print ("repeticion despues de insertar en hijo1 con -v en conf", conf2)
-                #     time.sleep(40)
+                if self.checkrep():
+                    print ("repeticion despues de insertar en hijo1 con -v en conf", conf2)
+                    time.sleep(40)
 
             else:
 
@@ -589,14 +627,14 @@ class arboldoble:
 
                 # print(" v", v , "hijos ", self.hijos)
                 self.hijos[0].insertasimple(l0,N,conf2, norma)
-                # if self.checkrep():
-                #     print ("repeticion despues de insertar en hijo0 sin v in conf", v, conf2)
-                #     self.imprime()
-                #     l0.imprime()
-                #     l1.imprime()
-                #     l2.imprime()
-                #     simple.imprime()
-                #     time.sleep(40)
+                if self.checkrep():
+                    print ("repeticion despues de insertar en hijo0 sin v in conf", v, conf2)
+                    self.imprime()
+                    l0.imprime()
+                    l1.imprime()
+                    l2.imprime()
+                    simple.imprime()
+                    time.sleep(40)
 
                 self.hijos[1].insertasimple(l1,N,conf2, norma)
                 if self.checkrep():
@@ -608,23 +646,23 @@ class arboldoble:
                     time.sleep(40)
 
                 self.hijos[0].insertasimple(l2.copia(),N,conf2, norma)
-                # if self.checkrep():
-                #     print ("repeticion despues de insertar en hijo0 parte sin v", v, conf2)
-                #     simple.imprime()
-                #     l0.imprime()
-                #     l1.imprime()
-                #     l2.imprime()
-                #     self.imprime()
-                #     time.sleep(40)
+                if self.checkrep():
+                    print ("repeticion despues de insertar en hijo0 parte sin v", v, conf2)
+                    simple.imprime()
+                    l0.imprime()
+                    l1.imprime()
+                    l2.imprime()
+                    self.imprime()
+                    time.sleep(40)
 
                 self.hijos[1].insertasimple(l2,N,conf2, norma)
-                # if self.checkrep():
-                #     print ("repeticion despues de insertar en hijo1 parte sin v",v, conf2 )
-                #     l0.imprime()
-                #     l1.imprime()
-                #     l2.imprime()
-                #     simple.imprime()
-                #     time.sleep(40)
+                if self.checkrep():
+                    print ("repeticion despues de insertar en hijo1 parte sin v",v, conf2 )
+                    l0.imprime()
+                    l1.imprime()
+                    l2.imprime()
+                    simple.imprime()
+                    time.sleep(40)
 
 
     def inserta(self,t,N,conf= set(), norma = True):
