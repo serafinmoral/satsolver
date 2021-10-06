@@ -172,8 +172,10 @@ class problemaTrianArbol:
                     
                    
 
-                    print("llamo inserta simple" , conf)
+                    # print("llamo inserta simple" , conf)
                     pot.insertasimple(t.value,self.N,conf) 
+
+                   
                     # if pot.checkrep():
                     #     print("repeticion despues de insertar en colar ", conf)
                     #     t.value.imprime()
@@ -193,8 +195,8 @@ class problemaTrianArbol:
                     #     pot.imprime()
 
                     #     time.sleep(50)
-                    pot.normaliza(self.N)     
-                    self.lpot[j] = pot
+                    pot.normaliza(self.N) 
+                      
                     # if pot.checkrep():
                     #     print("repeticion despues de normalizar en colar")
                     #     time.sleep(50)
@@ -314,6 +316,8 @@ class problemaTrianArbol:
                 break
             print("entro en normaliza")
             pot.normaliza(self.N)
+
+            
             if pot.value.contradict:
                 print("contradiccion después de normalizar ")
                 break

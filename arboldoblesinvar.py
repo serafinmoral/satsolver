@@ -524,6 +524,8 @@ class arboldoble:
         #     print("repeticion antes")
         #     time.sleep(40)
 
+        old = self
+
         if simple.nulo():
             return
 
@@ -532,6 +534,8 @@ class arboldoble:
             return
         if simple.contradict:
                     self.insertaclau(conf2)
+                    if not self == old:
+                        print("distintos despues de insertar clausula")
                     # if self.checkrep():
                     #     print("repeticion despues de insertar clausula" , conf2)
                     #     time.sleep(40)
@@ -548,6 +552,8 @@ class arboldoble:
                 conf2 = conf2-neg
             if simple.contradict:
                     self.insertaclau(conf2)
+                    if not self == old:
+                        print("distintos despues de insertar clausula")
                     return
             if simple.nulo():
                 return
@@ -564,8 +570,12 @@ class arboldoble:
 
             simple.adconfig(conf2)
             self.value.combina(simple)
+            if not self == old:
+                        print("distintos despues de combinar")
             if norma:
                 self.normaliza(N)
+            if not self == old:
+                        print("distintos despues de normalizar")
             # if self.checkrep():
             #     print ("repeticion despues de inserta simple  con self.var ) = 0")
 
@@ -575,6 +585,8 @@ class arboldoble:
                     # if 97 in simple.unit:
                     #     print("posible causa")
                     self.simplificaunits(simple.unit)
+                    if not self == old:
+                        print("distintos despues de simplifica units")
                     self.value.unit.update(simple.unit)
                     self.value.listavar.update( set(map(abs,simple.unit)))
                     simple.unit = set()
