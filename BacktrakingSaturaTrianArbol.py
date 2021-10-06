@@ -207,7 +207,6 @@ def main(prob):
         prob.inicia0()     
 
         prob.borra()
-
         prob.findsol()
 
         # prob.inicia()

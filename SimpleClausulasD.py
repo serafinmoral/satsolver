@@ -282,7 +282,49 @@ class simpleClausulas:
         else:
             self.listaclaus.append(x)
     
-       
+    def equiv(self,r1,r2):
+        ins = []
+        borr = []
+        for x in self.two:
+            if not x == r1 and not x == -r1:
+                if r2 in self.two[x]:
+                    ins.append({x,r1})
+                    self.two[x].discard(r2)
+                if -r2 in self.two[x]:
+                    ins.append({x,-r1})
+                    self.two[x].discard(-r2)
+        if r2 in self.two:
+            for x in self.two[r2]:
+                    ins.append({x,r1})
+            self.two.pop(r2)
+        if -r2 in self.two:
+            for x in self.two[-r2]:
+                    ins.append({x,-r1})
+            self.two.pop(-r2)   
+
+
+        for cl in self.listaclaus:
+            if r2 in cl:
+                borr.append(cl)
+                if not -r1 in cl:
+                    cln = cl-{r2}
+                    cln.add(r1)
+                    ins.append(cln)
+            if -r2 in cl:
+                borr.append(cl)
+                if not r1 in cl:
+                    cln = cl-{-r2}
+                    cln.add(-r1)
+                    ins.append(cln)
+
+
+
+        for cl in borr:
+            self.eliminar(cl)
+        
+        for cl in ins:
+            self.insertar(cl)
+
     
     def insertar(self,x):
         if self.contradict:
@@ -372,6 +414,7 @@ class simpleClausulas:
                         r2 = t1
                     
                     
+
                     for cl in self.listaclaus:
                         if r1 in  cl:
                             if r2 in cl:
@@ -397,12 +440,17 @@ class simpleClausulas:
 
                     self.listavar.update({abs(r1),abs(r2)})
     
+                    
 
                     for cl in borr:
                         self.eliminar(cl)
         
                     for cl in y:
                         self.insertar(cl)
+
+                    if -r1 in self.two and -r2 in self.two[-r1]:
+                        self.equiv(r1,-r2)
+
 
                     return []
 
