@@ -47,6 +47,8 @@ class problemaTrianArbol:
          self.clusters = []
          self.lpot = []
          self.lqueue  = []
+         self.lqp = []
+         self.lqn = []
          self.posvar = dict()
          
          
@@ -192,6 +194,7 @@ class problemaTrianArbol:
 
                     #     time.sleep(50)
                     pot.normaliza(self.N)     
+                    self.lpot[j] = pot
                     # if pot.checkrep():
                     #     print("repeticion despues de normalizar en colar")
                     #     time.sleep(50)
@@ -271,7 +274,31 @@ class problemaTrianArbol:
     
 #         return cola
     
-    
+    def findsol(self):
+        
+        sol = set()
+        for i in reversed(range(len(self.orden))):
+            pos = self.lqp[i].copia()
+            neg = self.lqn[i].copia()
+            neg.simplificaunits(sol)
+            pos.simplificaunits(sol)
+            pos.normaliza()
+            neg.normaliza()
+            var = self.orden[i]
+            print("i= ",i)
+            if not pos.value.contradict:
+                sol.add(var)
+                print(var)
+            elif not neg.value.contradict:
+                sol.add(-var)
+                print(-var)
+            else:
+                print("contradiccion buscando solucion" , sol )
+                self.lqp[i].imprime()
+                self.lqn[i].imprime()
+                break
+            
+        return sol
     
     def borra(self):
         print(len(self.orden))
@@ -316,6 +343,12 @@ class problemaTrianArbol:
 
             print("entro en split")
             (t0,t1,t2) = pot.splitborra(var)
+
+            self.lqp.append(t1)
+
+            self.lqn.append(t0)
+
+
             
             # (t0c,t1c,t2c) = potcopia.splitborra(var)
 

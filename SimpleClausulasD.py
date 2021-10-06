@@ -569,12 +569,16 @@ class simpleClausulas:
                     if not (u==-x) and not (u == -y):
                         for v in conj.two[u]:
                             if not (v==-x) and not (v == -y):
+                                # print(u,v)
                                 cl = {u,v,x,y}
+                                # print(cl)
                                 res.insertar(cl)
+                                # res.imprime()
                 for cl in conj.listaclaus:
                     if -x not in cl and -y not in cl:
                         r = cl.union({x,y})
                         res.insertar(r)
+
         
         for x in conj.unit:
             for v in self.two:
@@ -588,12 +592,15 @@ class simpleClausulas:
                     r = cl.union({x})
                     res.insertar(r)
 
+
+
         for x in conj.two:
             for y in  conj.two[x]:
                 for cl in self.listaclaus:
-                    if -x not in cl and -y not in cl:
+                    if -x not in cl and not -y  in cl:
                         r = cl.union({x,y})
                         res.insertar(r)
+
 
         for cl in self.listaclaus:
             cpn = set(map(lambda x: -x, cl))
@@ -602,6 +609,7 @@ class simpleClausulas:
                     r = cl.union(cl2)
                     res.insertar(r)
         # print("Salgo ") 
+
 
         return res
 
@@ -821,7 +829,7 @@ class simpleClausulas:
                     elif y == -v:
                         s2.insertars({x})
                     else:
-                        s2.insertars({x,y})
+                        s3.insertars({x,y})
 
 
         for cl in self.listaclaus:

@@ -208,6 +208,8 @@ def main(prob):
 
         prob.borra()
 
+        prob.findsol()
+
         # prob.inicia()
         
         print("salgo de inicio")
