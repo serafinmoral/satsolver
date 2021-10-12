@@ -66,6 +66,7 @@ def leeArchivoGlobal(Archivo):
             listaux.pop()
             listaux = map(int,listaux)
             clausula= set(listaux)
+            infor.listaclausOriginal.append(clausula)
             infor.insertar(clausula)
             # if(len(clausula)==1):
             #     h = set(clausula).pop()
@@ -271,7 +272,8 @@ while reader:
 #problema.originalpotentials = problema.totaloriginal.extraePotentials(problema.ordenbo,problema.conjuntosvar)
 
     main(prob)
-    
+    print(prob.sol)
+    prob.compruebaSol()    
     t5 = time()
 
 

@@ -61,7 +61,7 @@ class simpleClausulas:
          self.solved = False
          self.solution = set()
          self.unit = set()
-         
+         self.listaclausOriginal = []        
      
     
     def cgrafo(self):

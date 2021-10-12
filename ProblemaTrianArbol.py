@@ -301,6 +301,16 @@ class problemaTrianArbol:
                 break
             
         return sol
+        self.sol = sol
+    def compruebaSol(self):
+        aux = 0
+        for clau in self.inicial.listaclausOriginal:
+            aux = aux + 1
+            if len(clau.intersection(self.sol))==0:
+                print("Error en cláusula: ", clau)
+                return False
+        print("Cumple solución satisfactoriamente, Número de cláusulas validadas: ", aux)
+        return True
     
     def borra(self):
         print(len(self.orden))
