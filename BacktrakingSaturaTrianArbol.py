@@ -62,12 +62,12 @@ def leeArchivoGlobal(Archivo):
         if (cadena[0]!='c'):
             cadena.strip()
             listaux=cadena.split()
-            
             listaux.pop()
             listaux = map(int,listaux)
             clausula= set(listaux)
-            infor.listaclausOriginal.append(clausula)
+            infor.listaclausOriginal.append(clausula.copy())
             infor.insertar(clausula)
+
             # if(len(clausula)==1):
             #     h = set(clausula).pop()
             #     infor.unitprev.add(h)
@@ -272,7 +272,7 @@ while reader:
 #problema.originalpotentials = problema.totaloriginal.extraePotentials(problema.ordenbo,problema.conjuntosvar)
 
     main(prob)
-    print(prob.sol)
+    print("Conjunto solución: ",prob.sol)
     prob.compruebaSol()    
     t5 = time()
 

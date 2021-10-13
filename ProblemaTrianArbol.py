@@ -50,6 +50,7 @@ class problemaTrianArbol:
          self.lqp = []
          self.lqn = []
          self.posvar = dict()
+         self.sol = set()
          
          
     def inicia0(self):
@@ -299,9 +300,9 @@ class problemaTrianArbol:
                 self.lqp[i].imprime()
                 self.lqn[i].imprime()
                 break
-            
-        return sol
         self.sol = sol
+        return sol
+        
     def compruebaSol(self):
         aux = 0
         for clau in self.inicial.listaclausOriginal:
