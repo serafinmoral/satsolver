@@ -10,6 +10,61 @@ import itertools
 from comunes import *  
 import networkx as nx    
 
+
+
+def leeArchivoGlobal(Archivo):
+    reader=open(Archivo,"r")
+    cadena = reader.readline()
+    
+    while cadena[0]=='c':
+        cadena = reader.readline()
+    
+    cadena.strip()
+    listaaux = cadena.split()
+    print(listaaux)
+    nvar = int(listaaux[2])
+    nclaus = int(listaaux[3])
+    print(nvar)
+#    print(cadena)
+    while cadena[0]=='c':
+        cadena = reader.readline()
+#    param = cadena.split()
+
+    infor = globalClausulas()
+    infor.nvar = nvar
+    for cadena in reader:
+#        print (cadena)
+        if (cadena[0]!='c'):
+            cadena.strip()
+            listaux=cadena.split()
+            listaux.pop()
+            listaux = map(int,listaux)
+            clausula= frozenset(listaux)
+            infor.insertar(clausula)
+            if(len(clausula)==1):
+                h = set(clausula).pop()
+                infor.unitprev.add(h)
+            elif (len(clausula)==2):
+                infor.dobles.add(clausula)
+                mclau = frozenset(map(lambda x: -x,clausula))
+                if mclau in infor.dobles:
+                    par = set(clausula)
+                    l1 = par.pop()
+                    l2 = -par.pop()
+                    if(abs(l1)<abs(l2)):
+                        infor.equiv.add((l1,l2))
+                    else:
+                        infor.equiv.add((l2,l1))
+
+
+
+#    print("paso a limpiar")
+#    infor.limpiarec(0.0)
+#    print("termino de limpiar")
+    return infor  
+
+ 
+    
 class globalClausulas:
     def __init__(self):
          self.nvar = 0

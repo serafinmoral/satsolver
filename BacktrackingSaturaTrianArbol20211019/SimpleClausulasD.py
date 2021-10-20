@@ -10,6 +10,49 @@ import itertools
 from comunes import *  
 import networkx as nx    
 
+
+
+def leeArchivoGlobal(Archivo):
+    reader=open(Archivo,"r")
+    cadena = reader.readline()
+    
+    while cadena[0]=='c':
+        cadena = reader.readline()
+    
+    cadena.strip()
+    listaaux = cadena.split()
+    print(listaaux)
+    nvar = int(listaaux[2])
+    nclaus = int(listaaux[3])
+    print(nvar)
+#    print(cadena)
+    while cadena[0]=='c':
+        cadena = reader.readline()
+#    param = cadena.split()
+
+    infor = simpleClausulas()
+    infor.nvar = nvar
+    for cadena in reader:
+#        print (cadena)
+        if (cadena[0]!='c'):
+            cadena.strip()
+            listaux=cadena.split()
+            listaux.pop()
+            listaux = map(int,listaux)
+            clausula= set(listaux)
+            infor.insertar(clausula)
+            
+           
+
+
+
+#    print("paso a limpiar")
+#    infor.limpiarec(0.0)
+#    print("termino de limpiar")
+    return infor  
+
+ 
+    
 class simpleClausulas:
     def __init__(self):
          self.listaclaus = []
