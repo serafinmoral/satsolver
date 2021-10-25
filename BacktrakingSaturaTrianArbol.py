@@ -16,7 +16,8 @@ import networkx as nx
 from random import *
               
 from ProblemaTrianArbol import *
-from SimpleClausulasI import * 
+
+from SimpleClausulasD import * 
 
 
 #  from queue import PriorityQueue
