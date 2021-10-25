@@ -9,7 +9,8 @@ import itertools
          
 from comunes import *  
 import networkx as nx    
-
+import random
+import time
 
 
 def leeArchivoGlobal(Archivo):
@@ -62,6 +63,7 @@ class simpleClausulas:
          self.solution = set()
          self.unit = set()
          self.two = dict()
+        #  self.eq = dict()
 
          
      
@@ -81,6 +83,225 @@ class simpleClausulas:
             for v in self.two[u]:
                grafo.add_edge(abs(u),abs(v))                  
         return grafo  
+
+
+    def simplificaborra(self, N=3, R =200, L = 3):
+        for i in range(R):
+            nuevo = self.copia()
+
+            nuevo.listavar.difference_update(set(map(abs,nuevo.unit)))
+
+            nuevo.unit = set()
+            nuevo.listavar.difference_update(set(map(abs,nuevo.unit)))
+            grafo = nuevo.cgrafo()
+            
+            lista = set()
+            first = random.choice(list(grafo.nodes))
+            lista.add(first)
+
+            for j in range(N-1):
+                
+                best = -1
+                nbest = 0
+                for x in grafo.nodes:
+                    if x not in lista:
+                        value = len(lista.intersection(set(grafo.neighbors(x))))
+                        if value > nbest:
+                            nbest = value
+                            best = x
+                lista.add(best)
+            print(lista)
+            n = 0
+            for x in lista:
+                    print(n)
+                    n = n+1
+                    (l0,l1,l2) = nuevo.splitborra(x)
+                    nc = l0.combinaborra(l1)
+                    nuevo.quita(x)
+                    for v in nc.unit:
+                        self.insertar({v})
+                        nuevo.insertar({v})
+                    for x in nc.two:
+                        for y in nc.two[x]:
+                            print({x,y})
+
+                            nuevo.insertar({x,y})
+                            self.insertarcond({x,y})
+                    for cl in nc.listaclaus:
+                        nuevo.insertar(cl)
+                        if len(cl)<= L:
+                            print(cl)
+                            self.insertarcond(cl)
+
+
+
+    def insertarcond(self,x):
+        if self.contradict:
+            return []
+        if not x:
+            self.anula()
+            self.contradict= True
+            self.listaclaus.append(set())
+            return []
+        y = []
+        borr = []
+        
+
+        if x.intersection(self.unit):
+                return []
+        else:
+                neg = set(map(lambda x: -x, self.unit))
+
+                xc = x-neg
+
+                if len(xc) <= 1:
+                    self.insertar(xc)
+                    return []
+
+                ox = list(xc)
+                ox.sort(key = lambda h: abs(h))
+
+                for i in range(len(ox)):
+                    for j in range(i+1,len(ox)):
+                        r1 = ox[i]
+                        r2 = ox[j]
+                        if r2 in self.two.get(r1,set()):
+                            return[]
+                        if r2 in self.two.get(-r1,set()):
+                            xc.discard(r1)
+                            self.insertarcond(xc)
+                            return []   
+                        if -r2 in self.two.get(r1,set()):
+                            xc.discard(r2)
+                            self.insertarcond(xc)
+                            return []  
+
+                            
+                         
+                
+                
+                
+
+                if len(xc) == 2:
+                   
+                    t1 = xc.pop()
+                    t2 = xc.pop()
+                    if abs(t1) <= abs(t2):
+                        r1 = t1
+                        r2 = t2
+                    else:
+                        r1 = t2
+                        r2 = t1
+                    
+                    
+
+                    for cl in self.listaclaus:
+                        if r1 in  cl:
+                            if r2 in cl:
+                                borr.append(cl)
+                            elif -r2 in cl:
+                                
+                                clc = cl.copy()
+                                clc.discard(-r2)
+                                
+                                y.append(clc)
+                                borr.append(cl)
+                        if -r1 in cl and r2 in cl:
+                                clc = cl.copy()
+                                clc.discard(-r1)
+                                
+                                y.append(clc)
+                                borr.append(cl)
+                        
+                    
+                    if borr or( -r1 in self.two and -r2 in self.two[-r1]):
+                        print("borrando o equivalencia" , borr, r1,r2)
+                        time.sleep(20)
+
+                        if r1 in self.two:
+                            self.two[r1].add(r2)
+                        else:
+                            self.two[r1] = {r2}
+
+                        self.listavar.update({abs(r1),abs(r2)})
+    
+                    
+
+                        for cl in borr:
+                            self.eliminar(cl)
+        
+                        for cl in y:
+                            self.insertar(cl)
+
+                        if -r1 in self.two and -r2 in self.two[-r1]:
+                            self.equiv(r1,-r2)
+
+
+                    return []
+
+                    
+                
+
+            
+
+
+                for cl in self.listaclaus:
+                    if len(xc) <= len(cl):
+                        claudif = xc-cl
+                        if not claudif:
+                            borr.append(cl)
+                        elif len(claudif) == 1:
+                            var = claudif.pop()
+                            if -var in cl:
+                                clc = cl.copy()
+                                clc.discard(-var)
+                                borr.append(cl)
+                                y.append(clc)
+                    if len(cl) <= len(xc):
+                        claudif = cl-xc
+                        if not claudif:
+                            return []
+                        elif len(claudif) == 1:
+                            var = claudif.pop()
+                            if -var in xc:
+                                xc.discard(-var)
+                                self.insertarcond(xc)
+                                return []
+                
+                if borr:
+                    print("borrando " , borr)
+                    time.sleep(20)
+
+                    nvar = set(map(abs,xc))
+                    self.listavar.update(nvar)
+                    self.listaclaus.append(xc)
+
+                    for cl in borr:
+                        self.eliminar(cl)
+                
+                    for cl in y:
+                        self.insertar(cl)
+            
+    
+
+    def quita(self,x):
+        self.listavar.discard(x)
+        self.unit.discard(x)
+        self.unit.discard(-x)
+        for y in self.two:
+            if y == x or y == -x:
+                self.two[y] = set()
+            else:
+                self.two[y].discard(x)
+                self.two[y].discard(-x)
+        borra = []
+        for cl in self.listaclaus:
+            if x in cl or -x in cl:
+                borra.append(cl)
+        for cl in self.listaclaus:
+            self.eliminar(cl)
+
+                
 
 
     def calculalistatotal(self):
@@ -135,6 +356,9 @@ class simpleClausulas:
       nuevo.listavar = self.listavar.copy()
       nuevo.unit = self.unit.copy()
       nuevo.contradict = self.contradict
+
+    #   for x in self.eq:
+        #   nuevo.eq[x] = self.eq[x]
       
       for x in self.two:
           nuevo.two[x] = self.two[x].copy()
@@ -283,8 +507,14 @@ class simpleClausulas:
             self.listaclaus.append(x)
     
     def equiv(self,r1,r2):
+        
         ins = []
         borr = []
+        # if (not r2 in self.eq) or (r2 in self.eq and abs(r1) < abs(self.eq[r2])):
+        #     self.eq[r2] = r1
+        #     self.eq[-r2] = -r1
+        
+        
         for x in self.two:
             if not x == r1 and not x == -r1:
                 if r2 in self.two[x]:
@@ -327,8 +557,13 @@ class simpleClausulas:
 
     
     def insertar(self,x):
+
+
         if self.contradict:
             return []
+        
+        if x.intersection(self.unit):
+                return []
         if not x:
             self.anula()
             self.contradict= True
@@ -336,6 +571,10 @@ class simpleClausulas:
             return []
         y = []
         borr = []
+
+        # if not self.cambiaeq(x):
+        #     return
+
         if len(x) ==1:
             v = x.pop()
             if -v in self.unit:
@@ -413,7 +652,18 @@ class simpleClausulas:
                         r1 = t2
                         r2 = t1
                     
-                    
+                    if r2 in self.two.get(r1,set()):
+                        return
+
+                    # for x in self.two:
+                    #     if x == -r1:
+                    #         for z in self.two[x]:
+                    #             if not z == -r2 and not z in self.two.get(r2,set()) and not r2 in self.two.get(z,set()):
+                    #                 y.append({z,r2})
+                    #     elif -r2 in self.two[x] and not r1 in self.two.get(x,set()) and not x in self.two.get(r1,set()):
+                    #         y.append({x,r1})
+
+
 
                     for cl in self.listaclaus:
                         if r1 in  cl:
@@ -448,8 +698,8 @@ class simpleClausulas:
                     for cl in y:
                         self.insertar(cl)
 
-                    if -r1 in self.two and -r2 in self.two[-r1]:
-                        self.equiv(r1,-r2)
+                    # if -r1 in self.two and -r2 in self.two[-r1]:
+                    #     self.equiv(r1,-r2)
 
 
                     return []
@@ -494,7 +744,22 @@ class simpleClausulas:
         
         for cl in y:
             self.insertar(cl)
-            
+
+    # def cambiaeq(self,x):
+    #     lista = []
+    #     for c in x:
+    #         if c in self.eq:
+    #             cr = self.eq[c]
+    #             lista.append((c,cr))
+    #     for z in lista:
+    #         x.discard(z[0])
+    #         if -z[1] in x:
+    #             return False
+    #         else:
+    #             x.add(z[1])
+    #     return True
+
+
     
 
     def advalue(self,v):
@@ -754,9 +1019,12 @@ class simpleClausulas:
                     for y in self.two[x]:
                         ins.append({y})
                     self.two[x] = set()
+                    
 
                 elif v == x:
                     self.two[x] = set()
+                    
+                
 
                 else:
                     
@@ -764,7 +1032,9 @@ class simpleClausulas:
                         if -v == y:
                             ins.append({x})
                             break
-                    
+                        
+                    # if self.eq.get(y,0) == v or self.eq.get(y,0) == -v:
+                    #     self.eq.pop(y)    
                     self.two[x].discard(v)    
                             
 
@@ -817,6 +1087,8 @@ class simpleClausulas:
                             self.two[x] = set()
                             ins.append({x})
                             break
+                        # if self.eq.get(y,0) in s or -self.eq.get(y,0) in s:
+                        #     self.eq.pop(y)
                     self.two[x].difference_update(s)
                             
 
@@ -836,7 +1108,17 @@ class simpleClausulas:
             for cl in ins:
                 self.insertar(cl)
 
-    
+    def borravar(self,var,pn):
+        print("borro var ", var , pn)
+        borrar = []
+        for cl in self.listaclaus:
+            if var in cl and pn:
+                borrar.append(cl)
+            elif -var in cl and not pn:
+                borrar.append(cl)
+        for cl in borrar:
+            self.eliminars(cl)
+
 
     def splitborra(self,v,n=True):
         s1 = simpleClausulas()
@@ -903,6 +1185,67 @@ class simpleClausulas:
                         s3.insertars(cl)
         
         return (s1,s2,s3)
+
+    def splitborrayelimina(self,v,n=True):
+        s1 = simpleClausulas()
+        s2 = simpleClausulas()
+        
+        if v in self.unit:
+            s1.insertar(set())
+            self.unit.discard(v)
+            
+
+        elif -v in self.unit:
+            s2.insertar(set())
+            self.unit.discard(-v)
+
+
+            
+        
+
+            
+
+
+        for x in self.two:
+            if x == v:
+                for y in self.two[x]:
+                    s1.insertars({y})
+            elif x == -v:
+                for y in self.two[x]:
+                    s2.insertars({y})
+            else:
+                for y in self.two[x]:
+                    if y == v:
+                        s1.insertars({x})
+                    elif y == -v:
+                        s2.insertars({x})
+            self.two[x].discard(v)
+            self.two[x].discard(-v)
+
+        if v in self.two:
+                self.two.pop(v)
+        if -v in self.two:
+                self.two.pop(-v)
+
+
+        bor = []
+        for cl in self.listaclaus:
+                if v in cl:
+                    bor.append(cl)
+                    
+                    cl1 = cl - {v}
+                    s1.insertars(cl1)
+                    
+                elif -v in cl:
+                    bor.append(cl)
+
+                    cl.discard(-v)
+                    s2.insertars(cl)
+                
+        
+        for cl in bor:
+            self.eliminars(cl)
+        return (s1,s2)   
 
 
 # def splitinserta(self,v,n=True):

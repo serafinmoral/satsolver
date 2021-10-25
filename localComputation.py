@@ -6,7 +6,6 @@ Created on Tue Sep 10 13:15:59 2019
 @author: smc
 """
 
-from GlobalClausulas import *
 
 class localComputation:
     def __init__(self):

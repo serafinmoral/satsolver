@@ -16,7 +16,7 @@ import networkx as nx
 from random import *
               
 from ProblemaTrianArbol import *
-from GlobalClausulasSimple import * 
+from SimpleClausulasI import * 
 
 
 #  from queue import PriorityQueue
@@ -198,11 +198,10 @@ def main(prob):
         for i in h:
             prob.posvar[i] = prob.orden.index(i)
             
-        # info.saturaborra(prob.orden)
+        # prob.aprende2()
         # info.podaylimpia()
   
-        print(prob.inicial.listaclaus)
-        print(prob.inicial.unit)
+        prob.inicial.imprime()
         
         prob.inicia0()     
 

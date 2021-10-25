@@ -8,7 +8,7 @@ Created on Wed Aug 26 12:28:21 2020
 import time
 
 from arboldoblesinvar import *
-from SimpleClausulas import *
+from SimpleClausulasI import *
 
 def filtra(lista,nconfig,pconfig,i):
     result = []
@@ -60,10 +60,12 @@ class problemaTrianArbol:
                 y = arboldoble()
                 self.lqueue.append(y)
     
+            lista = self.inicial.getlista()
 
-            for v in self.inicial.unit:
-                self.insertacolaclau2({v})
-            for cl in self.inicial.listaclaus:
+            
+
+            
+            for cl in lista:
                 self.insertacolaclau2(cl)
      
 
@@ -73,8 +75,60 @@ class problemaTrianArbol:
                 pot.normaliza(self.N)
                 
             
+    def aprende(self, ma = 1000):
+        aux = self.inicial.copia()
+        j = len(self.orden) 
+        for var in reversed(self.orden):
+            j = j-1
+            print( "var = ", var)
+            (t0,t1) = aux.splitborrayelimina(var)
+            res = t0.combinaborra(t1)
+            for x in res.unit:
+                aux.insertar({x})
+                self.insertainicialcond({x},j)
+            for x in res.two:
+                for y in res.two[x]:
+                    aux.insertar({x,y})
+                    self.insertainicialcond({x,y},j)
 
+            for cl in res.listaclaus:
+                aux.insertar(cl)
+                self.insertainicialcond(cl,j)
+        
+            if len(aux.listaclaus) > ma:
+                aux = self.inicial.copia()
+                print("recalculando inicial" , j)
+            
+            
 
+    def aprende2(self, ma = 500):
+        aux = self.inicial.copia()
+        j = -1
+        for var in (self.orden):
+            j+=1
+            print( "var = ", var)
+            if len(aux.listaclaus)>ma:
+                pn = random.choice([True,False])
+                aux.borravar(var,pn)
+            else:
+                (t0,t1) = aux.splitborrayelimina(var)
+                res = t0.combinaborra(t1)
+                for x in res.unit:
+                    aux.insertar({x})
+
+                    self.insertainicialcond({x},j)
+                for x in res.two:
+                    for y in res.two[x]:
+                        aux.insertar({x,y})
+                        self.insertainicialcond({x,y},j)
+
+                for cl in res.listaclaus:
+                    aux.insertar(cl)
+                    self.insertainicialcond(cl,j)
+        
+            
+            
+            
 
     def inicia2(self):
             cola = []
@@ -134,8 +188,27 @@ class problemaTrianArbol:
                 if vars <= self.clusters[pos]:
                     break
 
+            
             pot = self.lqueue[pos]
             pot.insertaclau(cl)
+
+
+    def insertainicialcond(self,cl,j,L=10):
+        if len(cl)> L:
+            return
+        if not cl:
+            self.anula()
+        else:
+            
+            vars = set(map(lambda x:abs(x),cl))
+            for pos in range(len(self.clusters)):
+                if vars <= self.clusters[pos] or pos == j:
+                    break
+
+            if pos<j and ( ((self.orden[pos] not in cl) and (-self.orden[pos] not in cl)) or len(cl) <=2):
+            
+                self.inicial.insertar(cl)
+                print("insertando ", pos, cl, "var ", self.orden[pos], "cluster ", self.clusters[pos])
 
     def insertacola(self,t,i,conf=set()):
         if not t.value.nulo():
@@ -151,28 +224,14 @@ class problemaTrianArbol:
                     # print(pos,self.clusters[pos])
                     j = i+1
                     vars = set(map(lambda x: abs(x),conf.union(t.value.listavar)) )
-                    while not vars <= self.clusters[j]:
-                        
+                    while not vars <= self.clusters[j]: 
                         j += 1
 
 
                     pot = self.lqueue[j]
                     if pot.value.contradict:
                         print("contradiccion antes")
-                    # print("inserto en ", pos)
-                    # pot.imprime()
-
-                    # if pot.checkunit():
-                    #     print("problema unidades antes de insertar en colar")
-                    #     time.sleep(50)
-
-                    # if pot.checkrep():
-                    #     print("repeticion antes de insertar en colar")
-                    #     time.sleep(50)
-                    
                    
-
-                    # print("llamo inserta simple" , conf)
                     pot.insertasimple(t.value,self.N,conf) 
 
                    
@@ -397,7 +456,6 @@ class problemaTrianArbol:
             #     print("problema en t2")
             #     t2.imprime()
             #     time.sleep(50)
-
 
 
        
