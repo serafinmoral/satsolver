@@ -283,7 +283,7 @@ class simpleClausulas:
             self.insertar(cl)
 
     
-    def insertar(self,x):
+    def insertar(self,x, check = True):
         if self.contradict:
             return []
         if not x:
@@ -418,30 +418,30 @@ class simpleClausulas:
                 
 
             
+            if check:
 
-
-            for cl in self.listaclaus:
-                if len(xc) <= len(cl):
-                    claudif = xc-cl
-                    if not claudif:
-                        borr.append(cl)
-                    elif len(claudif) == 1:
-                        var = claudif.pop()
-                        if -var in cl:
-                            clc = cl.copy()
-                            clc.discard(-var)
+                for cl in self.listaclaus:
+                    if len(xc) <= len(cl):
+                        claudif = xc-cl
+                        if not claudif:
                             borr.append(cl)
-                            y.append(clc)
-                if len(cl) <= len(xc):
-                    claudif = cl-xc
-                    if not claudif:
-                        return []
-                    elif len(claudif) == 1:
-                        var = claudif.pop()
-                        if -var in xc:
-                            xc.discard(-var)
-                            self.insertar(xc)
+                        elif len(claudif) == 1:
+                            var = claudif.pop()
+                            if -var in cl:
+                                clc = cl.copy()
+                                clc.discard(-var)
+                                borr.append(cl)
+                                y.append(clc)
+                    if len(cl) <= len(xc):
+                        claudif = cl-xc
+                        if not claudif:
                             return []
+                        elif len(claudif) == 1:
+                            var = claudif.pop()
+                            if -var in xc:
+                                xc.discard(-var)
+                                self.insertar(xc)
+                                return []
             nvar = set(map(abs,xc))
             self.listavar.update(nvar)
             self.listaclaus.append(xc)
@@ -515,7 +515,7 @@ class simpleClausulas:
                 self.two[x] = set()
 
 
-    def combina(self,simple):
+    def combina(self,simple, check = False):
         if self.contradict:
             return
         if simple.contradict:
@@ -527,13 +527,13 @@ class simpleClausulas:
             self.insertar(set())
         else:
             for v in simple.unit:
-                self.insertar({v})
+                self.insertar({v},check)
             for x in simple.two:
                 for y in simple.two[x]:
-                    self.insertar({x,y})
+                    self.insertar({x,y},check)
         
             for cl in simple.listaclaus:
-                self.insertar(cl)
+                self.insertar(cl,check)
    
    
 

@@ -80,7 +80,7 @@ def main(prob):
         for i in h:
             prob.posvar[i] = prob.orden.index(i)
 
-        prob.inicia0()     
+        prob.inicia0()      
         prob.borra()
         if prob.inicial.contradict==False:
             prob.findsol()

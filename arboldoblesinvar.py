@@ -190,8 +190,8 @@ class arboldoble:
     def insertaclau(self,cl):
         if self.var == 0:
             self.value.insertar(cl)
-            if self.checkrep():
-                print("problema con var=0", cl)
+            # if self.checkrep():
+            #     print("problema con var=0", cl)
             return
         
         neg = set(map(lambda x:-x,self.value.unit))
@@ -203,8 +203,8 @@ class arboldoble:
                 print("problema con anula", self.unit, cl, clc)
             return 
         if self.value.unit.intersection(clc):
-            if self.checkrep():
-                print("problema con interseccion", self.unit, cl, clc)
+            # if self.checkrep():
+            #     print("problema con interseccion", self.unit, cl, clc)
             return
         if len(clc)==1:
             v = clc.pop()
@@ -215,9 +215,9 @@ class arboldoble:
             
                 
             self.value.insertar({v})
-            if self.checkrep():
-                print("problema con clauslua 1", self.unit, cl, v)
-                self.imprime()
+            # if self.checkrep():
+            #     print("problema con clauslua 1", self.unit, cl, v)
+            #     self.imprime()
             return
         
 
@@ -225,20 +225,20 @@ class arboldoble:
         if v in clc:
             clc.discard(v)
             self.hijos[0].insertaclau(clc)
-            if self.checkrep():
-                print("problema con hijos 0", self.unit, cl, clc)
+            # if self.checkrep():
+            #     print("problema con hijos 0", self.unit, cl, clc)
         elif -v in clc:
             clc.discard(-v)
             self.hijos[1].insertaclau(clc)
-            if self.checkrep():
-                print("problema con hijos 1", self.unit, cl, clc)
+            # if self.checkrep():
+            #     print("problema con hijos 1", self.unit, cl, clc)
         else:
             self.hijos[0].insertaclau(clc)
-            if self.checkrep():
-                print("problema con hijos 0 sin v", self.unit, cl, clc)
+            # if self.checkrep():
+            #     print("problema con hijos 0 sin v", self.unit, cl, clc)
             self.hijos[1].insertaclau(clc)
-            if self.checkrep():
-                print("problema con hijos 1 sin v", self.unit, cl, clc)
+            # if self.checkrep():
+            #     print("problema con hijos 1 sin v", self.unit, cl, clc)
 
     def simplificaunit(self,v):
         self.value.simplificaunit(v)
@@ -260,6 +260,9 @@ class arboldoble:
             else:
                 self.hijos[0].simplificaunit(v)
                 self.hijos[1].simplificaunit(v)
+
+            if self.value.contradict:
+                self.asignaval(self.value)
 
 
     def simplificaunits(self,s):
@@ -286,7 +289,8 @@ class arboldoble:
                 self.hijos[0].simplificaunits(s)
                 self.hijos[1].simplificaunits(s)
 
-    
+        if self.value.contradict:
+                self.asignaval(self.value)
 
 
 
@@ -294,14 +298,14 @@ class arboldoble:
 
     def tosimple(self):
         res = simpleClausulas()
-        res.combina(self.value.copia())
+        res.combina(self.value.copia(), check=True)
         if not self.var == 0:
             res1 = self.hijos[0].tosimple()
             res2 = self.hijos[1].tosimple()
             res1.advalue(self.var)
             res2.advalue(-self.var)
-            res.combina(res1)
-            res.combina(res2)
+            res.combina(res1, check=True)
+            res.combina(res2, check=True)
         return res
 
     def checkrep(self, vars = set()):

@@ -88,14 +88,18 @@ class problemaTrianArbol:
             neg = self.lqn[i].copia()
             neg.simplificaunits(sol)
             pos.simplificaunits(sol)
+            
             pos.normaliza()
             neg.normaliza()
+
+            poss = pos.tosimple()
+            negg = neg.tosimple()
             var = self.orden[i]
             print("i= ",i)
-            if not pos.value.contradict:
+            if not poss.contradict:
                 sol.add(var)
                 print(var)
-            elif not neg.value.contradict:
+            elif not negg.contradict:
                 sol.add(-var)
                 print(-var)
             else:
