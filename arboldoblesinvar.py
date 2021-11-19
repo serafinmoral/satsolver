@@ -359,8 +359,8 @@ class arboldoble:
         else:
             self.hijos[0].normaliza(N)
             self.hijos[1].normaliza(N)
-            if self.checkunit():
-                    print("problema despues de normalizar los hijos")
+            # if self.checkunit():
+            #         print("problema despues de normalizar los hijos")
             v = self.var
             if self.hijos[0].value.contradict:
                 self.value.insertar({v})
@@ -394,6 +394,22 @@ class arboldoble:
                 self.value.combina(s1)
                 self.value.combina(s2)
                 self.var = 0
+            else: 
+                inte = self.hijos[0].value.unit.intersection(self.hijos[1].value.unit)
+                if inte:
+                    self.hijos[0].value.unit.difference_update(inte)
+                    self.hijos[1].value.unit.difference_update(inte)
+
+
+                    for va in inte:
+                        self.value.insertar({va})
+                        self.hijos[0].value.listavar.discard(abs(va))
+                        self.hijos[1].value.listavar.discard(abs(va))
+            if self.value.contradict:
+                self.var = 0
+                self.hijos = (None,None)
+
+
                 # if self.checkunit():
                 #     print("problema despues de reunificar")
 
