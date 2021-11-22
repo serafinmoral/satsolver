@@ -335,6 +335,43 @@ class arboldoble:
             return False
         return self.hijos[0].checkunit() or self.hijos[1].checkunit()
 
+    def testhijos(self):
+        if not self.var == 0:
+            if self.hijos[0].value.contradict: 
+                self.value.insertar({self.var})
+                self.hijos[1].value.combina(self.value)
+                self.value = self.hijos[1].value
+                self.var = self.hijos[1].var
+
+                self.hijos = self.hijos[1].hijos
+
+                # if self.checkunit():
+                #     print("problema despues de contradiccion en hijos 0")
+
+            elif self.hijos[1].value.contradict:
+                self.value.insertar({-self.var})
+                self.hijos[0].value.combina(self.value)
+                self.value = self.hijos[0].value
+                self.var = self.hijos[0].var
+
+                self.hijos = self.hijos[0].hijos
+            else: 
+                inte = self.hijos[0].value.unit.intersection(self.hijos[1].value.unit)
+                if inte:
+                    self.hijos[0].value.unit.difference_update(inte)
+                    self.hijos[1].value.unit.difference_update(inte)
+
+
+                    for va in inte:
+                        self.value.insertar({va})
+                        self.hijos[0].value.listavar.discard(abs(va))
+                        self.hijos[1].value.listavar.discard(abs(va))
+            if self.value.contradict:
+                self.var = 0
+                self.hijos = (None,None)
+                # if self.checkunit():
+                #     print("problema despues de contradiccion en hijos 1")
+ 
 
     def normaliza(self,N=100):
         # if self.checkunit():
@@ -554,8 +591,8 @@ class arboldoble:
             return
         if simple.contradict:
                     self.insertaclau(conf2)
-                    if not self == old:
-                        print("distintos despues de insertar clausula")
+                    # if not self == old:
+                    #     print("distintos despues de insertar clausula")
                     # if self.checkrep():
                     #     print("repeticion despues de insertar clausula" , conf2)
                     #     time.sleep(40)
@@ -594,8 +631,9 @@ class arboldoble:
                         print("distintos despues de combinar")
             if norma:
                 self.normaliza(N)
-            if not self == old:
-                        print("distintos despues de normalizar")
+            # if not self == old:
+            #             print("distintos despues de normalizar")
+            
             # if self.checkrep():
             #     print ("repeticion despues de inserta simple  con self.var ) = 0")
 
@@ -697,6 +735,10 @@ class arboldoble:
                 #     simple.imprime()
                 #     time.sleep(40)
 
+            self.testhijos()
+
+    
+
 
     def inserta(self,t,N,conf= set(), norma = True):
         # if self.checkrep():
@@ -747,6 +789,8 @@ class arboldoble:
             #     print("repeticion despues de inserta el segundo hijo de t ")
             #     time.sleep(30)
             conf.discard(-v)
+
+            self.testhijos()
             
             # if self.checkrep():
             #     print("repeticion despues de segundo inserta simple ", conf)
