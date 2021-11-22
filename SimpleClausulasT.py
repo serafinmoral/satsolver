@@ -125,6 +125,10 @@ class simpleClausulas:
       
       for x in self.two:
           nuevo.two[x] = self.two[x].copy()
+
+      for x in self.c3:
+          for y in self.c3[x]:
+            nuevo.c3[x][y] = self.c3[x][y].copy()
       
       for x in self.listaclaus:
           nuevo.insertar(x.copy())
@@ -145,6 +149,18 @@ class simpleClausulas:
                 if (abs(y) not in self.listavar):
                     print("problema doble" , x , self.two[x], self.listavar)
                     return True
+
+        for x in self.c3:
+            isx = abs(x)  in self.listavar
+            for y in self.c3[x]:
+                if self.c3[x][y] and (not isx or not abs(y) in self.listavar):
+                    print("problema triple" , x ,y, self.c3[x][y], self.listavar)
+                    return True 
+                for z in self.c3[x][y]:
+                    if not abs(z) in self.listavar:
+                        print("problema triple" , x ,y, self.c3[x][y], self.listavar) 
+
+                ]
         for cl in self.listaclaus:
             for x in cl:
               if abs(x) not in self.listavar:

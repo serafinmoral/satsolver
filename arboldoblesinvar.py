@@ -206,7 +206,7 @@ class arboldoble:
             self.anula()
             # if self.checkrep():
             #     print("problema con anula", self.unit, cl, clc)
-            # return 
+            return 
         if self.value.unit.intersection(clc):
             # if self.checkrep():
             #     print("problema con interseccion", self.unit, cl, clc)
