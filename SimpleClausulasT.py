@@ -312,51 +312,62 @@ class simpleClausulas:
                 self.two[r1] = {r2}
         elif len(x) == 3:
             ol = list(x).order(key h: abs(h))
+            t1 = ol[0]
+            t2 = ol[1]
+            t3 = ol[3]
+            if t1 in self.c3:
+                if t2 in self.c3[t1]:
+                    self.c3[t1][t2].add(t3)
+                else:
+                    self.c3[t1][t2] = {t3}
+            else:
+                self.c3[t1] = dict()
+                self.c3[t1][t2] = {t3}
         else:
             self.listaclaus.append(x)
     
-    def equiv(self,r1,r2):
-        ins = []
-        borr = []
-        for x in self.two:
-            if not x == r1 and not x == -r1:
-                if r2 in self.two[x]:
-                    ins.append({x,r1})
-                    self.two[x].discard(r2)
-                if -r2 in self.two[x]:
-                    ins.append({x,-r1})
-                    self.two[x].discard(-r2)
-        if r2 in self.two:
-            for x in self.two[r2]:
-                    ins.append({x,r1})
-            self.two.pop(r2)
-        if -r2 in self.two:
-            for x in self.two[-r2]:
-                    ins.append({x,-r1})
-            self.two.pop(-r2)   
+    # def equiv(self,r1,r2):
+    #     ins = []
+    #     borr = []
+    #     for x in self.two:
+    #         if not x == r1 and not x == -r1:
+    #             if r2 in self.two[x]:
+    #                 ins.append({x,r1})
+    #                 self.two[x].discard(r2)
+    #             if -r2 in self.two[x]:
+    #                 ins.append({x,-r1})
+    #                 self.two[x].discard(-r2)
+    #     if r2 in self.two:
+    #         for x in self.two[r2]:
+    #                 ins.append({x,r1})
+    #         self.two.pop(r2)
+    #     if -r2 in self.two:
+    #         for x in self.two[-r2]:
+    #                 ins.append({x,-r1})
+    #         self.two.pop(-r2)   
 
 
-        for cl in self.listaclaus:
-            if r2 in cl:
-                borr.append(cl)
-                if not -r1 in cl:
-                    cln = cl-{r2}
-                    cln.add(r1)
-                    ins.append(cln)
-            if -r2 in cl:
-                borr.append(cl)
-                if not r1 in cl:
-                    cln = cl-{-r2}
-                    cln.add(-r1)
-                    ins.append(cln)
+    #     for cl in self.listaclaus:
+    #         if r2 in cl:
+    #             borr.append(cl)
+    #             if not -r1 in cl:
+    #                 cln = cl-{r2}
+    #                 cln.add(r1)
+    #                 ins.append(cln)
+    #         if -r2 in cl:
+    #             borr.append(cl)
+    #             if not r1 in cl:
+    #                 cln = cl-{-r2}
+    #                 cln.add(-r1)
+    #                 ins.append(cln)
 
 
 
-        for cl in borr:
-            self.eliminar(cl)
+    #     for cl in borr:
+    #         self.eliminar(cl)
         
-        for cl in ins:
-            self.insertar(cl)
+    #     for cl in ins:
+    #         self.insertar(cl)
 
     
     def insertar(self,x, check = True):
@@ -389,6 +400,31 @@ class simpleClausulas:
                     elif -v in self.two[z]:
                         self.two[z] = set()
                         y.append({z})
+                if v in self.c3:
+                    self.c3.pop(v)
+                if -v in self.c3:
+                    aux = self.c3.pop(-v)
+                for w in aux:
+                    for z in aux[w]:
+                        y.append({w,z})
+                for z in self.c3:
+                    if v in self.c3[z]:
+                        self.c3[z].pop(v)
+                    if -v in self.c3[z]:
+                        aux = self.c3[z].pop(-v)
+                        for h in aux:
+                            y.append({z,h})
+                    for w in self.c3[z]:
+                        self.c3[z][w].discard(v)
+                        if -v in self.c3[z][w]:
+                            y.append({z,w})
+                            self.c3[z].pop(w)
+                            if not self.c3[z]:
+                                self.c3.pop(z)
+
+
+                    
+
 
                 for cl in self.listaclaus:
                     if v in cl:
