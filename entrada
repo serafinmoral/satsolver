@@ -1,3 +1,5 @@
+aes_32_2_keyfind_1.cnf 150
+
 aes_32_1_keyfind_1.cnf 120
 
 CNF/SATCircuitosV1501C3575.cnf 120
@@ -30,7 +32,6 @@ CNF/UNSATCircuitosV986C2315.cnf 120
 CNF/UNSATCircuitosV10410C34238.cnf 120
 
 
-aes_32_2_keyfind_1.cnf 150
 
 SAT_V20C91_01.cnf 28 1 10 10000000000
 

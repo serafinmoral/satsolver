@@ -199,9 +199,9 @@ class arboldoble:
         
         if not clc:
             self.anula()
-            if self.checkrep():
-                print("problema con anula", self.unit, cl, clc)
-            return 
+            # if self.checkrep():
+            #     print("problema con anula", self.unit, cl, clc)
+            # return 
         if self.value.unit.intersection(clc):
             # if self.checkrep():
             #     print("problema con interseccion", self.unit, cl, clc)
@@ -240,6 +240,10 @@ class arboldoble:
             # if self.checkrep():
             #     print("problema con hijos 1 sin v", self.unit, cl, clc)
 
+
+        self.testhijos()
+
+
     def simplificaunit(self,v):
         self.value.simplificaunit(v)
         if self.value.contradict:
@@ -261,8 +265,7 @@ class arboldoble:
                 self.hijos[0].simplificaunit(v)
                 self.hijos[1].simplificaunit(v)
 
-            if self.value.contradict:
-                self.asignaval(self.value)
+            self.testhijos()
 
 
     def simplificaunits(self,s):
@@ -289,8 +292,8 @@ class arboldoble:
                 self.hijos[0].simplificaunits(s)
                 self.hijos[1].simplificaunits(s)
 
-        if self.value.contradict:
-                self.asignaval(self.value)
+            self.testhijos()
+
 
 
 
@@ -366,9 +369,8 @@ class arboldoble:
                         self.value.insertar({va})
                         self.hijos[0].value.listavar.discard(abs(va))
                         self.hijos[1].value.listavar.discard(abs(va))
-            if self.value.contradict:
-                self.var = 0
-                self.hijos = (None,None)
+        if self.value.contradict:
+                self.asignaval(self.value)
                 # if self.checkunit():
                 #     print("problema despues de contradiccion en hijos 1")
  
