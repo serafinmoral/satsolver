@@ -188,8 +188,13 @@ class arboldoble:
 
 
     def insertaclau(self,cl):
+        if self.value.contradict:
+            return
+        
         if self.var == 0:
             self.value.insertar(cl)
+            if self.value.contradict:
+                self.asignaval(self.value)
             # if self.checkrep():
             #     print("problema con var=0", cl)
             return
@@ -629,8 +634,8 @@ class arboldoble:
 
             simple.adconfig(conf2)
             self.value.combina(simple)
-            if not self == old:
-                        print("distintos despues de combinar")
+            # if not self == old:
+            #             print("distintos despues de combinar")
             if norma:
                 self.normaliza(N)
             # if not self == old:
@@ -645,8 +650,8 @@ class arboldoble:
                     # if 97 in simple.unit:
                     #     print("posible causa")
                     self.simplificaunits(simple.unit)
-                    if not self == old:
-                        print("distintos despues de simplifica units")
+                    # if not self == old:
+                    #     print("distintos despues de simplifica units")
                     self.value.unit.update(simple.unit)
                     self.value.listavar.update( set(map(abs,simple.unit)))
                     simple.unit = set()
