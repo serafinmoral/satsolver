@@ -182,7 +182,16 @@ class simpleClausulas:
               for y in self.two[x]:
                   if -y not in conf:
                       cl = conf.union({x,y})
-                      nuevo.insertar(cl)
+                      nuevo.insertars(cl)
+
+    for x in self.c3:
+          if -x not in conf:
+              for y in self.c3[x]:
+                  if -y not in conf:
+                      for z in self.c3[x][y]:
+                          if -z not in conf:
+                              cl  = conf.union({x,y,z})
+                              nuevo.insertars(cl) 
       
       for x in self.listaclaus:
         if not confn.intersection(x):
@@ -217,6 +226,7 @@ class simpleClausulas:
         self.listavar.clear()
         self.unit.clear()
         self.two.clear()
+        self.c3.clear()
         self.contradict = False
 
 
@@ -247,7 +257,25 @@ class simpleClausulas:
                 r2 = t1
             if r1 in self.two:
                 self.two[r1].discard(r2)
+            return
+        if len(x) == 3:
+            t1 = min (x, key = lambda h: abs(h))
+            x.discard(t1)
+            if t1 in self.c3:
+                t2 = min (x, key = lambda h: abs(h))
+                x.discard(t2)
+                if t2 in self.c3[t1]:
+                    t3 = x.pop()
+                    self.c3[t1][t2].discard(t3)
+                    if not self.c3[t1][t2]:
+                        self.c3[t1].pop(t2)
+                        if not self.c3[t1]:
+                            self.c3.pop(t1)
+            return
 
+
+
+            
         try:
             self.listaclaus.remove(x)
         except:
@@ -282,6 +310,8 @@ class simpleClausulas:
                 self.two[r1].add(r2)
             else:
                 self.two[r1] = {r2}
+        elif len(x) == 3:
+            ol = list(x).order(key h: abs(h))
         else:
             self.listaclaus.append(x)
     
