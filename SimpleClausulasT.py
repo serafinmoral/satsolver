@@ -369,7 +369,75 @@ class simpleClausulas:
     #     for cl in ins:
     #         self.insertar(cl)
 
-    
+
+    def reduce3(self,xc):
+        for x in self.c3.keys():
+            if x in xc:
+                for y in self.c3[x].keys():
+                    if y in xc:
+                        for z in self.c3[x][y]:
+                            if z in xc:
+                                return True
+                            elif -z in xc:
+                                xc.discard(-z)
+                                return False
+                    elif -y in xc:
+                        for z in self.c3[x][y]:
+                            if z in xc:
+                                xc.discard(-y)
+                                return False
+            elif -x in xc:
+               for y in self.c3[x].keys():
+                    if y in xc:
+                      for z in self.c3[x][y]:
+                            if z in xc:
+                                xc.discard(-x)
+                                return False
+        return False   
+
+
+    def insertar3(self,xc):
+        lo = list(xc).order(key = lambda h: abs(h))
+        t0 = lo[0]
+        t1 = lo[1]
+        t2 = lo[2]
+
+        if t0 in self.c3:
+            if t1 in self.c3[t0]:
+                self.c3[t0][t1].add(t2)
+            else:
+                self.c3[t0][t1] = {t2}
+        else:
+            self.c3[t0] = dict()
+            self.c3[t0][t1] = {t2}
+        borra = []
+        inserta = []
+        for cl in self.listaclaus:
+            if t0 in cl:
+                if t1 in cl:
+                    if t2 in cl:
+                        borra.append(cl)
+                    elif -t2 in cl:
+                        borra.append(cl)
+                        cln = cl-{-t2}
+                        inserta.append(cln)
+                elif -t1 in cl and t2 in cl:
+                    borra.append(cl)
+                    cln = cl-{-t1}
+                    inserta.append(cln)
+            elif {-t0,t1,t2} <= cl:
+                borra.append(cl)
+                cln = cl-{-t0}
+                inserta.append(cln)
+            
+        for cl in borra:
+            self.eliminar(cl)
+        for cl in inserta:
+            self.insertar(cl)
+
+
+
+        
     def insertar(self,x, check = True):
         if self.contradict:
             return []
@@ -466,7 +534,17 @@ class simpleClausulas:
                             return []  
 
                             
-                         
+                if len(xc) >= 3:
+                    ol = len(xc)
+                    implicado = self.reduce3(xc)
+                    if implicado:
+                        return
+                    elif len(xc)< ol:
+                        return self.insertar(xc)
+
+
+
+                          
                 
                 
                 
@@ -517,14 +595,16 @@ class simpleClausulas:
                     for cl in y:
                         self.insertar(cl)
 
-                    if -r1 in self.two and -r2 in self.two[-r1]:
-                        self.equiv(r1,-r2)
+                    # if -r1 in self.two and -r2 in self.two[-r1]:
+                    #     self.equiv(r1,-r2)
 
 
                     return []
 
                     
-                
+                if len(xc) == 3:
+                    return self.insertar3(xc)
+
 
 
                 
@@ -576,23 +656,20 @@ class simpleClausulas:
             return
         for cl in self.listaclaus:
             cl.add(v)
+
+        for x in self.c3:
+            for y in self.c3[x]:
+                for z in self.c3[x][y]:
+                    self.insertars({x,y,z,v})
+        self.c3 = dict()
+        
         for x in self.two:
             for y in self.two[x]:
                 cl = {x,y,v}
-                self.listaclaus.append(cl)
-            self.two[x] = set()
+                self.insertars(cl)
+        self.two = dict()
         for x in self.unit:
-                if abs(v) <= abs(x):
-                        r1 = v
-                        r2 = x
-                else:
-                        r1 = x
-                        r2 = v
-                if r1 in self.two:
-                    self.two[r1].add(r2)
-                else:
-                    self.two[r1] = {r2}
-        
+            self.insertars({x,v})
         self.unit = set()
 
     def adconfig(self,conf):
@@ -612,22 +689,30 @@ class simpleClausulas:
             
             for cl in self.listaclaus:
                 cl.update(conf)
-            
+
+            for x in self.c3:
+                for y in self.c3[x]:
+                    for z in self.c3[x][y]:
+                        self.insertars({x,y,z}.union(conf))
+            self.c3= dict()
+
+        
+            for x in self.two:
+                for y in self.two[x]:
+                    cl = conf.union({x,y})
+                    self.insertars(cl)
+            self.two = dict()
             
             for x in self.unit:
                     cl = conf.union({x})
                     
-                    self.listaclaus.append(cl)
+                    self.insertars(cl)
             self.unit = set()
 
-            for x in self.two:
-                for y in self.two[x]:
-                    cl = conf.union({x,y})
-                    self.listaclaus.append(cl)
-                self.two[x] = set()
+           
 
 
-    def combina(self,simple, check = False):
+    def combina(self,simple, check = True):
         if self.contradict:
             return
         if simple.contradict:
@@ -643,6 +728,11 @@ class simpleClausulas:
             for x in simple.two:
                 for y in simple.two[x]:
                     self.insertar({x,y},check)
+
+            for x in simple.c3:
+                for y in simple.c3[x]:
+                    for z in simple.c3[x][y]:
+                        self.insertar({x,y,z},check)
         
             for cl in simple.listaclaus:
                 self.insertar(cl,check)
@@ -655,6 +745,10 @@ class simpleClausulas:
         for x in self.two:
             if self.two[x]:
                 return False
+        for x in self.c3:
+            for y in self.c3[x]:
+                if self.c3[x][y]:
+                    return False
         return True
 
 
@@ -676,10 +770,18 @@ class simpleClausulas:
                         if not v == -y:
                             cl = {v,x,y}
                             res.insertar(cl)
+            for x in conj.c3:
+                if not v==-x:
+                    for y in conj.c3[x]:
+                        if not v == -x:
+                            for z in conj.c3[x][y]:
+                                if in v == -z:
+                                    res.insertar({x,y,z,v})
             for cl in conj.listaclaus:
                 if -v not in cl:
                     r = cl.union({v})
                     res.insertar(r)
+
         for x in self.two:
             for y in self.two[x]:
                 for u in conj.two:
@@ -695,8 +797,28 @@ class simpleClausulas:
                     if -x not in cl and -y not in cl:
                         r = cl.union({x,y})
                         res.insertar(r)
+                for u in conj.c3:
+                    if not (u==-x) and not (u == -y):
+                        for v in conj.c3[u]:
+                            if not (v==-x) and not (v == -y):
+                                for w in conj.c3[u][v]:
+                                    if not (w==-x) and not (w == -y):
+                                        res.insertar({u,v,w,x,y})
 
-        
+        for x in self.c3:
+            for y in self.c3[x]:
+                for z in self.c3[x][y]:
+                    for u in conj.c3:
+                        if not -u == x and not -u == y and not -u == z:
+                            for v in conj.c3[u]:
+                               if not -v == x and not -v == y and not -v == z: 
+                                    for w in conj.c3[u][v]:
+                                        if not -w == x and not -w == y and not -w == z:
+                                            res.insertar({x,y,z,u,v,w})
+                    for cl in conj.listaclaus:
+                        if not -x in cl and not -y in cl and not -z in cl:
+                            res.insertar(cl.union({x,y,z})) 
+
         for x in conj.unit:
             for v in self.two:
                 if not v == -x:
@@ -708,16 +830,39 @@ class simpleClausulas:
                 if not -x in cl:
                     r = cl.union({x})
                     res.insertar(r)
+            for u in self.c3:
+                if not u == -x:
+                    for v in self.c3[u]:
+                        if not v == -x:
+                            for w in self.c3[u][v]:
+                                if not w == -x:
+                                    res.insertar(u,v,w,x)
 
 
 
         for x in conj.two:
             for y in  conj.two[x]:
+                for u in self.c3:
+                    if not -x == u and not -y == u:
+                        for v in self.c3[u]:
+                            if not -x == v and not -y == v:
+                               for w in self.c3[u][v]:
+                                    if not -x == w and not -y == w:
+                                        res.insertar({u,v,w,x,y})
+
+
+
                 for cl in self.listaclaus:
                     if -x not in cl and not -y  in cl:
                         r = cl.union({x,y})
                         res.insertar(r)
 
+        for x in conj.c3:
+            for y in conj.c3[x]:
+                for z in conj.c3[x][y]:
+                    for cl in self.listaclaus:
+                        if not -x in cl and not -y in cl and not -z in cl:
+                            res.insertar(cl.union({x,y,z})) 
 
         for cl in self.listaclaus:
             cpn = set(map(lambda x: -x, cl))
@@ -765,6 +910,23 @@ class simpleClausulas:
                     if not y == -v:
                        result.insertar({x,y})
             
+        for x in self.c3:
+            if x==v:
+                for y in self.c3[x]:
+                    for z in self.c3[x][y]:
+                        result.insertar({y,z})
+            elif not x==-v:
+                for y in self.c3[x]:
+                    if y == v:
+                        for z in self.c3[x][y]:
+                            result.insertar({x,z})
+                    elif not y == -v:
+                        for z in self.c3[x][y]:
+                            if z == v:
+                                result.insertar({x,z})
+                            elif not z == -v:
+                                result.insertar({x,y,z})
+
                      
         for cl in self.listaclaus:
             if v in  cl:
@@ -798,7 +960,37 @@ class simpleClausulas:
                     elif not -y in conf:
                         res.insertar({x,y})
 
-            
+        for x in self.c3:
+            if x in conf:
+                for y in self.c3[x]:
+                    if y in conf:
+                        for z in self.c3[x][y]:
+                            if z in conf:
+                                res.insertar((set()))
+                                return res
+                            elif not -z in conf:
+                                res.insertar({z})
+                    elif -y not in conf:
+                        for z in self.c3[x][y]:
+                            if z in conf:
+                                res.insertar({y})
+                            elif not -z in conf:
+                                res.insertar({y,z})
+            elif not -x in conf:
+                for y in self.c3[x]:
+                    if y in conf:
+                        for z in self.c3[x][y]:
+                            if z in conf:
+                                res.insertar({x})
+                            elif not -z in conf:
+                                res.insertar({x,z})
+                    elif -y not in conf:
+                        for z in self.c3[x][y]:
+                            if z in conf:
+                                res.insertar({x,y})
+                            elif not -z in conf:
+                                res.insertar({x,y,z})
+
 
         confn= set(map(lambda x: -x, conf))
         for cl in self.listaclaus:
@@ -973,176 +1165,3 @@ class simpleClausulas:
         
         return (s1,s2,s3)
 
-
-# def splitinserta(self,v,n=True):
-#         s1 = simpleClausulas()
-#         s2 = simpleClausulas()
-#         if not v in self.listavar:
-#             s1 = self.copia() 
-#             s2 = self
-#         else:
-#             if v in self.unit:
-#                 s1.insertar(set())
-#                 for x in self.unit:
-#                     if not x == v and not x==-v:
-#                         s2.insertars({x})
-#                 for cl in self.listaclaus:
-#                     s2.insertars(cl)
-#             elif -v in self.unit:
-#                 s2.insertar(set())
-#                 for x in self.unit:
-#                     if  not x == v and not x==-v:
-#                         s1.insertars({x})
-
-#                 for cl in self.listaclaus:
-#                     s1.insertars(cl)
-#             else:
-
-#                 s1.unit = self.unit.copy()
-#                 s2.unit = self.unit.copy()
-#                 s1.listavar = set(map(lambda x: abs(x),s3.unit))
-#                 s2.listavar = set(map(lambda x: abs(x),s3.unit))
-#                 for cl in self.listaclaus:
-#                     if v in cl:
-#                         if n:
-#                             cl1 = cl - {v}
-#                             s1.insertars(cl1)
-#                         else:
-#                             cl.discard(v)
-#                             s1.insertars(cl)
-#                     elif -v in cl:
-#                         if n:
-#                             cl1 = cl - {-v}
-#                             s2.insertars(cl1)
-#                         else:
-#                             cl.discard(-v)
-#                             s2.insertars(cl)
-#                     else: 
-#                         if n:
-#                             cl1 = cl.copy()
-#                             s1.insertars(cl1)
-#                             s2.insertars(cl1.copy())
-#                         else:
-#                             s1.insertars(cl.copy())
-#                             s2.insertars(cl)
-#         return (s1,s2)
-
-        
-#   def podaylimpia(self):
-#         y = []
-#         borr = []
-#         # print("entro en poda 2", len(self.listaclaus))
-#         self.listaclaus.sort(key = lambda x: len(x))
-#         # print("ordenadas")
-        
-#         lista = self.listaclaus
-
-#         for i in range(len(lista)):
-#             clau1 = lista[i]
-#             for j in range(i+1,len(lista)):
-
-#                 clau2 = lista[j]
-#                 if clau2 in borr:
-#                     break
-#                 claudif = (clau1-clau2)
-#                 if (len(claudif) ==0):
-#                     borr.append(clau2)
-#                 elif (len(claudif) ==1):
-# #                    print("poda", clau2)
-#                     var = claudif.pop()
-#                     if -var in clau2:
-#                         clau2.dicard(-var)
-#                         y.append(clau2)
-        
-#         for clau in borr:
-#             self.eliminar(clau)
-        
-#         while y:
-# #            print("original ibp",clau,len(self.listaclaus))
-#             clau = y.pop()
-#             y = self.podacola(clau)
-# #            print("original ibp",clau,len(self.listaclaus))
-    # def propagacion_unitaria(self):
-    #     self.unitprev= set()
-    #     for c in self.listaclaus:
-    #         if (len(c))== 1:
-    #             h = set(c).pop()
-    #             self.unitprev.add(h)
-    #             self.unit.add(h)
-            
-    #     self.unitprop()        
-                
-            
-    # def unitprop(self):
-    #     res = set()
-    #     while self.unitprev:
-    #         p = self.unitprev.pop()
-
-    #         res.add(p)
-            
-    #         self.listavar.discard(abs(p))
-    #         borrar = []
-
-    #         for cl in self.listaclaus:
-    #             if p in cl:
-    #                 borrar.append(cl)
-    #             elif -p in cl:
-    #                 cl.discard(cl)
-    #                 if len(cl) == 1:
-    #                     nv = next(iter(cl))
-    #                     self.unitprev.add(nv)
-    #                 elif not cl:
-    #                     self.contradict = True
-    #                     break
-   
-                                    
-    #     return res
-
-
-    #  def podacola(self,x):
-    #     y = []
-    #     borr = []
-    #     for cl in self.listaclaus:
-    #         if not x == cl:
-    #             if len(x) < len(cl):
-    #                 claudif = x-cl
-    #                 if not claudif:
-    #                     borr.append(cl)
-    #                 elif len(claudif) == 1:
-    #                     var = claudif.pop()
-    #                     if -var in cl:
-    #                         cl.discard(-var)
-    #                         y.append(cl)
-    #             else:
-    #                 claudif = cl-x
-    #                 if not claudif:
-    #                     return []
-    #                 elif len(claudif) == 1:
-    #                     var = claudif.pop()
-    #                     if -var in x:
-    #                         x.discard(-var)
-    #                         for cl in borr:
-    #                             self.eliminar(cl)
-    #                         return self.podacola(x)
-    #     for cl in borr:
-    #         self.eliminar(cl)
-    #     return y
-    # def simplificaconfig(self,ref,config):
-    #     borrar = []
-    #     for cl1 in self.listaclaus:
-    #         cl = config.union(cl1)
-    #         for cl2 in ref.listaclaus:
-    #             if len(cl2) <= len(cl):
-    #                 claudif = cl2-cl
-    #                 if not claudif:
-    #                     borrar.append(cl1)
-    #                     break
-    #                 elif len(claudif)==1:
-    #                     var = claudif.pop()
-    #                     if -var in cl1:
-    #                         cl1.discard(-var)
-    #                         if not cl1:
-    #                             self.insertar(set())
-    #                             break
-    #     for cl in borrar:
-    #         self.eliminar(cl)
