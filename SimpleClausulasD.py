@@ -283,7 +283,7 @@ class simpleClausulas:
             self.insertar(cl)
 
     
-    def insertar(self,x, check = False):
+    def insertar(self,x, check = True):
         if self.contradict:
             return []
         if not x:
