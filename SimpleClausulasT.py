@@ -405,6 +405,9 @@ class simpleClausulas:
 
 
     def insertau(self,v):
+        if -v in self.unit:
+            self.insertar(set())
+            return []
         self.simplificaunit(v)
         self.unit.add(v)
         self.listavar.add(abs(v))
