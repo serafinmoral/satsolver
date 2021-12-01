@@ -216,28 +216,7 @@ class simpleClausulas:
             
             
     def insertars(self,x):
-        if self.contradict:
-            return 
-        nvar = set(map(abs,x))
-        self.listavar.update(nvar)
-        if len(x)==1:
-            self.unit.add(x.copy().pop())
-        elif len(x) == 2:
-            xc = x.copy()
-            t1 = xc.pop()
-            t2 = xc.pop()
-            if abs(t1) <= abs(t2):
-                r1 = t1
-                r2 = t2
-            else:
-                r1 = t2
-                r2 = t1
-            if r1 in self.two:
-                self.two[r1].add(r2)
-            else:
-                self.two[r1] = {r2}
-        else:
-            self.listaclaus.append(x)
+        return self.insertar(x,check=False)
     
     def equiv(self,r1,r2):
         ins = []
@@ -346,11 +325,11 @@ class simpleClausulas:
                             return[]
                         if r2 in self.two.get(-r1,set()):
                             xc.discard(r1)
-                            self.insertar(xc)
+                            self.insertar(xc,check)
                             return []   
                         if -r2 in self.two.get(r1,set()):
                             xc.discard(r2)
-                            self.insertar(xc)
+                            self.insertar(xc,check)
                             return []  
 
                             
@@ -428,7 +407,7 @@ class simpleClausulas:
                         elif len(claudif) == 1:
                             var = claudif.pop()
                             if -var in cl:
-                                clc = cl.copy()
+                                clc = cl.copy() 
                                 clc.discard(-var)
                                 borr.append(cl)
                                 y.append(clc)

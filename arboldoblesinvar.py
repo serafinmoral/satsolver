@@ -7,7 +7,7 @@ This is a temporary script file.
 
 import os
 import math
-from SimpleClausulasD import *
+from SimpleClausulasT import *
 
 def calculavar(lista):
     # print(    len(lista))
@@ -381,8 +381,8 @@ class arboldoble:
  
 
     def normaliza(self,N=100):
-        # if self.checkunit():
-        #     print("problema antes de normalizar")
+        if self.checkrep():
+            print("problema antes de normalizar")
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.calculalistatotal()
@@ -399,7 +399,7 @@ class arboldoble:
                 h1 = computefromSimple(l1,N)
 
                 self.asignavarhijosv(var,h0,h1,ug)
-                # if self.checkunit():
+                # if self.checkrep():
                 #     print("problema despues de normalizar con var 0")
                 #     ug.imprime()
                 #     h0.imprime()
@@ -407,7 +407,7 @@ class arboldoble:
         else:
             self.hijos[0].normaliza(N)
             self.hijos[1].normaliza(N)
-            # if self.checkunit():
+            # if self.checkrep():
             #         print("problema despues de normalizar los hijos")
             v = self.var
             if self.hijos[0].value.contradict:
@@ -418,7 +418,7 @@ class arboldoble:
 
                 self.hijos = self.hijos[1].hijos
 
-                # if self.checkunit():
+                # if self.checkrep():
                 #     print("problema despues de contradiccion en hijos 0")
 
             elif self.hijos[1].value.contradict:
@@ -428,7 +428,7 @@ class arboldoble:
                 self.var = self.hijos[0].var
 
                 self.hijos = self.hijos[0].hijos
-                # if self.checkunit():
+                # if self.checkrep():
                 #     print("problema despues de contradiccion en hijos 1")
 
             elif self.hijos[0].var == 0 and self.hijos[1].var == 0 and \
@@ -598,8 +598,7 @@ class arboldoble:
             return
         if simple.contradict:
                     self.insertaclau(conf2)
-                    # if not self == old:
-                    #     print("distintos despues de insertar clausula")
+                    
                     # if self.checkrep():
                     #     print("repeticion despues de insertar clausula" , conf2)
                     #     time.sleep(40)
@@ -616,8 +615,8 @@ class arboldoble:
                 conf2 = conf2-neg
             if simple.contradict:
                     self.insertaclau(conf2)
-                    if not self == old:
-                        print("distintos despues de insertar clausula")
+                    # if self.checkrep():
+                    #     print("repeticion despues de insertar clausula" , conf2)
                     return
             if simple.nulo():
                 return
@@ -631,18 +630,21 @@ class arboldoble:
 
         if self.var==0:
 
-
+          
             simple.adconfig(conf2)
+            
             self.value.combina(simple)
             # if not self == old:
             #             print("distintos despues de combinar")
+            # if self.checkrep():
+            #     print ("repeticion despues de inserta simple  con self.var ) = 0 antes de normalizar", conf2, self.unit)
             if norma:
                 self.normaliza(N)
             # if not self == old:
             #             print("distintos despues de normalizar")
             
             # if self.checkrep():
-            #     print ("repeticion despues de inserta simple  con self.var ) = 0")
+            #     print ("repeticion despues de inserta simple  con self.var ) = 0", conf2, self.unit)
 
         else:
             if not conf2:
@@ -667,7 +669,7 @@ class arboldoble:
                     if norma:
                         self.normaliza(N)
                     # if self.checkrep():
-                    #     print ("repeticion despues de inserta simple  con self.var ) = 0")
+                    #     print ("repeticion despues de inserta simple  con self.var ) = 0, no config")
                     #     time.sleep(4)
                     return 
                 
@@ -707,39 +709,25 @@ class arboldoble:
                 self.hijos[0].insertasimple(l0,N,conf2, norma)
                 # if self.checkrep():
                 #     print ("repeticion despues de insertar en hijo0 sin v in conf", v, conf2)
-                #     self.imprime()
-                #     l0.imprime()
-                #     l1.imprime()
-                #     l2.imprime()
-                #     simple.imprime()
-                #     time.sleep(40)
+                    
+                    # time.sleep(40)
 
                 self.hijos[1].insertasimple(l1,N,conf2, norma)
                 # if self.checkrep():
                 #     print ("repeticion despues de insertar en hijo1 sin v in conf", v, conf2)
-                #     self.imprime()
-
-                    # print("l1 "     )                    
-                    # l1.imprime()
+                    
                     # time.sleep(40)
 
                 self.hijos[0].insertasimple(l2.copia(),N,conf2, norma)
                 # if self.checkrep():
                 #     print ("repeticion despues de insertar en hijo0 parte sin v", v, conf2)
-                #     simple.imprime()
-                #     l0.imprime()
-                #     l1.imprime()
-                #     l2.imprime()
-                #     self.imprime()
+                    
                 #     time.sleep(40)
 
                 self.hijos[1].insertasimple(l2,N,conf2, norma)
                 # if self.checkrep():
                 #     print ("repeticion despues de insertar en hijo1 parte sin v",v, conf2 )
-                #     l0.imprime()
-                #     l1.imprime()
-                #     l2.imprime()
-                #     simple.imprime()
+                    
                 #     time.sleep(40)
 
             self.testhijos()

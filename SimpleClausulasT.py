@@ -57,7 +57,7 @@ class simpleClausulas:
              for y in self.two[x]:
                  lista.append({x,y})
 
-        for u in self.two:
+        for u in self.c3:
             for v in self.c3[u]:
                 for w in self.c3[u][v]:
                    lista.append({u,v,w})   
@@ -112,7 +112,7 @@ class simpleClausulas:
         print("t")
         for x in self.c3:
             for y in self.c3[x]:
-            print (x, y ":", self.c3[x][y])
+                print (x, y ,":", self.c3[x][y])
     
         print("c",self.listaclaus)  
         
@@ -127,6 +127,7 @@ class simpleClausulas:
           nuevo.two[x] = self.two[x].copy()
 
       for x in self.c3:
+          nuevo.c3[x] = dict()
           for y in self.c3[x]:
             nuevo.c3[x][y] = self.c3[x][y].copy()
       
@@ -160,7 +161,7 @@ class simpleClausulas:
                     if not abs(z) in self.listavar:
                         print("problema triple" , x ,y, self.c3[x][y], self.listavar) 
 
-                ]
+        
         for cl in self.listaclaus:
             for x in cl:
               if abs(x) not in self.listavar:
@@ -169,22 +170,22 @@ class simpleClausulas:
         return False
 
     def copiac(self,conf):
-      confn= set(map(lambda x: -x ,conf))
-      varn = set(map(lambda x: abs(x) ,conf))
-      nuevo = simpleClausulas()
-      nuevo.listavar = self.listavar.union(varn)
-      for x in self.unit:
+        confn= set(map(lambda x: -x ,conf))
+        varn = set(map(lambda x: abs(x) ,conf))
+        nuevo = simpleClausulas()
+        nuevo.listavar = self.listavar.union(varn)
+        for x in self.unit:
           if -x not in conf:
               cl = conf.union({x})
               nuevo.insertar(cl)
-      for x in self.two:
+        for x in self.two:
           if -x not in conf:
               for y in self.two[x]:
                   if -y not in conf:
                       cl = conf.union({x,y})
                       nuevo.insertars(cl)
 
-    for x in self.c3:
+        for x in self.c3:
           if -x not in conf:
               for y in self.c3[x]:
                   if -y not in conf:
@@ -193,12 +194,12 @@ class simpleClausulas:
                               cl  = conf.union({x,y,z})
                               nuevo.insertars(cl) 
       
-      for x in self.listaclaus:
-        if not confn.intersection(x):
-            cl = conf.union(x)
-            nuevo.listaclaus.append(cl)
+        for x in self.listaclaus:
+            if not confn.intersection(x):
+                cl = conf.union(x)
+                nuevo.listaclaus.append(cl)
           
-      return nuevo
+        return nuevo
 
     
     
@@ -290,41 +291,7 @@ class simpleClausulas:
             
             
     def insertars(self,x):
-        if self.contradict:
-            return 
-        nvar = set(map(abs,x))
-        self.listavar.update(nvar)
-        if len(x)==1:
-            self.unit.add(x.copy().pop())
-        elif len(x) == 2:
-            xc = x.copy()
-            t1 = xc.pop()
-            t2 = xc.pop()
-            if abs(t1) <= abs(t2):
-                r1 = t1
-                r2 = t2
-            else:
-                r1 = t2
-                r2 = t1
-            if r1 in self.two:
-                self.two[r1].add(r2)
-            else:
-                self.two[r1] = {r2}
-        elif len(x) == 3:
-            ol = list(x).order(key h: abs(h))
-            t1 = ol[0]
-            t2 = ol[1]
-            t3 = ol[3]
-            if t1 in self.c3:
-                if t2 in self.c3[t1]:
-                    self.c3[t1][t2].add(t3)
-                else:
-                    self.c3[t1][t2] = {t3}
-            else:
-                self.c3[t1] = dict()
-                self.c3[t1][t2] = {t3}
-        else:
-            self.listaclaus.append(x)
+        return self.insertar(x,check=False)
     
     # def equiv(self,r1,r2):
     #     ins = []
@@ -373,7 +340,7 @@ class simpleClausulas:
     def reduce3(self,xc):
         for x in self.c3.keys():
             if x in xc:
-                for y in self.c3[x].keys():
+                for y in self.c3[x]:
                     if y in xc:
                         for z in self.c3[x][y]:
                             if z in xc:
@@ -382,25 +349,26 @@ class simpleClausulas:
                                 xc.discard(-z)
                                 return False
                     elif -y in xc:
-                        for z in self.c3[x][y]:
-                            if z in xc:
+                        if  self.c3[x][y].intersection(xc):
                                 xc.discard(-y)
                                 return False
             elif -x in xc:
-               for y in self.c3[x].keys():
+               for y in self.c3[x]:
                     if y in xc:
-                      for z in self.c3[x][y]:
-                            if z in xc:
-                                xc.discard(-x)
-                                return False
+                        if  self.c3[x][y].intersection(xc):
+                            xc.discard(-x)
+                            return False
         return False   
 
 
     def insertar3(self,xc):
-        lo = list(xc).order(key = lambda h: abs(h))
+        
+        lo = list(xc)
+        lo.sort(key = lambda h: abs(h))
         t0 = lo[0]
         t1 = lo[1]
         t2 = lo[2]
+        self.listavar.update({abs(t0),abs(t1),abs(t2)})
 
         if t0 in self.c3:
             if t1 in self.c3[t0]:
@@ -439,6 +407,12 @@ class simpleClausulas:
 
         
     def insertar(self,x, check = True):
+
+        # neg = set(map(lambda h: -h, x))
+        # if neg.intersection(x):
+        #     print("problema insercion" , x)
+        #     time.sleep(30)
+
         if self.contradict:
             return []
         if not x:
@@ -472,9 +446,9 @@ class simpleClausulas:
                     self.c3.pop(v)
                 if -v in self.c3:
                     aux = self.c3.pop(-v)
-                for w in aux:
-                    for z in aux[w]:
-                        y.append({w,z})
+                    for w in aux:
+                        for z in aux[w]:
+                            y.append({w,z})
                 for z in self.c3:
                     if v in self.c3[z]:
                         self.c3[z].pop(v)
@@ -486,9 +460,8 @@ class simpleClausulas:
                         self.c3[z][w].discard(v)
                         if -v in self.c3[z][w]:
                             y.append({z,w})
-                            self.c3[z].pop(w)
-                            if not self.c3[z]:
-                                self.c3.pop(z)
+                            self.c3[z][w] = set()
+            
 
 
                     
@@ -579,7 +552,42 @@ class simpleClausulas:
                                 y.append(clc)
                                 borr.append(cl)
                         
+
+                    if r1 in self.c3:
+                        if r2 in self.c3[r1]:
+                            self.c3[r1].pop(r2)
+                        if -r2 in self.c3[r1]:
+                            aux = self.c3[r1].pop(-r2)
+                            for w in aux:
+                                y.append({r1,w})
+                        for v in self.c3[r1]:
+                            if abs(v) < abs(r2):
+                                self.c3[r1][v].discard(r2)
+                                if -r2 in self.c3[r1][v]:
+                                    y.append({r1,v})
+                                    self.c3[r1][v] = set()
+                            
+                            
+                        
+
+                    for u in self.c3:
+                        if abs(u)<abs(r1):
+                            if r1 in self.c3[u]:
+                               
+                                   self.c3[u][r1].discard(r2)
+                                   if -r2 in self.c3[u][r1]:
+                                       self.c3[u].pop(r1) 
+                                       y.append({u,r1})
+                            elif -r1 in self.c3[u] and r2 in self.c3[u][-r1]:
+                                        self.c3[u][-r1].discard(r2)
+                                        y.append({u,r2})
+                                
                     
+
+                            
+                        
+
+
                     if r1 in self.two:
                         self.two[r1].add(r2)
                     else:
@@ -644,7 +652,34 @@ class simpleClausulas:
         for cl in y:
             self.insertar(cl)
             
-    
+    def insertars3(self,cl):
+        lo = list(cl)
+        lo.sort(key = lambda h: abs(h))
+        t0 = lo[0]
+        t1 = lo[1]
+        t2 = lo[2]
+        if t0 in self.c3:
+            if t1 in self.c3[t0]:
+                self.c3[t0][t1].add(t2)
+            else:
+                self.c3[t0][t1] = {t2}
+        else:
+            self.c3[t0] = dict()
+            self.c3[t0][t1] = {t2}
+
+    def insertars2(self,cl):
+        t1 = cl.pop()
+        t2 = cl.pop()
+        if abs(t1) <= abs(t2):
+            r1 = t1
+            r2 = t2
+        else:
+            r1 = t2
+            r2 = t1
+        if r1 in self.two:
+            self.two[r1].add(r2)
+        else:
+            self.two[r1] = {r2}
 
     def advalue(self,v):
         self.listavar.add(abs(v))
@@ -657,19 +692,21 @@ class simpleClausulas:
         for cl in self.listaclaus:
             cl.add(v)
 
+        
+
         for x in self.c3:
             for y in self.c3[x]:
                 for z in self.c3[x][y]:
-                    self.insertars({x,y,z,v})
+                    self.listaclaus.append({x,y,z,v})
         self.c3 = dict()
         
         for x in self.two:
             for y in self.two[x]:
                 cl = {x,y,v}
-                self.insertars(cl)
+                self.insertars3(cl)
         self.two = dict()
         for x in self.unit:
-            self.insertars({x,v})
+            self.insertars2({x,v})
         self.unit = set()
 
     def adconfig(self,conf):
@@ -700,13 +737,16 @@ class simpleClausulas:
             for x in self.two:
                 for y in self.two[x]:
                     cl = conf.union({x,y})
-                    self.insertars(cl)
+                    self.listaclaus.append(cl)
             self.two = dict()
-            
-            for x in self.unit:
-                    cl = conf.union({x})
-                    
-                    self.insertars(cl)
+            if len(conf)==2:
+                for x in self.unit:
+                        cl = conf.union({x})
+                        self.insertars3(cl)
+            else:
+                for x in self.unit:
+                        cl = conf.union({x})
+                        self.listaclaus.append(cl)
             self.unit = set()
 
            
@@ -759,6 +799,7 @@ class simpleClausulas:
             return conj.copia()
         if conj.contradict:
             return self.copia()
+
         for v in self.unit:
             for x in conj.unit:
                 if not v == -x:
@@ -773,9 +814,9 @@ class simpleClausulas:
             for x in conj.c3:
                 if not v==-x:
                     for y in conj.c3[x]:
-                        if not v == -x:
+                        if not v == -y:
                             for z in conj.c3[x][y]:
-                                if in v == -z:
+                                if not v == -z:
                                     res.insertar({x,y,z,v})
             for cl in conj.listaclaus:
                 if -v not in cl:
@@ -804,7 +845,7 @@ class simpleClausulas:
                                 for w in conj.c3[u][v]:
                                     if not (w==-x) and not (w == -y):
                                         res.insertar({u,v,w,x,y})
-
+        
         for x in self.c3:
             for y in self.c3[x]:
                 for z in self.c3[x][y]:
@@ -836,7 +877,7 @@ class simpleClausulas:
                         if not v == -x:
                             for w in self.c3[u][v]:
                                 if not w == -x:
-                                    res.insertar(u,v,w,x)
+                                    res.insertar({u,v,w,x})
 
 
 
@@ -923,7 +964,7 @@ class simpleClausulas:
                     elif not y == -v:
                         for z in self.c3[x][y]:
                             if z == v:
-                                result.insertar({x,z})
+                                result.insertar({x,y})
                             elif not z == -v:
                                 result.insertar({x,y,z})
 
@@ -1020,14 +1061,34 @@ class simpleClausulas:
                     self.two[x] = set()
 
                 else:
-                    
-                    for y in self.two[x]:
-                        if -v == y:
+                    self.two[x].discard(v) 
+                    if -v in self.two[x]:
+                            self.two[x] = set()
                             ins.append({x})
-                            break
-                    
-                    self.two[x].discard(v)    
                             
+                    
+            for x in self.c3:
+                if x == -v:
+                    for y in self.c3[x]:
+                        for z in self.c3[x][y]:
+                            ins.append({y,z})
+                    self.c3[x] = dict()
+                elif x==v:
+                    self.c3[x] = dict()
+                else:
+                    for y in self.c3[x]:
+                        if y == -v:
+                            for z in self.c3[x][y]:
+                                ins.append({x,z})
+                            self.c3[x][y] = set()
+                        elif y==v:
+                            self.c3[x][y] = set()
+                        else:
+                            self.c3[x][y].discard(v)
+                            if -v in self.c3[x][y]:
+                                self.c3[x][y] = set()
+                                ins.append({x,y})
+                
 
 
             for cl in self.listaclaus:
@@ -1057,6 +1118,49 @@ class simpleClausulas:
             borr = []
 
 
+            for x in self.c3:
+                if -x in s:
+                    for y in self.c3[x]:
+                        if -y in s:
+                            for z in self.c3[x][y]:
+                                if -z in s:
+                                    self.insertar(set())
+                                    return
+                                elif z not in s:
+                                    ins.append({z})
+                        elif not y in s:
+                            for z in self.c3[x][y]:
+                                if -z in s:
+                                    ins.append({y})
+                                    break
+                                elif not z in s:
+                                    ins.append({y,z})
+                    self.c3[x] = dict()
+                elif x in s:
+                    self.c3[x] = dict()
+
+                else: 
+                    for y in self.c3[x]:
+                        if -y in s:
+                            for z in self.c3[x][y]:
+                                if -z in s:
+                                    ins.append({x})
+                                    break
+                                elif not z in s:
+                                    ins.append({x,z})
+                            self.c3[x][y] = set()
+                        elif y in s:
+                            self.c3[x][y] = set()
+                        else:
+                            if neg.intersection( self.c3[x][y]):
+                                ins.append({x,y})
+        
+                            self.c3[x][y].difference_update(s)
+
+
+
+                
+                            
             for x in self.two:
                 if -x in s:
                     for y in self.two[x]:
@@ -1079,8 +1183,6 @@ class simpleClausulas:
                             ins.append({x})
                             break
                     self.two[x].difference_update(s)
-                            
-
 
             for cl in self.listaclaus:
     
@@ -1139,6 +1241,32 @@ class simpleClausulas:
                         s2.insertars({x})
                     else:
                         s3.insertars({x,y})
+
+        for x in self.c3:
+            if x == v:
+                for y in self.c3[x]:
+                    for z in self.c3[x][y]:
+                        s1.insertars({y,z})
+            elif x == -v:
+                for y in self.c3[x]:
+                    for z in self.c3[x][y]:
+                        s2.insertars({y,z})
+            else:
+                for y in self.c3[x]:
+                    if y == v:
+                        for z in self.c3[x][y]:
+                            s1.insertars({x,z})
+                    elif y == -v:
+                        for z in self.c3[x][y]:
+                            s2.insertars({x,z})
+                    else:
+                        for z in self.c3[x][y]:
+                            if z == v:
+                                s1.insertars({x,y})
+                            elif z == -v:
+                                s2.insertars({x,y})
+                            else:
+                                s3.insertars({x,y,z})
 
 
         for cl in self.listaclaus:

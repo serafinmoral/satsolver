@@ -11,7 +11,7 @@ from ProblemaTrianArbol import *
 from time import time
 
 def leeArchivoGlobal(Archivo):
-    reader=open(Archivo,"r")
+    reader=open(Archivo,"r") 
     cadena = reader.readline()
     while cadena[0]=='c':
         cadena = reader.readline()
