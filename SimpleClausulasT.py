@@ -405,12 +405,11 @@ class simpleClausulas:
 
 
     def insertau(self,v):
-        if -v in self.unit:
-            self.insertar(set())
-            return []
+        
         self.simplificaunit(v)
-        self.unit.add(v)
-        self.listavar.add(abs(v))
+        if not self.contradict:
+            self.unit.add(v)
+            self.listavar.add(abs(v))
 
     def simplificaunit(self,v):
         if -v in self.unit:
@@ -1010,6 +1009,8 @@ class simpleClausulas:
                             if not -x == v and not -y == v:
                                for w in self.c3[u][v]:
                                     if not -x == w and not -y == w:
+                                        if x==-388 and y == -638 and u == -511 and v== -537 and w == -741:
+                                            print("la inserto")
                                         res.insertar({u,v,w,x,y})
 
 
