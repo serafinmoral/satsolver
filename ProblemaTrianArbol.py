@@ -63,16 +63,16 @@ class problemaTrianArbol:
                 print("contradiccion antes de normalizar ")
                 break
             print("entro en normaliza")
-            if pot.checkrep():
-                print("proeblma de repeticion antes de normalizar")
+            # if pot.checkrep():
+            #     print("proeblma de repeticion antes de normalizar")
             pot.normaliza(self.N) 
             if pot.value.contradict:
                 self.inicial.contradict=True #ojo
                 print("contradiccion después de normalizar ")
                 break
             print("entro en split")
-            if pot.checkrep():
-                print("proeblma de repeticion")
+            # if pot.checkrep():
+            #     print("proeblma de repeticion")
             (t0,t1,t2) = pot.splitborra(var)
             
             
@@ -144,16 +144,16 @@ class problemaTrianArbol:
                             print(vars)
                     
                     pot = self.lqueue[j]
-                    if pot.checkrep():
-                        print("problema de repecion antes de insertar")
-                        time.sleep(30)
+                    # if pot.checkrep():
+                    #     print("problema de repecion antes de insertar")
+                    #     time.sleep(30)
                     if pot.value.contradict:
                         print("contradiccion antes")
 
                     pot.insertasimple(t.value,self.N,conf) 
-                    if pot.checkrep():
-                        print("problema de repecion despyes de insertar",conf)
-                        time.sleep(30)
+                    # if pot.checkrep():
+                    #     print("problema de repecion despyes de insertar",conf)
+                    #     time.sleep(30)
 
                     pot.normaliza(self.N) 
         if not t.var ==0:

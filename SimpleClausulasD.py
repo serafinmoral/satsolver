@@ -215,20 +215,52 @@ class simpleClausulas:
             self.eliminar(y)
             
             
+    def insertarms(self,x):
+        for v in x:
+            self.listavar.add(abs(v))
+        if len(x) ==1:
+            v = x.pop()
+            self.unit.add(v)
+        elif len(x)==2:
+            t1 = x.pop()
+            t2 = x.pop()
+            if abs(t1) <= abs(t2):
+                        r1 = t1
+                        r2 = t2
+            else:
+                        r1 = t2
+                        r2 = t1
+            if r1 in self.two:
+                self.two[r1].add(r2)
+            else:
+                self.two[r1] = {r2}
+        else:
+            self.listaclaus.append(x)
+        
+    
     def insertars(self,x):
         return self.insertar(x,check=False)
     
     def equiv(self,r1,r2):
         ins = []
         borr = []
+        aux = []
         for x in self.two:
             if not x == r1 and not x == -r1:
                 if r2 in self.two[x]:
                     ins.append({x,r1})
                     self.two[x].discard(r2)
+                    if not self.two[x]:
+                        aux.append(x)
+                    
                 if -r2 in self.two[x]:
                     ins.append({x,-r1})
                     self.two[x].discard(-r2)
+                    if not self.two[x]:
+                        aux.append(x)
+        for x in aux:
+            self.two.pop(x)
+
         if r2 in self.two:
             for x in self.two[r2]:
                     ins.append({x,r1})
