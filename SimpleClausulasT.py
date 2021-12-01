@@ -850,7 +850,7 @@ class simpleClausulas:
             for x in self.c3:
                 for y in self.c3[x]:
                     for z in self.c3[x][y]:
-                        self.insertars({x,y,z}.union(conf))
+                        self.listaclaus.append({x,y,z}.union(conf))
             self.c3= dict()
 
         
@@ -910,6 +910,29 @@ class simpleClausulas:
                 if self.c3[x][y]:
                     return False
         return True
+
+    def normaliza(self):
+        aux = []
+        for x in self.two:
+            if not self.two[x]:
+                aux.append(x)
+        for x in aux:
+            self.two.pop(x)
+
+        aux = []
+        for x in self.c3:
+            aux2 = []
+            for y in self.c3[x]:
+                if not self.c3[x][y]:
+                    aux2.append(y)
+            for y in aux2:
+                self.c3[x].pop(y)
+            if not self.c3[x]:
+                aux.append(x)
+        for x in aux:
+            self.c3.pop(x)
+
+
 
 
     def combinaborra(self,conj):
@@ -1009,7 +1032,7 @@ class simpleClausulas:
                             if not -x == v and not -y == v:
                                for w in self.c3[u][v]:
                                     if not -x == w and not -y == w:
-                                        if x==-388 and y == -638 and u == -511 and v== -537 and w == -741:
+                                        if x==-388 and y == -638:
                                             print("la inserto")
                                         res.insertar({u,v,w,x,y})
 

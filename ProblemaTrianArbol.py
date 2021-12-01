@@ -56,6 +56,8 @@ class problemaTrianArbol:
             var = self.orden[i]
             print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
+            if i==1336:
+                print("parada")
             if pot.value.contradict:
                 self.inicial.contradict=True #ojo
                 print("contradiccion antes de normalizar ")
@@ -73,8 +75,7 @@ class problemaTrianArbol:
                 print("proeblma de repeticion")
             (t0,t1,t2) = pot.splitborra(var)
             
-            if i==246:
-                print("Problema")
+            
 
             self.lqp.append(t1)
             self.lqn.append(t0)
@@ -99,8 +100,8 @@ class problemaTrianArbol:
             neg.simplificaunits(sol)
             pos.simplificaunits(sol)
             
-            pos.normaliza()
-            neg.normaliza()
+            pos.normaliza(N=1000)
+            neg.normaliza(N=1000)
 
             poss = pos.tosimple()
             negg = neg.tosimple()
