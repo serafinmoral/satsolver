@@ -1,6 +1,7 @@
+aes_32_1_keyfind_1.cnf 120
+
 SAT_V144C560.cnf 120 1 3 500000000000000
 
-aes_32_1_keyfind_1.cnf 120
 
 CNF/UNSATCircuitosV1359C3321.cnf 120
 CNF/UNSATCircuitosV435C1027.cnf 120
