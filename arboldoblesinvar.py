@@ -7,7 +7,7 @@ This is a temporary script file.
 
 import os
 import math
-from SimpleClausulasT import *
+from SimpleClausulasD import *
 
 def calculavar(lista):
     # print(    len(lista))
