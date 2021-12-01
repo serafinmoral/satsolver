@@ -132,7 +132,7 @@ class simpleClausulas:
             nuevo.c3[x][y] = self.c3[x][y].copy()
       
       for x in self.listaclaus:
-          nuevo.insertar(x.copy())
+          nuevo.listaclaus.append(x.copy())
           
       return nuevo
 
@@ -404,6 +404,171 @@ class simpleClausulas:
             self.insertar(cl)
 
 
+    def insertau(self,v):
+        self.simplificaunit(v)
+        self.unit.add(v)
+        self.listavar.add(abs(v))
+
+    def simplificaunit(self,v):
+        if -v in self.unit:
+            self.insertar(set())
+            return []
+        elif v in self.unit:
+            self.unit.discard(v)
+            self.listavar.discard(abs(v))
+
+        else:
+            ins = []
+            borr = []
+            self.listavar.discard(abs(v))
+
+            
+            if v in self.two and self.two[v]:
+                self.two.pop(v)
+            if -v in self.two and self.two[-v]:
+                listau = self.two.pop(-v)
+                for r in listau:
+                    ins.append({r})
+            for z in self.two:
+                if v in self.two[z]:
+                    self.two[z].discard(v)
+                elif -v in self.two[z]:
+                    self.two[z] = set()
+                    ins.append({z})
+            if v in self.c3:
+                self.c3.pop(v)
+            if -v in self.c3:
+                aux = self.c3.pop(-v)
+                for w in aux:
+                    for z in aux[w]:
+                        ins.append({w,z})
+            for z in self.c3:
+                if v in self.c3[z]:
+                    self.c3[z].pop(v)
+                if -v in self.c3[z]:
+                    aux = self.c3[z].pop(-v)
+                    for h in aux:
+                        ins.append({z,h})
+                for w in self.c3[z]:
+                    self.c3[z][w].discard(v)
+                    if -v in self.c3[z][w]:
+                        ins.append({z,w})
+                        self.c3[z][w] = set()
+
+
+
+                
+
+
+            for cl in self.listaclaus:
+                if v in cl:
+                    borr.append(cl)
+                if -v in cl:
+                    borr.append(cl)
+                    cl1 = cl.copy()
+                    cl1.discard(-v)
+                    ins.append(cl1)
+            for cl in borr:
+                self.eliminar(cl)
+            
+            for cl in ins:
+                self.insertar(cl)
+
+    def simplificaunits(self,s):
+        neg = set(map (lambda x: -x,s))
+
+        if self.unit.intersection(neg):
+            self.insertar(set())
+        else:
+            absv = set(map (lambda x: abs(x),s))
+
+            self.unit.difference_update(s)
+
+            self.listavar.difference_update(absv)
+            ins = []
+            borr = []
+
+
+            for x in self.c3:
+                if -x in s:
+                    for y in self.c3[x]:
+                        if -y in s:
+                            for z in self.c3[x][y]:
+                                if -z in s:
+                                    self.insertar(set())
+                                    return
+                                elif z not in s:
+                                    ins.append({z})
+                        elif not y in s:
+                            for z in self.c3[x][y]:
+                                if -z in s:
+                                    ins.append({y})
+                                    break
+                                elif not z in s:
+                                    ins.append({y,z})
+                    self.c3[x] = dict()
+                elif x in s:
+                    self.c3[x] = dict()
+
+                else: 
+                    for y in self.c3[x]:
+                        if -y in s:
+                            for z in self.c3[x][y]:
+                                if -z in s:
+                                    ins.append({x})
+                                    break
+                                elif not z in s:
+                                    ins.append({x,z})
+                            self.c3[x][y] = set()
+                        elif y in s:
+                            self.c3[x][y] = set()
+                        else:
+                            if neg.intersection( self.c3[x][y]):
+                                ins.append({x,y})
+        
+                            self.c3[x][y].difference_update(s)
+
+
+
+                
+                            
+            for x in self.two:
+                if -x in s:
+                    for y in self.two[x]:
+                        if -y in s:
+                            self.insertar(set())
+                            return
+                        elif y not in s:
+                            ins.append({y})
+                    self.two[x] = set()
+
+                elif x in s:
+                    self.two[x] = set()
+
+
+                else: 
+    
+                    for y in self.two[x]:
+                        if -y in s:
+                            self.two[x] = set()
+                            ins.append({x})
+                            break
+                    self.two[x].difference_update(s)
+
+            for cl in self.listaclaus:
+    
+                if cl.intersection(s):
+                    borr.append(cl)
+                elif cl.intersection(neg):
+                    borr.append(cl)
+                    cl2 = cl-neg
+                    ins.append(cl2)
+         
+
+            for cl in borr:
+                self.eliminars(cl)
+            for cl in ins:
+                self.insertar(cl)
 
         
     def insertar(self,x, check = True):
@@ -424,57 +589,10 @@ class simpleClausulas:
         borr = []
         if len(x) ==1:
             v = x.pop()
-            if -v in self.unit:
-                self.insertar(set())
+            if v in self.unit:
                 return []
-            elif v not in self.unit:
-                self.listavar.add(abs(v))
-                self.unit.add(v)
-                if v in self.two and self.two[v]:
-                    self.two.pop(v)
-                if -v in self.two and self.two[-v]:
-                    listau = self.two.pop(-v)
-                    for r in listau:
-                        y.append({r})
-                for z in self.two:
-                    if v in self.two[z]:
-                        self.two[z].discard(v)
-                    elif -v in self.two[z]:
-                        self.two[z] = set()
-                        y.append({z})
-                if v in self.c3:
-                    self.c3.pop(v)
-                if -v in self.c3:
-                    aux = self.c3.pop(-v)
-                    for w in aux:
-                        for z in aux[w]:
-                            y.append({w,z})
-                for z in self.c3:
-                    if v in self.c3[z]:
-                        self.c3[z].pop(v)
-                    if -v in self.c3[z]:
-                        aux = self.c3[z].pop(-v)
-                        for h in aux:
-                            y.append({z,h})
-                    for w in self.c3[z]:
-                        self.c3[z][w].discard(v)
-                        if -v in self.c3[z][w]:
-                            y.append({z,w})
-                            self.c3[z][w] = set()
+            self.insertau(v)
             
-
-
-                    
-
-
-                for cl in self.listaclaus:
-                    if v in cl:
-                        borr.append(cl)
-                    if -v in cl:
-                        borr.append(cl)
-                        cl1 = cl.copy()
-                        cl1.discard(-v)
-                        y.append(cl1)
         else:
 
             if x.intersection(self.unit):
@@ -1040,165 +1158,7 @@ class simpleClausulas:
                 res.insertar(x)
         return res
     
-    def simplificaunit(self,v):
-        if -v in self.unit:
-            self.insertar(set())
-            return 
-        self.listavar.discard(abs(v))
-
-        if v in self.unit:
-            self.unit.discard(v)
-        else:
-            ins = []
-            borr = []
-            for x in self.two:
-                if -v == x:
-                    for y in self.two[x]:
-                        ins.append({y})
-                    self.two[x] = set()
-
-                elif v == x:
-                    self.two[x] = set()
-
-                else:
-                    self.two[x].discard(v) 
-                    if -v in self.two[x]:
-                            self.two[x] = set()
-                            ins.append({x})
-                            
-                    
-            for x in self.c3:
-                if x == -v:
-                    for y in self.c3[x]:
-                        for z in self.c3[x][y]:
-                            ins.append({y,z})
-                    self.c3[x] = dict()
-                elif x==v:
-                    self.c3[x] = dict()
-                else:
-                    for y in self.c3[x]:
-                        if y == -v:
-                            for z in self.c3[x][y]:
-                                ins.append({x,z})
-                            self.c3[x][y] = set()
-                        elif y==v:
-                            self.c3[x][y] = set()
-                        else:
-                            self.c3[x][y].discard(v)
-                            if -v in self.c3[x][y]:
-                                self.c3[x][y] = set()
-                                ins.append({x,y})
-                
-
-
-            for cl in self.listaclaus:
-                if -v in cl:
-                    borr.append(cl)
-                    clc = cl-{-v}
-                    ins.append(clc)
-                elif v in cl:
-                    borr.append(cl)
-            for cl in borr:
-                self.eliminars(cl)
-            for cl in ins:
-                self.insertar(cl)
-
-    def simplificaunits(self,s):
-        neg = set(map (lambda x: -x,s))
-
-        if self.unit.intersection(neg):
-            self.insertar(set())
-        else:
-            absv = set(map (lambda x: abs(x),s))
-
-            self.unit.difference_update(s)
-
-            self.listavar.difference_update(absv)
-            ins = []
-            borr = []
-
-
-            for x in self.c3:
-                if -x in s:
-                    for y in self.c3[x]:
-                        if -y in s:
-                            for z in self.c3[x][y]:
-                                if -z in s:
-                                    self.insertar(set())
-                                    return
-                                elif z not in s:
-                                    ins.append({z})
-                        elif not y in s:
-                            for z in self.c3[x][y]:
-                                if -z in s:
-                                    ins.append({y})
-                                    break
-                                elif not z in s:
-                                    ins.append({y,z})
-                    self.c3[x] = dict()
-                elif x in s:
-                    self.c3[x] = dict()
-
-                else: 
-                    for y in self.c3[x]:
-                        if -y in s:
-                            for z in self.c3[x][y]:
-                                if -z in s:
-                                    ins.append({x})
-                                    break
-                                elif not z in s:
-                                    ins.append({x,z})
-                            self.c3[x][y] = set()
-                        elif y in s:
-                            self.c3[x][y] = set()
-                        else:
-                            if neg.intersection( self.c3[x][y]):
-                                ins.append({x,y})
-        
-                            self.c3[x][y].difference_update(s)
-
-
-
-                
-                            
-            for x in self.two:
-                if -x in s:
-                    for y in self.two[x]:
-                        if -y in s:
-                            self.insertar(set())
-                            return
-                        elif y not in s:
-                            ins.append({y})
-                    self.two[x] = set()
-
-                elif x in s:
-                    self.two[x] = set()
-
-
-                else: 
     
-                    for y in self.two[x]:
-                        if -y in s:
-                            self.two[x] = set()
-                            ins.append({x})
-                            break
-                    self.two[x].difference_update(s)
-
-            for cl in self.listaclaus:
-    
-                if cl.intersection(s):
-                    borr.append(cl)
-                elif cl.intersection(neg):
-                    borr.append(cl)
-                    cl2 = cl-neg
-                    ins.append(cl2)
-         
-
-            for cl in borr:
-                self.eliminars(cl)
-            for cl in ins:
-                self.insertar(cl)
-
     
 
     def splitborra(self,v,n=True):

@@ -381,8 +381,8 @@ class arboldoble:
  
 
     def normaliza(self,N=100):
-        if self.checkrep():
-            print("problema antes de normalizar")
+        # if self.checkrep():
+        #     print("problema antes de normalizar")
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.calculalistatotal()

@@ -97,7 +97,7 @@ class simpleClausulas:
           nuevo.two[x] = self.two[x].copy()
       
       for x in self.listaclaus:
-          nuevo.insertar(x.copy())
+          nuevo.listaclaus.append(x.copy())
           
       return nuevo
 
