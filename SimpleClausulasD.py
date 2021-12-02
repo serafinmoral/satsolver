@@ -305,34 +305,8 @@ class simpleClausulas:
         y = []
         borr = []
         if len(x) ==1:
-            v = x.pop()
-            if -v in self.unit:
-                self.insertar(set())
-                return []
-            elif v not in self.unit:
-                self.listavar.add(abs(v))
-                self.unit.add(v)
-                if v in self.two and self.two[v]:
-                    self.two.pop(v)
-                if -v in self.two and self.two[-v]:
-                    listau = self.two.pop(-v)
-                    for r in listau:
-                        y.append({r})
-                for z in self.two:
-                    if v in self.two[z]:
-                        self.two[z].discard(v)
-                    elif -v in self.two[z]:
-                        self.two[z] = set()
-                        y.append({z})
-
-                for cl in self.listaclaus:
-                    if v in cl:
-                        borr.append(cl)
-                    if -v in cl:
-                        borr.append(cl)
-                        cl1 = cl.copy()
-                        cl1.discard(-v)
-                        y.append(cl1)
+            self.insertar1(x)
+            
         else:
 
             if x.intersection(self.unit):
@@ -462,8 +436,48 @@ class simpleClausulas:
         
         for cl in y:
             self.insertar(cl)
-            
-    
+
+
+    def insertar1(self,x):     
+        y = []
+        borr = []   
+        v = x.pop()
+        if -v in self.unit:
+            self.insertar(set())
+            return []
+        elif v not in self.unit:
+            self.listavar.add(abs(v))
+            self.unit.add(v)
+            if v in self.two:
+                self.two.pop(v)
+            if -v in self.two:
+                listau = self.two.pop(-v)
+                for r in listau:
+                    y.append({r})
+            aux = []
+            for z in self.two:
+                if v in self.two[z]:
+                    self.two[z].discard(v)
+                    if not self.two[z]:
+                        aux.append(z)
+                elif -v in self.two[z]:
+                    aux.append(z)
+                    y.append({z})
+            for z in aux:
+                self.two.pop(z)
+
+            for cl in self.listaclaus:
+                if v in cl:
+                    borr.append(cl)
+                if -v in cl:
+                    borr.append(cl)
+                    cl1 = cl - {-v}
+                    y.append(cl1)
+        for cl in borr:
+            self.eliminar(cl)
+        
+        for cl in y:
+            self.insertar(cl)
 
     def advalue(self,v):
         self.listavar.add(abs(v))

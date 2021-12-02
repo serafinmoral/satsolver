@@ -7,7 +7,6 @@ Created on Wed Mar  6 13:30:14 2019
 """
 import time
 import networkx as nx    
-from ProblemaTrianArbol import *
 from time import time
 
 def leeArchivoGlobal(Archivo):
