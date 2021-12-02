@@ -487,7 +487,9 @@ class simpleClausulas:
             for cl in y:
                 self.insertar(cl)
 
-    
+    def calculalistatotal(self):
+        
+            return self.listaclaus
 
     def splitborra(self,v,n=True):
         s1 = simpleClausulas()
@@ -591,6 +593,10 @@ def splitinserta(self,v,n=True):
                             s2.insertars(cl)
         return (s1,s2)
 
+        
+        
+            
+    
         
 #   def podaylimpia(self):
 #         y = []
