@@ -6,9 +6,7 @@ Created on Wed Mar  6 13:30:14 2019
 @author: Nizziho
 """
 from time import time
-
 import networkx as nx    
-from time import time
 from SimpleClausulasD import *
 from ProblemaTrianArbol import *
 
@@ -104,11 +102,11 @@ while reader:
     nombre = param[0]
     N1 = int(param[1])
     print(nombre)     
-    t1 = time()
+    t1 = time.time()
     info = leeArchivoGlobal(nombre)
-    t2= time()
+    t2= time.time()
     prob = problemaTrianArbol(info,N1)
-    t4 = time()
+    t4 = time.time()
 
     main(prob)
     # print("Conjunto solución: ",prob.sol)
@@ -116,7 +114,7 @@ while reader:
         prob.compruebaSol()
     else:
         print("Problema no satisfactible")
-    t5 = time()
+    t5 = time.time()
     print("tiempo lectura ",t2-t1)
 #    print("tiempo inicio ",t3-t2)
 #    print("tiempo borrado ",t4-t3)
