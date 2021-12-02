@@ -8,7 +8,7 @@ Created on Tue Oct 19 20:13:39 2021
 import time
 
 from arboldoblesinvar import *
-from SimpleClausulas import *
+from SimpleClausulasD import *
 
 class problemaTrianArbol:
     def __init__(self,info,N=100):
