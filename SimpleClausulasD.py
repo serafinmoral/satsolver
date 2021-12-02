@@ -19,6 +19,7 @@ class simpleClausulas:
          self.solution = set()
          self.unit = set()
          self.two = dict()
+         self.listaclausOriginal = []
 
          
      
