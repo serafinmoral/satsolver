@@ -9,6 +9,7 @@ import time
 import networkx as nx    
 from time import time
 from SimpleClausulasD import *
+from ProblemaTrianArbol import *
 
 
 def leeArchivoGlobal(Archivo):
