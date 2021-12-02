@@ -4,7 +4,7 @@
 Created on Wed Mar  6 13:30:14 2019
 
 @author: Nizziho
-"""
+""" 
 import time
 import networkx as nx    
 from ProblemaTrianArbol import *
