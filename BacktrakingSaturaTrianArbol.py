@@ -5,7 +5,8 @@ Created on Wed Mar  6 13:30:14 2019
 
 @author: Nizziho
 """
-import time
+from time import time
+
 import networkx as nx    
 from time import time
 from SimpleClausulasD import *
