@@ -75,7 +75,7 @@ def computefromSimple(x,N):
             result.asignaval(x)
         else:
             lista = x.calculalistatotal()
-            var = calculavar2(lista)
+            var = calculavar(lista)
             (l0,l1,unit) = split(lista,var)
             h0 = computefromSimple(l0,N)
             h1 = computefromSimple(l1,N)
@@ -588,7 +588,6 @@ class arboldoble:
         #     print("repeticion antes")
         #     time.sleep(40)
 
-        old = self
 
         if simple.nulo():
             return

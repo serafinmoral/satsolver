@@ -43,7 +43,7 @@ class simpleClausulas:
 
     def calculalistatotal(self):
         
-        lista = self.listaclaus.copy()
+        lista = self.listaclaus
         for x in self.two:
              for y in self.two[x]:
                  lista.append({x,y})
@@ -594,6 +594,19 @@ class simpleClausulas:
                 if -v not in cl:
                     r = cl.union({v})
                     res.insertar(r)
+
+        for x in conj.unit:
+            for v in self.two:
+                if not v == -x:
+                    for y in self.two[v]:
+                        if not x == -y:
+                            cl = {v,x,y}
+                            res.insertar(cl)
+            for cl in self.listaclaus:
+                if not -x in cl:
+                    r = cl.union({x})
+                    res.insertar(r)
+
         for x in self.two:
             for y in self.two[x]:
                 for u in conj.two:
@@ -611,17 +624,7 @@ class simpleClausulas:
                         res.insertar(r)
 
         
-        for x in conj.unit:
-            for v in self.two:
-                if not v == -x:
-                    for y in self.two[v]:
-                        if not x == -y:
-                            cl = {v,x,y}
-                            res.insertar(cl)
-            for cl in self.listaclaus:
-                if not -x in cl:
-                    r = cl.union({x})
-                    res.insertar(r)
+        
 
 
 
