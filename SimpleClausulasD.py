@@ -821,7 +821,7 @@ class simpleClausulas:
 
     
 
-    def splitborra(self,v,n=True):
+    def splitborra(self,v,n=False):
         s1 = simpleClausulas()
         s2 = simpleClausulas()
         s3 = simpleClausulas()
