@@ -386,7 +386,7 @@ class arboldoble:
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.calculalistatotal()
-                var = calculavar(x)
+                var = calculavar2(x)
                 (l0,l1,unit) = split(x,var)
 
                 ug = simpleClausulas()

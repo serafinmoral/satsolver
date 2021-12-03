@@ -20,6 +20,7 @@ class simpleClausulas:
          self.unit = set()
          self.two = dict()
          self.listaclausOriginal = []
+         self.le = set()
 
          
      
@@ -341,7 +342,17 @@ class simpleClausulas:
 
                             
                          
-                
+                for h in self.le:
+                    h0 = h[0]
+                    h1 = h[1]
+                    if h1 in xc:
+                        xc.discard(h1)
+                        xc.add(h0)
+                        return self.insertar(xc)
+                    elif -h1 in xc:
+                        xc.discard(-h1)
+                        xc.add(-h0)
+                        return self.insertar(xc)
                 
                 
 
@@ -393,6 +404,7 @@ class simpleClausulas:
 
                     if -r1 in self.two and -r2 in self.two[-r1]:
                         self.equiv(r1,-r2)
+                        self.le.add((-r1,r2))
 
 
                     return []
