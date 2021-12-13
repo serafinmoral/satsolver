@@ -82,7 +82,7 @@ class problemaTrianArbol:
         for cl in simple.listaclaus:
             self.introducecorclau(cl)
 
-    def borraapro(self,M=7,T=4):
+    def borraapro(self,M=10,T=4):
         print(len(self.orden))
         for i in range(len(self.orden)):
             if self.inicial.contradict:
