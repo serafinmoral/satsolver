@@ -5,7 +5,6 @@ Created on Wed Mar  6 13:30:14 2019
 
 @author: Nizziho
 """ 
-import time
 import networkx as nx    
 from ProblemaTrianArbol import *
 from time import time
@@ -81,7 +80,13 @@ def main(prob):
             prob.posvar[i] = prob.orden.index(i)
 
         prob.inicia0()      
-        prob.borraapro()
+        prob.borraapro(M=3,T=2)
+        prob.reinicia()
+        prob.borraapro(M=3,T=3)
+        prob.reinicia()
+        
+
+        prob.borraapro(M=6,T=4)
         
         prob.reinicia()
         prob.borra()
