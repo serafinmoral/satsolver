@@ -81,8 +81,11 @@ def main(prob):
             prob.posvar[i] = prob.orden.index(i)
 
         prob.inicia0()      
+        prob.borraapro()
+        
+        prob.reinicia()
         prob.borra()
-        if prob.inicial.contradict==False:
+        if not prob.inicial.contradict:
             prob.findsol()
 
         print("salgo de inicio")

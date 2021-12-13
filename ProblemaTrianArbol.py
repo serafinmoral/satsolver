@@ -20,8 +20,22 @@ class problemaTrianArbol:
          self.lqueue  = []
          self.lqp = []
          self.lqn = []
+         self.cortas = []
          self.posvar = dict()
          self.sol = set()
+
+    def reinicia(self):
+        for x in self.lpot:
+                x = arboldoble()
+        for y in self.lqueue:
+                y = arboldoble()
+
+        for v in self.inicial.unit:
+                self.insertacolaclau2({v})
+        for cl in self.inicial.listaclaus:
+                self.insertacolaclau2(cl)
+        for pot in self.lqueue:
+                pot.normaliza(self.N)        
 
     def inicia0(self):
             for i in self.orden:
@@ -48,6 +62,79 @@ class problemaTrianArbol:
             pot = self.lqueue[pos]
             pot.insertaclau(cl)
 
+
+    def introducecorclau(self,cl):
+        vars = set(map(lambda x:abs(x),cl))
+        for pos in range(len(self.clusters)):
+            if vars <= self.clusters[pos]:
+                simple = self.cortas[pos]
+                simple.insertar(cl)
+
+
+    def introducecortas(self,simple):
+        for x in simple.unit:
+            self.introducecorclau({x})
+
+        for x in simple.two:
+            for y in simple.two[x]:
+                self.introducecorclau({x,y})
+
+        for cl in simple.listaclaus:
+            self.introducecorclau(cl)
+
+    def borraapro(self,M=5,T=3):
+        print(len(self.orden))
+        for i in range(len(self.orden)):
+            if self.inicial.contradict:
+                break
+            var = self.orden[i]
+            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            pot = self.lqueue[i]
+            
+            if pot.value.contradict:
+                self.inicial.contradict=True #ojo
+                print("contradiccion antes de normalizar ")
+                break
+            print("entro en normaliza")
+            # if pot.checkrep():
+            #     print("proeblma de repeticion antes de normalizar")
+            pot.normaliza(self.N) 
+            if pot.value.contradict:
+                self.inicial.contradict=True #ojo
+                print("contradiccion después de normalizar ")
+                break
+            print("entro en split")
+            # if pot.checkrep():
+            #     print("proeblma de repeticion")
+            (t0,t1,t2) = pot.splitborra(var)
+            
+            
+
+                       
+
+            print("ntro en combinaborra")
+            res1 = t0.combinaborra(t1,self.N)
+
+            c1 = res1.extraecortas(M)
+
+            lista = c1.extraecortas(T).calculalistatotal()
+
+            for cl in lista:
+                print(cl)
+                self.inicial.insertar(cl)
+
+            print("inserto t2")
+            self.insertacola(t2,i)
+            
+            ad = arboldoble()
+            ad.asignaval(c1)
+
+            if res1.value.contradict:
+                print("contradiccion en resultado")
+            pot.void()
+            print("Ahora inserto en la cola")
+            self.insertacola(ad,i)
+
     def borra(self):
         print(len(self.orden))
         for i in range(len(self.orden)):
@@ -56,8 +143,7 @@ class problemaTrianArbol:
             var = self.orden[i]
             print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
-            if i==1336:
-                print("parada")
+            
             if pot.value.contradict:
                 self.inicial.contradict=True #ojo
                 print("contradiccion antes de normalizar ")
@@ -92,6 +178,98 @@ class problemaTrianArbol:
             print("Ahora inserto en la cola")
             self.insertacola(res1,i)
             
+    def borra2(self):
+        print(len(self.orden))
+        for i in range(len(self.orden)):
+                t0 = arboldoble()
+                t1 = arboldoble()
+                self.lqp.append(t1)
+                self.lqn.append(t0)
+                c = simpleClausulas()
+                self.cortas.append(c)
+        for j in range(len(self.orden),0,-1):
+            print("j= ", j)
+            if self.inicial.contradict:
+                    break
+            for i in range(j,len(self.orden)):
+            
+                if self.inicial.contradict:
+                    break
+                var = self.orden[i]
+                print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+                pot = self.lqueue[i]
+                
+                if pot.value.contradict:
+                    self.inicial.contradict=True #ojo
+                    print("contradiccion antes de normalizar ")
+                    break
+                print("entro en normaliza")
+                # if pot.checkrep():
+                #     print("proeblma de repeticion antes de normalizar")
+                pot.normaliza(self.N) 
+                if pot.value.contradict:
+                    self.inicial.contradict=True #ojo
+                    print("contradiccion después de normalizar ")
+                    break
+                print("entro en split")
+                # if pot.checkrep():
+                #     print("proeblma de repeticion")
+                (t0,t1,t2) = pot.splitborra(var)
+                
+                r0 = self.lqn[i]
+                r1 = self.lqp[i]
+
+                
+                print("ntro en combinaborra")
+                res1 = t0.combinaborra(t1,self.N)
+                res2 = t0.combinaborra(r1,self.N)
+                res3 = t1.combinaborra(r0,self.N)
+
+                r0.inserta(t0,self.N)
+                r1.inserta(t1,self.N)
+
+                c1 = res1.extraecortas()
+                c2 = res2.extraecortas()
+                c3 = res3.extraecortas()
+
+
+                if not c1.nulo():
+                    
+                    self.introducecortas(c1)
+
+                    c1.imprime()
+                    time.sleep(3)
+                
+                if not c2.nulo():
+                    self.introducecortas(c2)
+
+                    c2.imprime()
+                    time.sleep(3)
+
+                if not c3.nulo():
+                    self.introducecortas(c3)
+
+                    c3.imprime()
+                    time.sleep(3)
+
+
+
+                print("inserto t2")
+                self.insertacola(t2,i)
+                res1.normaliza(self.N)
+
+                if res1.value.contradict:
+                    print("contradiccion en resultado")
+                pot.void()
+                print("Ahora inserto en la cola")
+                self.insertacola(res1,i)
+                self.insertacola(res2,i)
+                self.insertacola(res3,i)
+
+
+            
+
+
     def findsol(self):
         sol = set()
         for i in reversed(range(len(self.orden))):
@@ -138,6 +316,7 @@ class problemaTrianArbol:
                 else:
                     j = i+1
                     vars = set(map(lambda x: abs(x),conf.union(t.value.listavar)) )
+                    # j = min(map(lambda h: self.posvar[h],vars))
                     while not vars <= self.clusters[j]:
                         j += 1
                         if j == len(self.clusters):
@@ -150,6 +329,7 @@ class problemaTrianArbol:
                     if pot.value.contradict:
                         print("contradiccion antes")
 
+                    
                     pot.insertasimple(t.value,self.N,conf) 
                     # if pot.checkrep():
                     #     print("problema de repecion despyes de insertar",conf)

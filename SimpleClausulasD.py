@@ -42,9 +42,12 @@ class simpleClausulas:
         return grafo  
 
 
-    def calculalistatotal(self):
+    def calculalistatotal(self, nuevas=False):
         
-        lista = self.listaclaus
+        if  nuevas:
+            lista = self.listaclaus.copy()
+        else:
+            lista = self.listaclaus
         for x in self.two:
              for y in self.two[x]:
                  lista.append({x,y})
@@ -154,12 +157,42 @@ class simpleClausulas:
     
  
             
-  
+    
             
     
             
             
-   
+    def simplifica(self,cortas,conf):
+        if cortas.unit.intersection(conf):
+            self.anula()
+            return
+        neg = set(map(lambda h: -h, cortas.unit))
+        conf.difference_update(neg)
+        self.simplificaunits(cortas.unit)
+
+        for x in cortas.two:
+            for y in cortas.two[x]:
+                if {x,y} <= conf:
+                    self.anula()
+                    return
+                elif x in conf and -y in conf:
+                    conf.discard(-y)
+                elif -x in conf and y in conf:
+                    conf.discard(-x)
+            self.simplificaclau({x,y})
+
+        for cl in cortas.listaclaus:
+            if cl <= conf:
+                self.anula()
+                return
+            
+            h = cl-conf
+            if len(h) ==1:
+                v = h.pop()
+                if -v in conf:
+                    conf.discard(-v)
+            self.simplicaclau(cl)
+
    
             
         
@@ -215,6 +248,23 @@ class simpleClausulas:
     def eliminalista(self,x):
         for y in x:
             self.eliminar(y)
+
+    def extraecortas(self,C):
+        res = simpleClausulas()
+        if C>0:
+            for x in self.unit:
+                res.insertars({x})
+        if C>1:
+            for x in self.two:
+                for y in self.two[x]:
+                    res.insertarms({x,y})
+        if C>2:
+            for cl in self.listaclaus:
+                if len(cl)<= C:
+                    res.insertarms(cl)
+
+        return res
+
             
             
     def insertarms(self,x):
@@ -296,6 +346,7 @@ class simpleClausulas:
             self.insertar(cl)
 
     
+    
     def insertar(self,x, check = True):
         if self.contradict:
             return []
@@ -342,17 +393,17 @@ class simpleClausulas:
 
                             
                          
-                for h in self.le:
-                    h0 = h[0]
-                    h1 = h[1]
-                    if h1 in xc:
-                        xc.discard(h1)
-                        xc.add(h0)
-                        return self.insertar(xc)
-                    elif -h1 in xc:
-                        xc.discard(-h1)
-                        xc.add(-h0)
-                        return self.insertar(xc)
+                # for h in self.le:
+                #     h0 = h[0]
+                #     h1 = h[1]
+                #     if h1 in xc:
+                #         xc.discard(h1)
+                #         xc.add(h0)
+                #         return self.insertar(xc)
+                #     elif -h1 in xc:
+                #         xc.discard(-h1)
+                #         xc.add(-h0)
+                #         return self.insertar(xc)
                 
                 
 
@@ -404,7 +455,7 @@ class simpleClausulas:
 
                     if -r1 in self.two and -r2 in self.two[-r1]:
                         self.equiv(r1,-r2)
-                        self.le.add((-r1,r2))
+                        # self.le.add((-r1,r2))
 
 
                     return []
@@ -836,7 +887,7 @@ class simpleClausulas:
 
     
 
-    def splitborra(self,v,n=False):
+    def splitborra(self,v,n=True):
         s1 = simpleClausulas()
         s2 = simpleClausulas()
         s3 = simpleClausulas()

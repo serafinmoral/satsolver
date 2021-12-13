@@ -732,7 +732,18 @@ class arboldoble:
             self.testhijos()
 
     
+    def extraecortas(self,C=3):
+        res = self.value.extraecortas(C)
+        if not self.var == 0 and C>0:
+            res0 = self.hijos[0].extraecortas(C-1)
+            res1 = self.hijos[1].extraecortas(C-1)
+            res0.advalue(self.var)
+            res1.advalue(-self.var)
+            res.combina(res0)
+            res.combina(res1)
 
+
+        return res
 
     def inserta(self,t,N,conf= set(), norma = True):
         # if self.checkrep():
