@@ -81,14 +81,12 @@ def main(prob):
 
         prob.inicia0()      
         prob.borraapro(M=3,T=2)
+
         prob.reinicia()
         prob.borraapro(M=3,T=3)
         prob.reinicia()
-        
 
-        prob.borraapro(M=6,T=4)
-        
-        prob.reinicia()
+
         prob.borra()
         if not prob.inicial.contradict:
             prob.findsol()

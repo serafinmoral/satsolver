@@ -116,11 +116,17 @@ class problemaTrianArbol:
             res1 = t0.combinaborra(t1,self.N)
 
             c1 = res1.extraecortas(M)
+            c2 = t2.extraecortas(M)
 
             lista = c1.extraecortas(T).calculalistatotal()
+            lista2 = c2.extraecortas(T).calculalistatotal()
 
             for cl in lista:
                 print(cl)
+                self.inicial.insertar(cl)
+
+            for cl in lista2:
+                print("lista 2",cl)
                 self.inicial.insertar(cl)
 
             print("inserto t2")
