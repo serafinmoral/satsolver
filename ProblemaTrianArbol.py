@@ -23,6 +23,9 @@ class problemaTrianArbol:
          self.cortas = []
          self.posvar = dict()
          self.sol = set()
+         self.borr = []
+         self.maximal = []
+         self.child = []
 
     def reinicia(self):
         for x in self.lpot:
@@ -116,18 +119,18 @@ class problemaTrianArbol:
             res1 = t0.combinaborra(t1,self.N)
 
             c1 = res1.extraecortas(M)
-            c2 = t2.extraecortas(M)
+            # c2 = t2.extraecortas(M)
 
             lista = c1.extraecortas(T).calculalistatotal()
-            lista2 = c2.extraecortas(T).calculalistatotal()
+            # lista2 = c2.extraecortas(T).calculalistatotal()
 
             for cl in lista:
                 print(cl)
                 self.inicial.insertar(cl)
 
-            for cl in lista2:
-                print("lista 2",cl)
-                self.inicial.insertar(cl)
+            # for cl in lista2:
+            #     print("lista 2",cl)
+            #     self.inicial.insertar(cl)
 
             print("inserto t2")
             self.insertacola(t2,i)
@@ -173,16 +176,20 @@ class problemaTrianArbol:
             self.lqn.append(t0)
             print("ntro en combinaborra")
             res1 = t0.combinaborra(t1,self.N)
+            if self.child[i]==-1:
+                print("inserto t2")
+                self.insertacola(t2,i)
+                res1.normaliza(self.N)
 
-            print("inserto t2")
-            self.insertacola(t2,i)
-            res1.normaliza(self.N)
-
-            if res1.value.contradict:
-                print("contradiccion en resultado")
-            pot.void()
-            print("Ahora inserto en la cola")
-            self.insertacola(res1,i)
+                if res1.value.contradict:
+                    print("contradiccion en resultado")
+                pot.void()
+                print("Ahora inserto en la cola")
+                self.insertacola(res1,i)
+            else:
+                print("insertando en hijo")
+                res1.inserta(t2,self.N)
+                self.lqueue[self.child[i]] = res1
             
     def borra2(self):
         print(len(self.orden))

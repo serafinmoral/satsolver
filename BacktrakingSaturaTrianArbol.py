@@ -41,11 +41,17 @@ def leeArchivoGlobal(Archivo):
 def triangula(grafo):
     orden = []
     clusters = []
+    maximal = []
+    child = []
+    borr = []
     grafoc = grafo.copy()
     centra = nx.algorithms.centrality.betweenness_centrality(grafoc)
     ma = 0
     mv = 0
+    child = [-1]*len(grafo.nodes)
+    
     i= 0
+    total = set()
     while grafo.nodes:
         nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] - 0.01*centra[x])
         print(nnodo)
@@ -53,6 +59,25 @@ def triangula(grafo):
         veci = set(grafo[nnodo])
         clus = veci.union({nnodo})
         clusters.append(clus)
+        borr.append(clus-total)
+        total.update(clus)
+        print(clus)
+
+        maxim = True
+        for j in range(i-1,-1,-1):
+            print(j, clusters[j])
+            if clus == (clusters[j]-{orden[j]}):
+                child[j] = i
+                maxim = False
+                print("no maximal")
+                break
+        if maxim:
+            maximal.append(i)
+
+
+        
+
+
         print( i, clus) 
         i += 1
         grafo.remove_node(nnodo)
@@ -62,7 +87,7 @@ def triangula(grafo):
                     grafo.add_edge(x,y)
 
     # print(orden)
-    return (orden,clusters)
+    return (orden,clusters,borr,maximal,child)
     
 def main(prob):
         # info.contradict = False
@@ -73,7 +98,7 @@ def main(prob):
         
         # grafo = info.cgrafo()
         grafo = prob.inicial.cgrafo()
-        (prob.orden,prob.clusters)  = triangula(grafo)
+        (prob.orden,prob.clusters,prob.borr,prob.maximal,prob.child)  = triangula(grafo)
         h = sorted(prob.orden)
         prob.posvar = dict()
         for i in h:
