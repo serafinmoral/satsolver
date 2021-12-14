@@ -26,6 +26,7 @@ class problemaTrianArbol:
          self.borr = []
          self.maximal = []
          self.child = []
+         self.parent = []
 
     def reinicia(self):
         for x in self.lpot:
@@ -59,11 +60,10 @@ class problemaTrianArbol:
             self.anula()
         else:
             vars = set(map(lambda x:abs(x),cl))
-            for pos in range(len(self.clusters)):
+            for pos in self.maximal:
                 if vars <= self.clusters[pos]:
-                    break
-            pot = self.lqueue[pos]
-            pot.insertaclau(cl)
+                    pot = self.lqueue[pos]
+                    pot.insertaclau(cl)
 
 
     def introducecorclau(self,cl):
@@ -140,9 +140,59 @@ class problemaTrianArbol:
 
             if res1.value.contradict:
                 print("contradiccion en resultado")
-            pot.void()
             print("Ahora inserto en la cola")
             self.insertacola(ad,i)
+
+
+    def borraaproi(self,M=4,T=3):
+        print(len(self.orden))
+        for i in reversed(self.maximal):
+            if self.inicial.contradict:
+                break
+            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            pot = self.lqueue[i]
+            
+            if pot.value.contradict:
+                self.inicial.contradict=True #ojo
+                print("contradiccion antes de normalizar ")
+                break
+            print("entro en normaliza")
+            # if pot.checkrep():
+            #     print("proeblma de repeticion antes de normalizar")
+            pot.normaliza(self.N) 
+            if pot.value.contradict:
+                self.inicial.contradict=True #ojo
+                print("contradiccion después de normalizar ")
+                break
+            print("entro en split")
+            # if pot.checkrep():
+            #     print("proeblma de repeticion")
+            print(self.borr[i])
+            for var in self.borr[i]:
+                (t0,t1,t2) = pot.splitborra(var)
+            
+            
+
+                       
+
+                print("ntro en combinaborra")
+                res1 = t0.combinaborra(t1,self.N)
+
+                c1 = res1.extraecortas(M)
+
+                lista = c1.extraecortas(T).calculalistatotal()
+
+                for cl in lista:
+                    print(cl)
+                    self.inicial.insertar(cl)
+
+                res1.inserta(t2)
+                pot = arboldoble()
+                pot.asignaval(c1)
+
+            self.insertacolai(pot,self.maximal.index(i))
+
+                
 
     def borra(self):
         print(len(self.orden))
@@ -176,7 +226,7 @@ class problemaTrianArbol:
             self.lqn.append(t0)
             print("ntro en combinaborra")
             res1 = t0.combinaborra(t1,self.N)
-            if self.child[i]==-1:
+            if self.parent[i]==-1:
                 print("inserto t2")
                 self.insertacola(t2,i)
                 res1.normaliza(self.N)
@@ -189,7 +239,7 @@ class problemaTrianArbol:
             else:
                 print("insertando en hijo")
                 res1.inserta(t2,self.N)
-                self.lqueue[self.child[i]] = res1
+                self.lqueue[self.parent[i]].inserta(res1,self.N)
             
     def borra2(self):
         print(len(self.orden))
@@ -336,6 +386,42 @@ class problemaTrianArbol:
                             print(vars)
                     
                     pot = self.lqueue[j]
+                    # if pot.checkrep():
+                    #     print("problema de repecion antes de insertar")
+                    #     time.sleep(30)
+                    if pot.value.contradict:
+                        print("contradiccion antes")
+
+                    
+                    pot.insertasimple(t.value,self.N,conf) 
+                    # if pot.checkrep():
+                    #     print("problema de repecion despyes de insertar",conf)
+                    #     time.sleep(30)
+
+                    pot.normaliza(self.N) 
+        if not t.var ==0:
+            v = t.var
+            conf.add(v)
+            self.insertacola(t.hijos[0],i,conf)
+            conf.discard(v)
+            conf.add(-v)
+            self.insertacola(t.hijos[1],i,conf)
+            conf.discard(-v)
+
+    def insertacolai(self,t,i,conf=set()):
+        if not t.value.nulo():
+                if t.value.contradict and not conf:
+                    self.problemacontradict()
+                else:
+                    j = i-1
+                    vars = set(map(lambda x: abs(x),conf.union(t.value.listavar)) )
+                    # j = min(map(lambda h: self.posvar[h],vars))
+                    while not vars <= self.clusters[self.maximal[j]]:
+                        j -= 1
+                        if j == -1:
+                            print(vars)
+                    
+                    pot = self.lqueue[self.maximal[j]]
                     # if pot.checkrep():
                     #     print("problema de repecion antes de insertar")
                     #     time.sleep(30)

@@ -42,13 +42,15 @@ def triangula(grafo):
     orden = []
     clusters = []
     maximal = []
-    child = []
     borr = []
     grafoc = grafo.copy()
     centra = nx.algorithms.centrality.betweenness_centrality(grafoc)
     ma = 0
     mv = 0
-    child = [-1]*len(grafo.nodes)
+    n = len(grafo.nodes)
+    child = [-1]*n
+    parent = [-1]*n
+
     
     i= 0
     total = set()
@@ -59,24 +61,20 @@ def triangula(grafo):
         veci = set(grafo[nnodo])
         clus = veci.union({nnodo})
         clusters.append(clus)
-        borr.append(clus-total)
-        total.update(clus)
-        print(clus)
 
         maxim = True
         for j in range(i-1,-1,-1):
             print(j, clusters[j])
-            if clus == (clusters[j]-{orden[j]}):
-                child[j] = i
+            if clus <= (clusters[j]):
+                # child[j] = i
+                # parent[i] = j
                 maxim = False
                 print("no maximal")
                 break
+            
+
         if maxim:
             maximal.append(i)
-
-
-        
-
 
         print( i, clus) 
         i += 1
@@ -86,8 +84,19 @@ def triangula(grafo):
                 if not x==y:
                     grafo.add_edge(x,y)
 
+    total = clusters[n-1]
+    for i  in range(n-2,-1,-1):
+        clus = clusters[i]
+        for j in range(i+1,n,1):
+            if clus.intersection(total) == clus.intersection(clusters[j]):
+                parent[i] = j
+                child[j] = i
+                break
+        total.update(clus)
+            
+
     # print(orden)
-    return (orden,clusters,borr,maximal,child)
+    return (orden,clusters,borr,maximal,child,parent)
     
 def main(prob):
         # info.contradict = False
@@ -98,7 +107,7 @@ def main(prob):
         
         # grafo = info.cgrafo()
         grafo = prob.inicial.cgrafo()
-        (prob.orden,prob.clusters,prob.borr,prob.maximal,prob.child)  = triangula(grafo)
+        (prob.orden,prob.clusters,prob.borr,prob.maximal,prob.child,prob.parent)  = triangula(grafo)
         h = sorted(prob.orden)
         prob.posvar = dict()
         for i in h:
@@ -108,7 +117,8 @@ def main(prob):
         prob.borraapro(M=3,T=2)
 
         prob.reinicia()
-        prob.borraapro(M=3,T=3)
+        prob.borraapro(M=4,T=3)
+
         prob.reinicia()
 
 
