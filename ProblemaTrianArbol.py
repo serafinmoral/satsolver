@@ -239,7 +239,10 @@ class problemaTrianArbol:
             else:
                 print("insertando en hijo")
                 res1.inserta(t2,self.N)
-                self.lqueue[self.parent[i]].inserta(res1,self.N)
+                if  self.lqueue[self.parent[i]].nulo():
+                   self.lqueue[self.parent[i]] = res1
+                else: 
+                    self.lqueue[self.parent[i]].inserta(res1,self.N)
             
     def borra2(self):
         print(len(self.orden))

@@ -169,6 +169,12 @@ class arboldoble:
     def lon(self):
         return (len(self.value.unit) + len(self.value.listaclaus))
 
+    def nulo(self):
+        if self.var == 0 and self.value.nulo():
+            return True
+        else:
+            return False
+
     def copia(self):
         res = arboldoble()
 
