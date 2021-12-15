@@ -43,18 +43,20 @@ def triangula(grafo):
     clusters = []
     maximal = []
     borr = []
+    child = []
     grafoc = grafo.copy()
     centra = nx.algorithms.centrality.betweenness_centrality(grafoc)
     ma = 0
     mv = 0
     n = len(grafo.nodes)
-    child = [-1]*n
     parent = [-1]*n
-
+    for i in range(n):
+        child.append(set())
     
     i= 0
     total = set()
     while grafo.nodes:
+
         nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] - 0.01*centra[x])
         print(nnodo)
         orden.append(nnodo)
@@ -84,13 +86,13 @@ def triangula(grafo):
                 if not x==y:
                     grafo.add_edge(x,y)
 
-    total = clusters[n-1]
+    total = clusters[n-1].copy()
     for i  in range(n-2,-1,-1):
         clus = clusters[i]
         for j in range(i+1,n,1):
             if clus.intersection(total) == clus.intersection(clusters[j]):
                 parent[i] = j
-                child[j] = i
+                child[j].add(i)
                 break
         total.update(clus)
             
@@ -113,11 +115,15 @@ def main(prob):
         for i in h:
             prob.posvar[i] = prob.orden.index(i)
 
-        prob.inicia0()      
-        prob.borraapro(M=3,T=2)
-
-        prob.reinicia()
+        prob.inicia0()                          
         prob.borraapro(M=4,T=3)
+        prob.reinicia()
+        prob.borraaproi(M=4,T=3)
+
+        
+        
+
+
 
         prob.reinicia()
 

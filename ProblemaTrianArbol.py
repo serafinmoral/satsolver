@@ -36,6 +36,9 @@ class problemaTrianArbol:
 
         for v in self.inicial.unit:
                 self.insertacolaclau2({v})
+        # for x in self.inicial.two:
+        #     for y in self.inicial.two[x]:
+        #         self.insertacolaclau2({x,y})
         for cl in self.inicial.listaclaus:
                 self.insertacolaclau2(cl)
         for pot in self.lqueue:
@@ -50,6 +53,9 @@ class problemaTrianArbol:
     
             for v in self.inicial.unit:
                 self.insertacolaclau2({v})
+            # for x in self.inicial.two:
+            #     for y in self.inicial.two[x]:
+            #         self.insertacolaclau2({x,y})
             for cl in self.inicial.listaclaus:
                 self.insertacolaclau2(cl)
             for pot in self.lqueue:
@@ -128,6 +134,7 @@ class problemaTrianArbol:
                 print(cl)
                 self.inicial.insertar(cl)
 
+
             # for cl in lista2:
             #     print("lista 2",cl)
             #     self.inicial.insertar(cl)
@@ -146,7 +153,7 @@ class problemaTrianArbol:
 
     def borraaproi(self,M=4,T=3):
         print(len(self.orden))
-        for i in reversed(self.maximal):
+        for i in reversed(range(len(self.orden))):
             if self.inicial.contradict:
                 break
             print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
@@ -167,30 +174,36 @@ class problemaTrianArbol:
             print("entro en split")
             # if pot.checkrep():
             #     print("proeblma de repeticion")
-            print(self.borr[i])
-            for var in self.borr[i]:
-                (t0,t1,t2) = pot.splitborra(var)
+            
+            for j in self.child[i]:
+                dif = self.clusters[i]-self.clusters[j]
+                pot = self.lqueue[i]
+
+                for var in dif:
+                    (t0,t1,t2) = pot.splitborra(var)
             
             
 
                        
 
-                print("ntro en combinaborra")
-                res1 = t0.combinaborra(t1,self.N)
+                    print("ntro en combinaborra")
+                    res1 = t0.combinaborra(t1,self.N)
 
-                c1 = res1.extraecortas(M)
+                    c1 = res1.extraecortas(M)
 
-                lista = c1.extraecortas(T).calculalistatotal()
+                    lista = c1.extraecortas(T).calculalistatotal()
 
-                for cl in lista:
-                    print(cl)
-                    self.inicial.insertar(cl)
+                    for cl in lista:
+                        print(cl)
+                        self.inicial.insertar(cl)
 
-                res1.inserta(t2)
-                pot = arboldoble()
-                pot.asignaval(c1)
+                    res1.inserta(t2,self.N)
+                    pot = arboldoble()
+                    pot.asignaval(c1)
 
-            self.insertacolai(pot,self.maximal.index(i))
+                self.lqueue[j].inserta(pot,self.N)
+
+        
 
                 
 
