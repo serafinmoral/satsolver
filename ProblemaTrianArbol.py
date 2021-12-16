@@ -231,27 +231,21 @@ class problemaTrianArbol:
             print("entro en split")
             # if pot.checkrep():
             #     print("proeblma de repeticion")
-            (t0,t1,t2) = pot.splitborra(var)
             
-            
+            res1 = pot.marginaliza(var,self.N)
+            res1.normaliza(self.N)
 
-            self.lqp.append(t1)
-            self.lqn.append(t0)
-            print("ntro en combinaborra")
-            res1 = t0.combinaborra(t1,self.N)
             if self.parent[i]==-1:
-                print("inserto t2")
-                self.insertacola(t2,i)
-                res1.normaliza(self.N)
+                
 
                 if res1.value.contradict:
                     print("contradiccion en resultado")
-                pot.void()
                 print("Ahora inserto en la cola")
+                
+
                 self.insertacola(res1,i)
             else:
                 print("insertando en hijo")
-                res1.inserta(t2,self.N)
                 if  self.lqueue[self.parent[i]].nulo():
                    self.lqueue[self.parent[i]] = res1
                 else: 
@@ -352,29 +346,28 @@ class problemaTrianArbol:
     def findsol(self):
         sol = set()
         for i in reversed(range(len(self.orden))):
-            pos = self.lqp[i].copia()
-            neg = self.lqn[i].copia()
-            neg.simplificaunits(sol)
-            pos.simplificaunits(sol)
+            pot = self.lqueue[i].copia()
             
-            pos.normaliza(N=1000)
-            neg.normaliza(N=1000)
+            pot.simplificaunits(sol)
+            pot.normaliza(N=1000)
 
-            poss = pos.tosimple()
-            negg = neg.tosimple()
+            pots = pot.tosimple()
+            
             var = self.orden[i]
-            print("i= ",i)
-            if not poss.contradict:
-                sol.add(var)
-                print(var)
-            elif not negg.contradict:
+            
+            if pot.contradict:
+                print("contradiccion buscando solucion" , sol )
+                self.lqueue[i].imprime()
+
+            pots.simplificaunit(var)
+            if pots.contradict:
                 sol.add(-var)
                 print(-var)
             else:
-                print("contradiccion buscando solucion" , sol )
-                self.lqp[i].imprime()
-                self.lqn[i].imprime()
-                break
+                sol.add(var)
+                print(var)
+            
+            
         self.sol = sol
         return sol
     

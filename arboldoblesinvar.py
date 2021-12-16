@@ -392,7 +392,7 @@ class arboldoble:
         if self.var == 0:
             if len(self.value.listaclaus) > N:
                 x = self.value.calculalistatotal()
-                var = calculavar2(x)
+                var = calculavar(x)
                 (l0,l1,unit) = split(x,var)
 
                 ug = simpleClausulas()
@@ -508,7 +508,7 @@ class arboldoble:
 
         return(t0,t1,t2)
 
-    def combinaborra(self,t,N,conf=set()):
+    def combinaborra(self,t,N=3000,conf=set()):
       
         if self.var == 0:
             if not self.value.nulo():
@@ -541,6 +541,47 @@ class arboldoble:
             
 
             return res
+
+    def marginaliza(self,v,N):
+        res = arboldoble()
+        if v in self.value.unit:
+            res =self.copia()
+            res.value.unit.discard(v)
+            return res
+        if -v in self.value.unit:
+            res =self.copia()
+            res.value.unit.discard(-v)
+            return res
+
+
+        if self.var==0:
+            (h0,h1,h2) = self.value.splitborra(v)
+            t = h0.combinaborra(h1)
+            t.combina(h2)
+            res.asignaval(t)
+            return res
+
+        if self.var == v:
+            hij = self.hijos[0].combinaborra(self.hijos[1],N)
+            if hij.var == 0: 
+                hij.value.unit.update(self.value.unit)
+                res.asignaval(hij.value)
+                return res
+            else:
+                hij.value.unit.update(self.value.unit)
+
+                res.value = hij.value
+                res.var = hij.var
+                res.hijos = hij.hijos
+                return res
+        else:
+            res.var = self.var
+            res.hijos[0] = self.hijos[0].marginaliza(v,N)
+            res.hijos[1] = self.hijos[1].marginaliza(v,N)
+            res.value = self.value.copia()
+            return res
+    
+        
 
     def combinaborrasimple(self,simple,N,conf):
         v = self.var
