@@ -1,11 +1,14 @@
-aes_32_1_keyfind_1.cnf 60
+aes_32_2_keyfind_1.cnf 60
+
+aes_32_1_keyfind_1.cnf 50
+
+
 
 SAT_V144C560.cnf 60 1 3 500000000000000
 
 
 aes_32_1_keyfind_1.cnf 60
 aes_32_1_keyfind_1.cnf 60
-aes_32_2_keyfind_1.cnf 60
 
 
 
