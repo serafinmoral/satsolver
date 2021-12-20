@@ -371,6 +371,55 @@ class problemaTrianArbol:
         self.sol = sol
         return sol
     
+    def randomsol(self,T=40000):
+        sol = []
+        i = len(self.orden)-1
+        k = 0
+        while i >0 and k<T:
+            k+=1
+            # print(i,k,sol)
+            pot = self.lqueue[i].copia()
+            
+            pot.simplificaunits(sol)
+            pot.normaliza(N=1000)
+
+            pots = pot.tosimple()
+            
+            var = self.orden[i]
+            
+            if pots.contradict:
+                pot = self.lqueue[i].copia()
+                cl = pot.extraeclaus(sol,var)
+                # print(cl)
+                vcl = map(abs,cl)
+               
+                j = min(map(lambda h: self.posvar[h], vcl))
+                self.lqueue[j].insertaclau(cl)
+                t = j-i
+
+                i = j
+
+                del sol[-t:]
+
+                if len(cl)<=3:
+                     print("buena", cl)
+                     self.inicial.insertar(cl)
+            else:
+
+
+                i=i-1
+                pots.simplificaunit(var)
+                if pots.contradict:
+                    sol.append(-var)
+                else:
+                    sol.append(var)
+            
+            
+        if i<0:
+            self.sol = sol
+        print(sol)
+        return sol
+
     def compruebaSol(self):
         aux = 0
         for clau in self.inicial.listaclausOriginal:

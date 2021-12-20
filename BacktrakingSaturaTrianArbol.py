@@ -128,6 +128,8 @@ def main(prob):
 
 
         prob.reinicia()
+        prob.randomsol()
+        prob.reinicia()
 
 
         prob.borra()

@@ -308,7 +308,181 @@ class arboldoble:
 
 
 
+    def extraeclaus(self,s,var):
+        # print("simplifica units " , s)
+
+        lista1 = []
+        lista2 = []
+        neg = map(lambda x: -x, s)
+        for x in self.value.unit:
+            if not x in s:
+                if x == var:
+                    lista1.append(set())
+                elif x==-var:
+                    lista2.append(set())
+                else:
+                    result = {x}
+                    return result
+        if self.var == 0:
+            for x in self.value.two:
+                if not x in s:
+                    for y in self.value.two[x]:
+                        if not y in s:
+                            if var in {x,y}:
+                                lista1.append({x,y} - {var})
+                            elif -var in {x,y}:
+                                lista2.append({x,y} - {-var})
+                            else:
+                                result = {x,y}
+                                return result
+            for cl in self.value.listaclaus:
+                if not cl.intersection(s):
+                    if var in cl:
+                        lista1.append(cl-{var})
+                    elif -var in cl:
+                        lista2.append(cl-{-var})
+                    else:
+                        return cl
+            lista = []
+            for cl1 in lista1:
+                neg1 = map(lambda x: -x, cl1)
+                for cl2 in lista2:
+                    if not cl2.intersection(neg1):
+                        cl = cl1.union(cl2)
+                        lista.append(cl)
+                return min(lista,key = len)
+            
+
+        elif self.var == var:
+            lista1 = self.hijos[0].extraeic(s)
+            lista2 = self.hijos[0].extraeic(s)
+            lista = []
+            for cl1 in lista1:
+                neg1 = map(lambda x: -x, cl1)
+                for cl2 in lista2:
+                    if not cl2.intersection(neg1):
+                        cl = cl1.union(cl2)
+                        lista.append(cl)
+                return min(lista,key = len)
+
+        else:
+            lista = []
+            if not self.var in s: 
+                (lista11,lista12) = self.hijos[0].extraeicv(s,var)
+                for cl1 in lista11:
+                    neg1 = map(lambda x: -x, cl1)
+                    for cl2 in lista12:
+                        if not cl2.intersection(neg1):
+                            cl = cl1.union(cl2)
+                            cl.add(self.var)
+                            lista.append(cl)
+            if not -self.var in s:
+                (lista21,lista22) = self.hijos[1].extraeicv(s,var)
+            
+                for cl1 in lista21:
+                    neg1 = map(lambda x: -x, cl1)
+                    for cl2 in lista22:
+                        if not cl2.intersection(neg1):
+                            cl = cl1.union(cl2)
+                            cl.add(-self.var)
+                            lista.append(cl)
+            return min(lista,key = len)
+
+               
+            
+
+
+                            
+
+        
+
    
+
+    def extraeic(self,s):
+        lista = []
+        for x in self.value.unit:
+            if not x in s:
+                lista.append({x})
+        for x in self.value.two:
+            if not x in s:
+                for y in self.value.two[x]:
+                    if not y in s:
+                        lista.append({x,y})
+        for cl in self.value.listaclaus:
+            if not cl.intersection(s):
+                lista.append(cl)
+        if not self.var == 0:
+            lista1 = self.hijos[0].extraic(s)
+            lista2 = self.hijos[1].extraic(s)
+            for cl in lista1:
+                cl.add(self.var)
+                lista.append(cl)
+            for cl in lista2:
+                cl.add(-self.var)
+                lista.append(cl)
+        return lista
+            
+
+
+    def extraeicv(self,s,var):
+        lista1 = []
+        lista2 = []
+        for x in self.value.unit:
+            if not x in s:
+                if x == var:
+                    lista1.append(set())
+                elif x == -var:
+                    lista2.append(set())
+                else:
+                    lista1.append({x})
+                    lista2.append({x})
+        for x in self.value.two:
+            if not x in s:
+                for y in self.value.two[x]:
+                    if not y in s:
+                        if var in {x,y}:
+                            lista1.append({x,y}-{var})
+                        elif -var in {x,y}:
+                            lista2.append({x,y}-{-var})
+                        else:
+                            lista1.append({x,y})
+                            lista2.append({x,y})
+
+        for cl in self.value.listaclaus:
+            if not cl.intersection(s):
+                if var in cl:
+                    lista1.append(cl-{var})
+                elif -var in cl:
+                    lista2.append(cl-{-var})
+                else:
+                    lista1.append(cl)
+                    lista2.append(cl)
+
+
+        if not self.var == 0:
+            if self.var==var:
+                lista1.extend(self.hijos[0].extraic(s))
+                lista2.extend(self.hijos[1].extraic(s))
+            else:
+                if not self.var in s:
+                    (lista11,lista12) = self.hijos[0].extraeicv(s,var)
+                    for cl in lista11:
+                        cl.add(self.var)
+                        lista1.append(cl)
+                    for cl in lista12:
+                        cl.add(self.var)
+                        lista2.append(cl)
+                if not -self.var in s:
+                    (lista21,lista22) = self.hijos[1].extraeicv(s,var)
+
+                    for cl in lista21:
+                        cl.add(-self.var)
+                        lista1.append(cl)
+                    for cl in lista22:
+                        cl.add(-self.var)
+                        lista2.append(cl)      
+        return(lista1,lista2)
+            
 
     def tosimple(self):
         res = simpleClausulas()
