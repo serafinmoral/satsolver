@@ -619,7 +619,7 @@ class simpleClausulas:
                 self.insertar({v},check)
             for x in simple.two:
                 for y in simple.two[x]:
-                    self.insertar({x,y},check)
+                    self.insertar({x,y},check=False)
         
             for cl in simple.listaclaus:
                 self.insertar(cl,check)
@@ -707,7 +707,8 @@ class simpleClausulas:
                     res.insertar(r)
         # print("Salgo ") 
 
-
+        # if len(res.listaclaus)<15:
+        #     res.simplificalargas(M=5)
         return res
 
 
@@ -720,8 +721,12 @@ class simpleClausulas:
             r1 = self.copiac(conf)
             return r1.combinaborra(conj)
         
+    
 
-        
+    def simplificalargas(self,M=7):
+        for cl in self.listaclaus:
+            if len(cl)>= M:
+                self.simplificaclaus(cl)  
 
 
     def sel(self,v):
@@ -884,6 +889,45 @@ class simpleClausulas:
                 self.eliminars(cl)
             for cl in ins:
                 self.insertar(cl)
+
+    def simplificaclaus(self,cl):
+        res = simpleClausulas()
+        n = set(map(lambda x:-x, cl))
+
+
+        for x in self.two:
+            if x in cl:
+                    for y in self.two[x]:
+                        if -y not in cl:
+                            res.insertar({y})
+                    
+                
+
+            elif not -x in cl:
+                    for y in self.two[x]:
+                        if y in cl:
+                            res.insertar({x})
+                        elif not -y in cl:
+                            res.insertar({x})
+
+        if res.contradict:
+            self.eliminar(cl)
+            # print("eliminada cl al principio",cl)
+            return
+
+        for h in self.listaclaus:
+            if not h == cl and not h.intersection(n):
+                h2 = h  - cl
+                res.insertar(h2)
+                if res.contradict:
+                    self.eliminar(cl)
+                    # print("eliminada cl después",cl)
+                    return
+
+
+
+                
+
 
     
 

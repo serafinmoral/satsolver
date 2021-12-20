@@ -53,13 +53,13 @@ def split(lista,var):
                 lista2.insertar({})
         elif var in cl:
             cl.discard(var)
-            lista1.insertar(cl)
+            lista1.insertar(cl,check=False)
         elif -var in cl:
             cl.discard(-var)
-            lista2.insertar(cl)
+            lista2.insertar(cl,check=False)
         else:
-            lista2.insertar(cl.copy())
-            lista1.insertar(cl)
+            lista2.insertar(cl.copy(),check=False)
+            lista1.insertar(cl,check=False)
     return (lista1,lista2,unit)
 
 
@@ -776,7 +776,6 @@ class arboldoble:
                     
                 #     time.sleep(40)
 
-            self.testhijos()
 
     
     def extraecortas(self,C=3):
@@ -842,7 +841,6 @@ class arboldoble:
             #     time.sleep(30)
             conf.discard(-v)
 
-            self.testhijos()
             
             # if self.checkrep():
             #     print("repeticion despues de segundo inserta simple ", conf)

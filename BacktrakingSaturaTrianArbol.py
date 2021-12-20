@@ -119,8 +119,10 @@ def main(prob):
         prob.borraapro(M=4,T=3)
         prob.reinicia()
         prob.borraaproi(M=4,T=3)
+        
 
         
+
         
 
 

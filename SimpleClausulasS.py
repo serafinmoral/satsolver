@@ -298,7 +298,7 @@ class simpleClausulas:
    
 
 
-    def combina(self,simple):
+    def combina(self,simple,check=True):
         if self.contradict:
             return
         neg = set(map(lambda x: -x, simple.unit))
@@ -435,7 +435,30 @@ class simpleClausulas:
                 x = cl - conf
                 res.insertar(x)
         return res
+
+    def extraecortas(self,C):
+        res = simpleClausulas()
+        if C>0:
+            for x in self.unit:
+                res.insertars({x})
+        if C>1:
+            for cl in self.listaclaus:
+                if len(cl)<= C:
+                    res.insertarms(cl)
+
+        return res
     
+    def insertarms(self,x):
+        for v in x:
+            self.listavar.add(abs(v))
+        if len(x) ==1:
+            v = x.pop()
+            self.unit.add(v)
+        
+        else:
+            self.listaclaus.append(x)
+        
+
     def simplificaunit(self,v):
         if -v in self.unit:
             self.insertar(set())
