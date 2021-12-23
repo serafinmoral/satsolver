@@ -18,9 +18,9 @@ def calculavar(lista):
             vars = map(abs,cl)
             for v in vars:
                 if v in cuenta:
-                    cuenta[v]  += 1/len(cl)
+                    cuenta[v]  += 1/(len(cl))
                 else:
-                    cuenta[v] = 1/len(cl)
+                    cuenta[v] = 1/(len(cl))
     return max(cuenta, key=(lambda key: cuenta[key]))
 
 
@@ -107,7 +107,6 @@ class arboldoble:
         self.value = simpleClausulas()
         self.hijos = [None,None]
         self.contradict = False
-        self.unit = set()
 
     def anula(self):
         self.var = 0
@@ -355,7 +354,7 @@ class arboldoble:
 
         elif self.var == var:
             lista1 = self.hijos[0].extraeic(s)
-            lista2 = self.hijos[0].extraeic(s)
+            lista2 = self.hijos[1].extraeic(s)
             lista = []
             for cl1 in lista1:
                 neg1 = map(lambda x: -x, cl1)
@@ -412,8 +411,8 @@ class arboldoble:
             if not cl.intersection(s):
                 lista.append(cl)
         if not self.var == 0:
-            lista1 = self.hijos[0].extraic(s)
-            lista2 = self.hijos[1].extraic(s)
+            lista1 = self.hijos[0].extraeic(s)
+            lista2 = self.hijos[1].extraeic(s)
             for cl in lista1:
                 cl.add(self.var)
                 lista.append(cl)
@@ -461,8 +460,8 @@ class arboldoble:
 
         if not self.var == 0:
             if self.var==var:
-                lista1.extend(self.hijos[0].extraic(s))
-                lista2.extend(self.hijos[1].extraic(s))
+                lista1.extend(self.hijos[0].extraeic(s))
+                lista2.extend(self.hijos[1].extraeic(s))
             else:
                 if not self.var in s:
                     (lista11,lista12) = self.hijos[0].extraeicv(s,var)

@@ -42,7 +42,23 @@ class problemaTrianArbol:
         for cl in self.inicial.listaclaus:
                 self.insertacolaclau2(cl)
         for pot in self.lqueue:
-                pot.normaliza(self.N)        
+                pot.normaliza(self.N)      
+
+    def reinicia2(self):
+        for x in self.lpot:
+                x = arboldoble()
+        for y in self.lqueue:
+                y = arboldoble()
+
+        for v in self.inicial.unit:
+                self.insertacolaclau3({v})
+        # for x in self.inicial.two:
+        #     for y in self.inicial.two[x]:
+        #         self.insertacolaclau2({x,y})
+        for cl in self.inicial.listaclaus:
+                self.insertacolaclau3(cl)
+        # for pot in self.lqueue:
+        #         pot.normaliza(self.N)         
 
     def inicia0(self):
             for i in self.orden:
@@ -70,6 +86,16 @@ class problemaTrianArbol:
                 if vars <= self.clusters[pos]:
                     pot = self.lqueue[pos]
                     pot.insertaclau(cl)
+
+    def insertacolaclau3(self,cl):
+        if not cl:
+            self.anula()
+        else:
+            vcl = set(map(lambda x:abs(x),cl))
+            pos = min(map(lambda h: self.posvar[h], vcl))
+            
+            pot = self.lqueue[pos]
+            pot.insertaclau(cl)
 
 
     def introducecorclau(self,cl):

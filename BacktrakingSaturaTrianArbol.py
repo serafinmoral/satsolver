@@ -126,9 +126,7 @@ def main(prob):
         
 
 
-
-        prob.reinicia()
-        prob.randomsol()
+        # prob.randomsol()
         prob.reinicia()
 
 
