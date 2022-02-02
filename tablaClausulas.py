@@ -8,41 +8,8 @@ Created on 31 Enero 2022
 from xmlrpc.client import boolean
 import networkx as nx
 import numpy as np
+from SimpleClausulas import * 
 
-
-def merge(l1,l2):
-        n1 = len(l1)
-        n2 = len(l2)
-        res = []
-        i, j = 0, 0
-    
-        while i < n1 and j < n2:
-            if l1[i] == l2[j]:
-                res.append(l1[i])
-                i += 1
-                j += 1
-
-    
-            elif  l1[i] < l2[j]:
-                res.append(l1[i])
-                i += 1
-
-            else:
-                res.append(l2[j])
-                j += 1
-    
-        res = res + l1[i:] + l2[j:]
-        
-        return res
-
-def iguales(l1,l2):
-    if not len(l1) == len(l2):
-        return False
-    else:
-        for i in range(len(l1)):
-            if not l1[i] == l2[i]:
-                return False
-        return True
 
 class nodoTabla:
 
@@ -208,6 +175,127 @@ t4.introduceclau({3})
 
 print(t4.calculaunit())
 print(t4.tabla)
+
+def createclusters (lista):
+    listasets = []
+    for cl in lista:
+        va = set(map(abs,cl))
+        encontrado = False
+        for x in listasets:
+            if va <= x:
+                encontrado = True
+                break
+            
+        if not encontrado:
+            listasets.append(va)
+
+    i = 0
+    j = 1
+    while (i<len(listasets)-1):
+        if listasets[i] <= listasets[j]:
+            del listasets[i]
+            j = i+1
+        elif listasets[j] <= listasets[i]:
+            del listasets[j]
+            if j >= len(listasets):
+                i += 1
+                j = i+1
+        else:
+            j += 1
+            if j >= len(listasets):
+                i += 1
+                j = i+1
+    listaclaus = []
+    for i in range(len(listasets)):
+        listaclaus.append([])
+
+
+    for cl in lista:
+        va = set(map(abs,cl))
+        for i in range(len(listasets)):
+            if va <= listasets[i]:
+                listaclaus[i].append(cl)
+                break
+
+    return(listasets,listaclaus)
+
+
+
+class PotencialTabla:
+        def __init__(self):
+            self.unit = set()
+            self.listap = []
+            self.contradict = False
+
+        def computefromsimple(self,simple):
+            self.unit = simple.unit.copy()
+            (sets,clusters) = createclusters(simple.listaclaus)
+            for i in range(len(sets)):
+                x = nodoTabla(list(sets[i]))
+                x.introducelista(clusters[i])
+                self.listap.append(x)
+
+        def inserta(self,p):
+            self.listap.append(p)
+        
+        def insertaunit(self,x):
+            if -x in self.unit:
+                self.contradict = True
+            else:
+                self.unit.add(x)
+            
+            xp = abs(x)
+            for p in self.listap:
+                if xp in p.listavars:
+                    p.reduce({xp}, inplace = True)
+
+        def marginaliza(self,var, inplace = False):
+
+            if not inplace:
+                res = PotencialTabla()
+
+                if self.contradict:
+                    res.contradict = True
+                    return res
+                for x in self.unit:
+                    if x == var:
+                        res.unit = self.unit-{var}
+                        res.listap = self.listap.copy()
+                        return res
+                    elif x== -var:
+                        res.unit = self.unit-{-var}
+                        res.listap = self.listap.copy()
+                        return res
+                    else:
+                        res.unit.add(x)
+                si = []
+                for p in self.listap:
+                    if var in p.listavar:
+                            si.append(p)
+                    else:
+                            res.listap.append(p)
+                if si:
+                        p = si[0]
+                        del si[0]
+                        for q in si:
+                            p.combina(q,inplace = True)
+                        p.borra([var], inplace=True)
+                        res.listap.append(p)
+
+                return res
+
+        
+
+
+
+
+            
+
+
+
+            
+
+    
 
 
 

@@ -7,6 +7,7 @@ Created on Wed Mar  6 13:30:14 2019
 """ 
 import networkx as nx    
 from SimpleClausulas import *
+from ProblemaTrianFactor import *
 from time import time
 
 def leeArchivoGlobal(Archivo):
@@ -57,7 +58,7 @@ def triangula(grafo):
     total = set()
     while grafo.nodes:
 
-        nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] - 0.01*centra[x])
+        nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] + 2*centra[x])
         print(nnodo)
         orden.append(nnodo)
         veci = set(grafo[nnodo])
@@ -116,9 +117,9 @@ def main(prob):
             prob.posvar[i] = prob.orden.index(i)
 
         prob.inicia0()                          
-        prob.borraapro(M=4,T=3)
-        prob.reinicia()
-        prob.borraaproi(M=4,T=3)
+        # prob.borraapro(M=4,T=3)
+        # prob.reinicia()
+        # prob.borraaproi(M=4,T=3)
         
 
         
@@ -126,13 +127,13 @@ def main(prob):
         
 
 
-        # prob.randomsol()
-        prob.reinicia()
+        # # prob.randomsol()
+        # prob.reinicia()
 
 
         prob.borra()
-        if not prob.inicial.contradict:
-            prob.findsol()
+        # if not prob.inicial.contradict:
+        #     prob.findsol()
 
         print("salgo de inicio")
        
@@ -153,7 +154,7 @@ while reader:
     t1 = time()
     info = leeArchivoGlobal(nombre)
     t2= time()
-    prob = problemaTrianArbol(info,N1)
+    prob = problemaTrianFactor(info,N1)
     t4 = time()
 
     main(prob)
