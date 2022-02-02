@@ -17,7 +17,7 @@ class simpleClausulas:
          self.unit = set()
          self.listaclausOriginal = []
          
-    def insertar(self,x):
+    def insertar(self,x, test=True):
         if self.contradict:
             return []
         if not x:
@@ -51,29 +51,30 @@ class simpleClausulas:
                     self.insertar(x)
                     return
                 
-            for cl in self.listaclaus:
-                if len(x) <= len(cl):
-                    claudif = x-cl
-                    if not claudif:
-                        borr.append(cl)
-                    elif len(claudif) == 1:
-                        var = claudif.pop()
-                        if -var in cl:
-                            cl.discard(-var)
+            if test:
+                for cl in self.listaclaus:
+                    if len(x) <= len(cl):
+                        claudif = x-cl
+                        if not claudif:
                             borr.append(cl)
-                            y.append(cl)
-                if len(cl) <= len(x):
-                    claudif = cl-x
-                    if not claudif:
-                        return []
-                    elif len(claudif) == 1:
-                        var = claudif.pop()
-                        if -var in x:
-                            x.discard(-var)
-                            for cl in borr:
-                                self.eliminar(cl)
-                            self.insertar(x)
+                        elif len(claudif) == 1:
+                            var = claudif.pop()
+                            if -var in cl:
+                                cl.discard(-var)
+                                borr.append(cl)
+                                y.append(cl)
+                    if len(cl) <= len(x):
+                        claudif = cl-x
+                        if not claudif:
                             return []
+                        elif len(claudif) == 1:
+                            var = claudif.pop()
+                            if -var in x:
+                                x.discard(-var)
+                                for cl in borr:
+                                    self.eliminar(cl)
+                                self.insertar(x)
+                                return []
             nvar = set(map(abs,x))
             self.listavar.update(nvar)
             self.listaclaus.append(x)

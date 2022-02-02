@@ -6,7 +6,7 @@ Created on Wed Mar  6 13:30:14 2019
 @author: Nizziho
 """ 
 import networkx as nx    
-from ProblemaTrianArbol import *
+from SimpleClausulas import *
 from time import time
 
 def leeArchivoGlobal(Archivo):
@@ -57,7 +57,7 @@ def triangula(grafo):
     total = set()
     while grafo.nodes:
 
-        nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] + 2*centra[x])
+        nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] - 0.01*centra[x])
         print(nnodo)
         orden.append(nnodo)
         veci = set(grafo[nnodo])

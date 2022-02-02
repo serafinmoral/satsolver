@@ -9,6 +9,7 @@ import time
 
 from arboldoblesinvar import *
 from SimpleClausulas import *
+from tablaClausulas import *
 
 class problemaTrianArbol:
     def __init__(self,info,N=100):
