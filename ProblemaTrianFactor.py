@@ -9,7 +9,6 @@ import time
 
 from SimpleClausulas import *
 from tablaClausulas import *
-
 class problemaTrianFactor:
     def __init__(self,info,N=100):
          self.N = N
@@ -74,14 +73,15 @@ class problemaTrianFactor:
                 self.insertaunit(x)
 
             for p in self.pinicial.listap:
+                
                 self.insertacolapot(p)
     
             
            
     def insertaunit(self,x):
         xp = abs(x)
-        for pos in self.clusters:
-            if xp in self.clusters:
+        for pos in range(len(self.clusters)):
+            if xp in self.clusters[pos]:
                 pot = self.lqueue[pos]  
                 pot.insertaunit(x)
 
@@ -244,6 +244,9 @@ class problemaTrianFactor:
             var = self.orden[i]
             print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
+            if i==213:
+                print("posible problema")
+            # pot.imprime()
             
             if pot.contradict:
                 self.inicial.contradict=True #ojo
@@ -253,7 +256,7 @@ class problemaTrianFactor:
             
             potn = pot.marginaliza(var)
             
-
+            # potn.imprime()
             if self.parent[i]==-1:
                 
 
@@ -372,26 +375,38 @@ class problemaTrianFactor:
     def findsol(self):
         sol = set()
         for i in reversed(range(len(self.orden))):
-            pot = self.lqueue[i].copia()
+            pot = self.lqueue[i]
             
-            pot.simplificaunits(sol)
-            pot.normaliza(N=1000)
 
-            pots = pot.tosimple()
+            r = pot.reduceycombina(sol)
+            
             
             var = self.orden[i]
+            print(var)
             
-            if pot.contradict:
+            if r.contradict:
                 print("contradiccion buscando solucion" , sol )
-                self.lqueue[i].imprime()
+                break
 
-            pots.simplificaunit(var)
-            if pots.contradict:
+            if var in r.unit:
+                sol.add(var)
+                print(var)
+            elif -var in r.unit:
+                sol.add(-var)
+                print(-var)
+            elif not r.listap:
+                sol.add(var)
+                print(var)
+            elif not r.listap[0].tabla[0] and  not r.listap[0].tabla[1]:
+                print("contradiccion buscando solucion" , sol )
+                break
+            elif  r.listap[0].tabla[0]:
                 sol.add(-var)
                 print(-var)
             else:
-                sol.add(var)
-                print(var)
+               sol.add(var)
+               print(var) 
+
             
             
         self.sol = sol

@@ -36,6 +36,7 @@ class nodoTabla:
                 result.tabla = result.tabla * op
                 return result
 
+        op = op.copia()
         extra = set(op.listavar) - set(result.listavar)
         if extra:
                 slice_ = [slice(None)] * len(result.listavar)
@@ -56,23 +57,21 @@ class nodoTabla:
                 # No need to modify cardinality as we don't need it.
 
             # rearranging the axes of phi1 to match phi
-                for axis in range(op.tabla.ndim):
-                    exchange_index = result.listavar.index(op.listavar[axis])
-                    op.listavar[axis], op.listavar[exchange_index] = (
-                        op.listavar[exchange_index],
-                        op.listavar[axis],
-                    )
-                    op.tabla = op.tabla.swapaxes(axis, exchange_index)
+        for axis in range(result.tabla.ndim):
+            exchange_index = op.listavar.index(result.listavar[axis])
+            op.listavar[axis], op.listavar[exchange_index] = (
+                op.listavar[exchange_index],
+                op.listavar[axis],
+            )
+            op.tabla = op.tabla.swapaxes(axis, exchange_index)
 
         result.tabla = result.tabla * op.tabla    
         if not inplace:
             return result
 
-    def reduce(self, values, inplace=False):
-        for var in values:
-            if abs(var) not in self.listavar:
-                raise ValueError(f"La variable: {abs(var)} no está en el potencial")
-
+    def reduce(self, val, inplace=False):
+        
+        values = filter(lambda x: abs(x) in  self.listavar, val)
         phi = self if inplace else self.copia()
 
         values = [
@@ -144,6 +143,9 @@ class nodoTabla:
 
         if not inplace:
             return phi
+
+    def contradict(self):
+        return not np.amax(self.tabla)
 
     def calculaunit(self):
         result = set()
@@ -227,6 +229,13 @@ class PotencialTabla:
             self.listap = []
             self.contradict = False
 
+        def imprime(self):
+            print("unit: ", self.unit)
+            print("tablas ")
+            for x in self.listap:
+                print("vars" , x.listavar)
+                print(x.tabla)
+
         def computefromsimple(self,simple):
             self.unit = simple.unit.copy()
             (sets,clusters) = createclusters(simple.listaclaus)
@@ -249,6 +258,23 @@ class PotencialTabla:
                 if xp in p.listavars:
                     p.reduce({xp}, inplace = True)
 
+        def reduceycombina(self, val, inplace = False):
+            res = PotencialTabla()
+            for x in self.unit:
+                if -x in val:
+                    res.contradict = True
+                    return res
+                elif not x in val:
+                    res.unit.add(x)
+            t = nodoTabla([])
+            for p in self.listap:
+                q = p.reduce(val,inplace = False)
+                t.combina(q, inplace=True)
+            res.listap.append(t)
+            return res
+
+
+
         def marginaliza(self,var, inplace = False):
 
             if not inplace:
@@ -269,18 +295,36 @@ class PotencialTabla:
                     else:
                         res.unit.add(x)
                 si = []
-                for p in self.listap:
+                i = 0
+                while i< len(self.listap):
+                    p = self.listap[i]
+                
                     if var in p.listavar:
                             si.append(p)
+                            del self.listap[i]
                     else:
                             res.listap.append(p)
+                            i+=1
                 if si:
                         p = si[0]
                         del si[0]
+                        
+
+                        
                         for q in si:
+                            
+
                             p.combina(q,inplace = True)
-                        p.borra([var], inplace=True)
-                        res.listap.append(p)
+                    
+                            
+                        self.listap.append(p)
+                        r = p.borra([var], inplace=False)
+                        
+                        
+                        res.listap.append(r)
+                        
+
+                        
 
                 return res
 

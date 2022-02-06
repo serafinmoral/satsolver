@@ -396,6 +396,9 @@ class problemaTrianArbol:
             
             
         self.sol = sol
+
+
+        print(sol)
         return sol
     
     def randomsol(self,T=40000):

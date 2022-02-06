@@ -132,8 +132,8 @@ def main(prob):
 
 
         prob.borra()
-        # if not prob.inicial.contradict:
-        #     prob.findsol()
+        if not prob.inicial.contradict:
+             prob.findsol()
 
         print("salgo de inicio")
        
