@@ -244,8 +244,7 @@ class problemaTrianFactor:
             var = self.orden[i]
             print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
-            if i==213:
-                print("posible problema")
+       
             # pot.imprime()
             
             if pot.contradict:

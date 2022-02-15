@@ -306,8 +306,7 @@ class PotencialTabla:
                             res.listap.append(p)
                             i+=1
                 if si:
-                        p = si[0]
-                        del si[0]
+                        p = si.pop()
                         
 
                         
