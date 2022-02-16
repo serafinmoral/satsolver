@@ -69,7 +69,6 @@ class problemaTrianFactor:
                 pos = min(map(lambda h: self.posvar[h], vcl))
             else:
                 pos = len(self.orden)
-            print(pos, p.listavar)
             pot = self.lqueue[pos]
             pot.inserta(p)
 
