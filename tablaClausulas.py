@@ -236,6 +236,15 @@ class PotencialTabla:
                 print("vars" , x.listavar)
                 print(x.tabla)
 
+        def copia(self):
+            res = PotencialTabla()
+            res.unit = self.unit.copy()
+
+            for p in self.listap:
+                print(p)
+                res.listap.append(p.copia())
+            return res
+
         def computefromsimple(self,simple):
             self.unit = simple.unit.copy()
             (sets,clusters) = createclusters(simple.listaclaus)
@@ -246,6 +255,12 @@ class PotencialTabla:
 
         def inserta(self,p):
             self.listap.append(p)
+
+        def insertap(self,p):
+            for x in p.unit:
+                self.insertaunit(x)
+            for q in p.listap:
+                self.listap.append(p)
         
         def insertaunit(self,x):
             if -x in self.unit:
@@ -296,16 +311,15 @@ class PotencialTabla:
                         res.unit.add(x)
                 si = []
                 i = 0
-                while i< len(self.listap):
-                    p = self.listap[i]
+                for p in self.listap:
                 
                     if var in p.listavar:
                             si.append(p)
-                            del self.listap[i]
                     else:
                             res.listap.append(p)
-                            i+=1
                 if si:
+                        si.sort(key = lambda h: - len(h.listavar) )
+                        
                         p = si.pop()
                         
 
@@ -316,7 +330,6 @@ class PotencialTabla:
                             p.combina(q,inplace = True)
                     
                             
-                        self.listap.append(p)
                         r = p.borra([var], inplace=False)
                         
                         
@@ -328,6 +341,59 @@ class PotencialTabla:
                 return res
 
         
+        def marginalizapro(self,var, L,inplace = False):
+
+            if not inplace:
+                res = PotencialTabla()
+
+                if self.contradict:
+                    res.contradict = True
+                    return res
+                for x in self.unit:
+                    if x == var:
+                        res.unit = self.unit-{var}
+                        res.listap = self.listap.copy()
+                        return res
+                    elif x== -var:
+                        res.unit = self.unit-{-var}
+                        res.listap = self.listap.copy()
+                        return res
+                    else:
+                        res.unit.add(x)
+                si = []
+                for p in self.listap:
+            
+                
+                    if var in p.listavar:
+                            si.append(p)
+                    else:
+                            res.listap.append(p)
+        
+                if si:
+                        p = si.pop()
+                        
+
+                        
+                        for q in si:
+                            
+                            if len(set(p.listavar).union(set(q.listavar)))<=L:                    
+                                p.combina(q,inplace = True)
+                            else:
+                                r = p.borra([var], inplace=False)
+                                res.listap.append(r)
+                                p = q
+                                print("aproximo")
+
+                            
+                        r = p.borra([var], inplace=False)
+                        
+                        
+                        res.listap.append(r)
+                        
+
+                        
+
+                return res
 
 
 

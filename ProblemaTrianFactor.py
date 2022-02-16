@@ -28,55 +28,25 @@ class problemaTrianFactor:
          self.child = []
          self.parent = []
 
-    def reinicia(self):
-        for x in self.lpot:
-                x = arboldoble()
-        for y in self.lqueue:
-                y = arboldoble()
-
-        for v in self.inicial.unit:
-                self.insertacolaclau2({v})
-        # for x in self.inicial.two:
-        #     for y in self.inicial.two[x]:
-        #         self.insertacolaclau2({x,y})
-        for cl in self.inicial.listaclaus:
-                self.insertacolaclau2(cl)
-        for pot in self.lqueue:
-                pot.normaliza(self.N)      
-
-    def reinicia2(self):
-        for x in self.lpot:
-                x = arboldoble()
-        for y in self.lqueue:
-                y = arboldoble()
-
-        for v in self.inicial.unit:
-                self.insertacolaclau3({v})
-        # for x in self.inicial.two:
-        #     for y in self.inicial.two[x]:
-        #         self.insertacolaclau2({x,y})
-        for cl in self.inicial.listaclaus:
-                self.insertacolaclau3(cl)
-        # for pot in self.lqueue:
-        #         pot.normaliza(self.N)         
+    
+        
 
     def inicia0(self):
 
-            for i in self.orden:
-                x = PotencialTabla()
-                self.lpot.append(x)
-                y = PotencialTabla()
-                self.lqueue.append(y)
+            
             self.pinicial.computefromsimple(self.inicial)
 
-            for x in self.pinicial.unit:
-                self.insertaunit(x)
+    def inicia1(self):
 
-            for p in self.pinicial.listap:
+        print(self.orden)
+        for i in self.orden:
                 
-                self.insertacolapot(p)
-    
-            
+                y = PotencialTabla()
+                self.lqueue.append(y)
+        y = PotencialTabla()
+        self.lqueue.append(y)
+
+        self.inserta(self.pinicial)    
            
     def insertaunit(self,x):
         xp = abs(x)
@@ -95,8 +65,11 @@ class problemaTrianFactor:
 
         
             vcl = p.listavar
-            pos = min(map(lambda h: self.posvar[h], vcl))
-            
+            if vcl:
+                pos = min(map(lambda h: self.posvar[h], vcl))
+            else:
+                pos = len(self.orden)
+            print(pos, p.listavar)
             pot = self.lqueue[pos]
             pot.inserta(p)
 
@@ -120,117 +93,42 @@ class problemaTrianFactor:
         for cl in simple.listaclaus:
             self.introducecorclau(cl)
 
-    def borraapro(self,M=10,T=4):
-        print(len(self.orden))
-        for i in range(len(self.orden)):
-            if self.inicial.contradict:
-                break
-            var = self.orden[i]
-            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
-            pot = self.lqueue[i]
-            
-            if pot.value.contradict:
-                self.inicial.contradict=True #ojo
-                print("contradiccion antes de normalizar ")
-                break
-            print("entro en normaliza")
-            # if pot.checkrep():
-            #     print("proeblma de repeticion antes de normalizar")
-            pot.normaliza(self.N) 
-            if pot.value.contradict:
-                self.inicial.contradict=True #ojo
-                print("contradiccion después de normalizar ")
-                break
-            print("entro en split")
-            # if pot.checkrep():
-            #     print("proeblma de repeticion")
-            (t0,t1,t2) = pot.splitborra(var)
-            
-            
 
-                       
-
-            print("ntro en combinaborra")
-            res1 = t0.combinaborra(t1,self.N)
-
-            c1 = res1.extraecortas(M)
-            # c2 = t2.extraecortas(M)
-
-            lista = c1.extraecortas(T).calculalistatotal()
-            # lista2 = c2.extraecortas(T).calculalistatotal()
-
-            for cl in lista:
-                print(cl)
-                self.inicial.insertar(cl)
-
-
-            # for cl in lista2:
-            #     print("lista 2",cl)
-            #     self.inicial.insertar(cl)
-
-            print("inserto t2")
-            self.insertacola(t2,i)
-            
-            ad = arboldoble()
-            ad.asignaval(c1)
-
-            if res1.value.contradict:
-                print("contradiccion en resultado")
-            print("Ahora inserto en la cola")
-            self.insertacola(ad,i)
-
-
-    def borraaproi(self,M=4,T=3):
-        print(len(self.orden))
+    def borraproi(self,L=30):
+        
         for i in reversed(range(len(self.orden))):
             if self.inicial.contradict:
                 break
             print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
             
-            if pot.value.contradict:
+            if pot.contradict:
                 self.inicial.contradict=True #ojo
                 print("contradiccion antes de normalizar ")
                 break
-            print("entro en normaliza")
-            # if pot.checkrep():
-            #     print("proeblma de repeticion antes de normalizar")
-            pot.normaliza(self.N) 
-            if pot.value.contradict:
-                self.inicial.contradict=True #ojo
-                print("contradiccion después de normalizar ")
-                break
-            print("entro en split")
-            # if pot.checkrep():
-            #     print("proeblma de repeticion")
             
             for j in self.child[i]:
+                print (j)
                 dif = self.clusters[i]-self.clusters[j]
-                pot = self.lqueue[i]
+                print(dif)
+                print("entro en copia")
+                potn = self.lqueue[i].copia()
+                print("salgo de copia")
 
-                for var in dif:
-                    (t0,t1,t2) = pot.splitborra(var)
+                for v in dif:
+                    print(v)
+                    potn = potn.marginalizapro(v,L,inplace=False)
+                
             
             
 
                        
 
-                    print("ntro en combinaborra")
-                    res1 = t0.combinaborra(t1,self.N)
+                    
 
-                    c1 = res1.extraecortas(M)
+                    
 
-                    lista = c1.extraecortas(T).calculalistatotal()
-
-                    for cl in lista:
-                        print(cl)
-                        self.inicial.insertar(cl)
-
-                    res1.inserta(t2,self.N)
-                    pot = arboldoble()
-                    pot.asignaval(c1)
-
-                self.lqueue[j].inserta(pot,self.N)
+                self.lqueue[j].insertap(potn)
 
         
 
@@ -254,6 +152,38 @@ class problemaTrianFactor:
             
             
             potn = pot.marginaliza(var)
+            
+            # potn.imprime()
+            if self.parent[i]==-1:
+                
+
+                if potn.contradict:
+                    print("contradiccion en resultado")
+                print("Ahora inserto en la cola")
+                
+
+
+            else:
+                self.inserta(potn)
+
+    def borrapro(self, L = 30):
+        print(len(self.orden))
+        for i in range(len(self.orden)):
+            if self.inicial.contradict:
+                break
+            var = self.orden[i]
+            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            pot = self.lqueue[i]
+       
+            # pot.imprime()
+            
+            if pot.contradict:
+                self.inicial.contradict=True #ojo
+                print("contradiccion antes de normalizar ")
+                break
+            
+            
+            potn = pot.marginalizapro(var,L)
             
             # potn.imprime()
             if self.parent[i]==-1:

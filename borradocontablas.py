@@ -38,13 +38,128 @@ def leeArchivoGlobal(Archivo):
     
     return infor  
     
- 
+def triangulap(pot):
+    orden = []
+    clusters = []
+    borr = []
+    child = []
+    posvar = dict()
+    total = set()
+    dvar = dict()
+
+    for p in pot.listap:
+        con = set(p.listavar)
+        print(con)
+        total.update(con)
+        for v in con:
+            if v in dvar:
+                dvar[v].append(con)
+            else:
+                dvar[v] = [con]
+    n = len(total.union(pot.unit))
+    
+    
+    parent = [-1]*(n+1)
+    for i in range(n+1):
+        child.append(set())
+    
+    i= 0
+    units = pot.unit.copy()
+
+
+
+
+    while units:
+
+        nnodo = abs(units.pop())
+        orden.append(nnodo)
+        clus = {nnodo}
+        clusters.append(clus)
+        posvar[nnodo] = i
+        print( i, clus) 
+
+        i+=1
+
+   
+    
+    
+    value = dict()
+    totvar = dict()
+
+
+    for x in dvar:
+        totvar[x] = set()
+        for h in dvar[x]:
+            totvar[x].update(h)
+        value[x] = 2**(len(totvar[x])-1) - sum([2**len(y) for y in dvar[x]])
+        
+        
+
+    while total:
+        nnodo = min(value, key = value.get )
+        orden.append(nnodo)
+
+        clus = set()
+        for x in dvar[nnodo]:
+            clus.update(x)
+        clusters.append(clus)
+        posvar[nnodo] = i
+        print( i, clus) 
+
+        i+=1
+        clustersin = clus-{nnodo}
+
+        for y in clustersin:
+            dvar[y] = list(filter( lambda h: nnodo not in h  ,dvar[y] ))
+            dvar[y].append(clustersin)
+            totvar[y] = set()
+            for h in dvar[y]:
+                totvar[y].update(h)
+            value[y] = 2**(len(totvar[y])-1) - sum([2**len(z) for z in dvar[y]])
+        
+
+
+        del value[nnodo]
+        del dvar[nnodo]
+        del totvar[nnodo]
+        total.discard(nnodo)
+
+
+    clusters.append(set())
+
+
+    for i in range(n):
+            con = clusters[i]
+            cons = con - {orden[i]}
+            if not cons:
+                parent[i] = n
+                child[n].add(i)
+            else:
+                pos = min(map(lambda h: posvar[h], cons))
+                parent[i] = pos
+                child[pos].add(i)
+
+
+
+        
+            
+
+        
+       
+
+            
+
+    # print(orden)
+    return (orden,clusters,borr,posvar,child,parent) 
+
+
 def triangula(grafo):
     orden = []
     clusters = []
-    maximal = []
+    
     borr = []
     child = []
+    posvar = dict()
     grafoc = grafo.copy()
     centra = nx.algorithms.centrality.betweenness_centrality(grafoc)
     ma = 0
@@ -65,19 +180,7 @@ def triangula(grafo):
         clus = veci.union({nnodo})
         clusters.append(clus)
 
-        maxim = True
-        for j in range(i-1,-1,-1):
-            print(j, clusters[j])
-            if clus <= (clusters[j]):
-                # child[j] = i
-                # parent[i] = j
-                maxim = False
-                print("no maximal")
-                break
-            
-
-        if maxim:
-            maximal.append(i)
+        posvar[nnodo] = i
 
         print( i, clus) 
         i += 1
@@ -99,7 +202,7 @@ def triangula(grafo):
             
 
     # print(orden)
-    return (orden,clusters,borr,maximal,child,parent)
+    return (orden,clusters,borr,posvar,child,parent)
     
 def main(prob):
         # info.contradict = False
@@ -107,16 +210,12 @@ def main(prob):
         prob.inicial.contradict = False
         prob.inicial.solved = False         
         print("entro en main")
-        
-        # grafo = info.cgrafo()
-        grafo = prob.inicial.cgrafo()
-        (prob.orden,prob.clusters,prob.borr,prob.maximal,prob.child,prob.parent)  = triangula(grafo)
-        h = sorted(prob.orden)
-        prob.posvar = dict()
-        for i in h:
-            prob.posvar[i] = prob.orden.index(i)
-
         prob.inicia0()                          
+
+        grafo = prob.inicial.cgrafo()
+        (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
+       
+
         # prob.borraapro(M=4,T=3)
         # prob.reinicia()
         # prob.borraaproi(M=4,T=3)
@@ -130,8 +229,9 @@ def main(prob):
         # # prob.randomsol()
         # prob.reinicia()
 
-
+        prob.inicia1()
         prob.borra()
+        
         if not prob.inicial.contradict:
              prob.findsol()
 
