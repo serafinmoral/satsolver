@@ -249,8 +249,8 @@ def main(prob):
         # prob.reinicia()
 
         prob.inicia1()
-        prob.borrapro()
-        prob.borraproi()
+        prob.borra()
+    
         
         if not prob.inicial.contradict:
              prob.findsol()
