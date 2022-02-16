@@ -165,8 +165,8 @@ def triangula(grafo):
     ma = 0
     mv = 0
     n = len(grafo.nodes)
-    parent = [-1]*n
-    for i in range(n):
+    parent = [-1]*(n+1)
+    for i in range(n+1):
         child.append(set())
     
     i= 0
@@ -190,15 +190,34 @@ def triangula(grafo):
                 if not x==y:
                     grafo.add_edge(x,y)
 
-    total = clusters[n-1].copy()
-    for i  in range(n-2,-1,-1):
-        clus = clusters[i]
-        for j in range(i+1,n,1):
-            if clus.intersection(total) == clus.intersection(clusters[j]):
-                parent[i] = j
-                child[j].add(i)
-                break
-        total.update(clus)
+    
+    clusters.append(set())
+
+
+    for i in range(n):
+            con = clusters[i]
+            cons = con - {orden[i]}
+            if not cons:
+                parent[i] = n
+                child[n].add(i)
+            else:
+                pos = min(map(lambda h: posvar[h], cons))
+                parent[i] = pos
+                child[pos].add(i)
+
+
+
+    
+    
+    # total = clusters[n-1].copy()
+    # for i  in range(n-2,-1,-1):
+    #     clus = clusters[i]
+    #     for j in range(i+1,n,1):
+    #         if clus.intersection(total) == clus.intersection(clusters[j]):
+    #             parent[i] = j
+    #             child[j].add(i)
+    #             break
+    #     total.update(clus)
             
 
     # print(orden)
@@ -230,7 +249,8 @@ def main(prob):
         # prob.reinicia()
 
         prob.inicia1()
-        prob.borra()
+        prob.borrapro()
+        prob.borraproi()
         
         if not prob.inicial.contradict:
              prob.findsol()

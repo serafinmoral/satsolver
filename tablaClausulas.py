@@ -260,7 +260,7 @@ class PotencialTabla:
             for x in p.unit:
                 self.insertaunit(x)
             for q in p.listap:
-                self.listap.append(p)
+                self.listap.append(q)
         
         def insertaunit(self,x):
             if -x in self.unit:

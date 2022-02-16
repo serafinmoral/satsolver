@@ -151,19 +151,25 @@ class problemaTrianFactor:
             
             
             potn = pot.marginaliza(var)
+
+            pos = self.parent[i]
+
+            poti = self.lqueue[pos]
+
+            poti.insertap(potn)
             
             # potn.imprime()
-            if self.parent[i]==-1:
+            # if self.parent[i]==-1:
                 
 
-                if potn.contradict:
-                    print("contradiccion en resultado")
-                print("Ahora inserto en la cola")
+            #     if potn.contradict:
+            #         print("contradiccion en resultado")
+            #     print("Ahora inserto en la cola")
                 
 
 
-            else:
-                self.inserta(potn)
+            # else:
+            #     self.inserta(potn)
 
     def borrapro(self, L = 30):
         print(len(self.orden))
