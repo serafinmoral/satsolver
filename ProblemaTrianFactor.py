@@ -130,11 +130,46 @@ class problemaTrianFactor:
                 self.lqueue[j].insertap(potn)
 
         
+    def borrai(self):
+        
+        for i in reversed(range(len(self.orden))):
+            if self.inicial.contradict:
+                break
+            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            pot = self.lqueue[i]
+            
+            if pot.contradict:
+                self.inicial.contradict=True #ojo
+                print("contradiccion antes de normalizar ")
+                break
+            
+            for j in self.child[i]:
+                print (j)
+                dif = self.clusters[i]-self.clusters[j]
+                print(dif)
+                # print("entro en copia")
+                # potn = self.lqueue[i].copia()
+                # print("salgo de copia") 
+
+                
+                potn = pot.marginalizas(dif,inplace=False)
+                
+            
+            
+
+                       
+
+                    
+
+                    
+
+                self.lqueue[j].insertap(potn)
 
                 
 
     def borra(self):
         print(len(self.orden))
+
         for i in range(len(self.orden)):
             if self.inicial.contradict:
                 break

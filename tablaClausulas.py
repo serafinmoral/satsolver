@@ -27,16 +27,17 @@ class nodoTabla:
         return result
     
 
-    def combina(self,op,inplace = False):
+    def combina(self,op,inplace = False, des= False):
         result = self if inplace else self.copia()
         if isinstance(op,boolean):
             if op:
                 return result
             else:
-                result.tabla = result.tabla * op
+                result.tabla = result.tabla & op
                 return result
 
-        op = op.copia()
+        if not des:
+            op = op.copia()
         extra = set(op.listavar) - set(result.listavar)
         if extra:
                 slice_ = [slice(None)] * len(result.listavar)
@@ -65,7 +66,7 @@ class nodoTabla:
             )
             op.tabla = op.tabla.swapaxes(axis, exchange_index)
 
-        result.tabla = result.tabla * op.tabla    
+        result.tabla = result.tabla & op.tabla    
         if not inplace:
             return result
 
@@ -166,17 +167,7 @@ class nodoTabla:
                     result.add(-self.listavar[i])
         return result
           
-        
-t2 = nodoTabla([1,3])
-t3 = nodoTabla([2,3])
-t4 = t2.combina(t3)
-
-t4.introduceclau({1,-2})
-t4.introduceclau({-1,-2})
-t4.introduceclau({3})
-
-print(t4.calculaunit())
-print(t4.tabla)
+    
 
 def createclusters (lista):
     listasets = []
@@ -260,7 +251,10 @@ class PotencialTabla:
             for x in p.unit:
                 self.insertaunit(x)
             for q in p.listap:
-                self.listap.append(q)
+                if self.listap:
+                    self.listap[0].combina(q, inplace=True, des= True)
+                else: 
+                    self.listap = [q]
         
         def insertaunit(self,x):
             if -x in self.unit:
@@ -311,28 +305,26 @@ class PotencialTabla:
                         res.unit.add(x)
                 si = []
                 i = 0
-                for p in self.listap:
                 
-                    if var in p.listavar:
-                            si.append(p)
-                    else:
-                            res.listap.append(p)
+                si = self.listap.copy()
+
                 if si:
                         si.sort(key = lambda h: - len(h.listavar) )
                         
                         p = si.pop()
+                        self.listap.remove(p)
+ 
                         
-
-                        
-                        for q in si:
+                        while si:
                             
-
-                            p.combina(q,inplace = True)
+                            q = si.pop()
+                            self.listap.remove(q)
+                            p.combina(q,inplace = True, des =True)
                     
                             
                         r = p.borra([var], inplace=False)
                         
-                        
+                        self.listap.append(p)
                         res.listap.append(r)
                         
 
@@ -340,6 +332,59 @@ class PotencialTabla:
 
                 return res
 
+        def marginalizas(self,vars, inplace = False):
+
+            if not inplace:
+                res = PotencialTabla()
+
+                if self.contradict:
+                    res.contradict = True
+                    return res
+                uv = self.unit.intersection(set(vars))
+                nvars = set(map(lambda x: -x, vars))
+                nuv = self.unit.intersection(nvars)
+
+                if uv:
+                    res.unit = self.unit - uv
+                    vars = vars - uv
+                else:
+                    res.unit = self.unit.copy()
+                if nuv:
+                    res.unit = res.unit - nuv
+                    puv = set(map(lambda x: -x, nuv)) 
+                    vars = vars - puv
+
+                
+                si = []
+                
+                si = self.listap.copy()
+
+                if si:
+                        si.sort(key = lambda h: - len(h.listavar) )
+                        
+                        p = si.pop()
+                        self.listap.remove(p)
+ 
+                        
+                        while si:
+                            
+                            q = si.pop()
+                            self.listap.remove(q)
+                            p.combina(q,inplace = True, des =True)
+                    
+                        if vars:   
+                            r = p.borra(vars, inplace=False)
+                        else:
+                            r = p.copia()
+                        
+                        self.listap.append(p)
+                        res.listap.append(r)
+                        
+                
+
+                        
+
+                return res
         
         def marginalizapro(self,var, L,inplace = False):
 

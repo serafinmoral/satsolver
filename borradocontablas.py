@@ -250,7 +250,8 @@ def main(prob):
 
         prob.inicia1()
         prob.borra()
-    
+        prob.borrai()
+  
         
         if not prob.inicial.contradict:
              prob.findsol()
