@@ -135,7 +135,7 @@ class problemaTrianFactor:
         for i in reversed(range(len(self.orden))):
             if self.inicial.contradict:
                 break
-            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            # print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
             
             if pot.contradict:
@@ -144,9 +144,9 @@ class problemaTrianFactor:
                 break
             
             for j in self.child[i]:
-                print (j)
+                # print (j)
                 dif = self.clusters[i]-self.clusters[j]
-                print(dif)
+                # print(dif)
                 # print("entro en copia")
                 # potn = self.lqueue[i].copia()
                 # print("salgo de copia") 
@@ -174,7 +174,7 @@ class problemaTrianFactor:
             if self.inicial.contradict:
                 break
             var = self.orden[i]
-            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            # print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
        
             # pot.imprime()
