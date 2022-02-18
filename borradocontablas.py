@@ -249,12 +249,13 @@ def main(prob):
         # prob.reinicia()
 
         prob.inicia1()
-        prob.borra()
-        prob.borrai()
+        prob.borrapro()
+        prob.borraproi()
+
+        prob.pasaarbol()
   
         
-        if not prob.inicial.contradict:
-             prob.findsol()
+        prob.findsol()
 
         print("salgo de inicio")
        

@@ -8,6 +8,7 @@ Created on Tue Oct 19 20:13:39 2021
 import time
 
 from SimpleClausulas import *
+from arboltabla import calculadesdePotencial
 from tablaClausulas import *
 class problemaTrianFactor:
     def __init__(self,info,N=100):
@@ -93,7 +94,7 @@ class problemaTrianFactor:
             self.introducecorclau(cl)
 
 
-    def borraproi(self,L=30):
+    def borraproi(self,L=25):
         
         for i in reversed(range(len(self.orden))):
             if self.inicial.contradict:
@@ -110,13 +111,8 @@ class problemaTrianFactor:
                 print (j)
                 dif = self.clusters[i]-self.clusters[j]
                 print(dif)
-                print("entro en copia")
-                potn = self.lqueue[i].copia()
-                print("salgo de copia")
-
-                for v in dif:
-                    print(v)
-                    potn = potn.marginalizapro(v,L,inplace=False)
+                
+                potn = pot.marginalizapros(dif,L,inplace=False)
                 
             
             
@@ -127,7 +123,7 @@ class problemaTrianFactor:
 
                     
 
-                self.lqueue[j].insertap(potn)
+                self.lqueue[j].insertaa(potn)
 
         
     def borrai(self):
@@ -165,7 +161,18 @@ class problemaTrianFactor:
 
                 self.lqueue[j].insertap(potn)
 
-                
+    def pasaarbol(self):
+        for i in range(len(self.lqueue)):
+            print("arbol ", i)
+            print("cluster ", self.clusters[i])
+
+            p = self.lqueue[i]
+            ap = calculadesdePotencial(p, self.posvar)
+                       
+            self.lqueue[i] = ap
+
+
+
 
     def borra(self):
         print(len(self.orden))
@@ -206,7 +213,7 @@ class problemaTrianFactor:
             # else:
             #     self.inserta(potn)
 
-    def borrapro(self, L = 30):
+    def borrapro(self, L = 25):
         print(len(self.orden))
         for i in range(len(self.orden)):
             if self.inicial.contradict:
@@ -226,17 +233,11 @@ class problemaTrianFactor:
             potn = pot.marginalizapro(var,L)
             
             # potn.imprime()
-            if self.parent[i]==-1:
-                
+            pos = self.parent[i]
 
-                if potn.contradict:
-                    print("contradiccion en resultado")
-                print("Ahora inserto en la cola")
-                
+            poti = self.lqueue[pos]
 
-
-            else:
-                self.inserta(potn)
+            poti.insertaa(potn)
 
 
     def inserta(self,pot):
