@@ -3,12 +3,68 @@ Spyder Editor
 
 This is a temporary script file.
 """
+import networkx as nx    
 
 import os
 import math
 from pickle import FALSE
 from tablaClausulas  import *
+from time import * 
 
+
+def triangulacond(pot):
+    orden = []
+    clusters = []
+    
+    borr = []
+   
+
+    grafo = pot.cgrafo()
+
+    ma = 0
+    mv = 0
+    n = len(grafo.nodes)
+    
+    
+    i= 0
+    total = set()
+    cnodo = max(grafo.nodes,key = lambda x : grafo.degree[x])
+
+    while grafo.nodes:
+
+        nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x])
+        # print(nnodo)
+        orden.append(nnodo)
+        veci = set(grafo[nnodo])
+        clus = veci.union({nnodo})
+        clusters.append(clus)
+
+
+        # print( i, clus) 
+        i += 1
+        grafo.remove_node(nnodo)
+        for x in veci:
+            for y in veci:
+                if not x==y:
+                    grafo.add_edge(x,y)
+
+    
+    clusters.append(set())
+
+    h = list(map(len,clusters))
+    mh = max(h)
+    sh = sum(h)
+    print("maximo: ", mh, "suma: ", sh)
+    
+    
+
+
+
+    
+    
+    
+    return (orden,cnodo,mh)
+    
 
 def calculadesdePotencial(pot,posvar, L=30):
 
@@ -50,6 +106,50 @@ def calculadesdePotencial(pot,posvar, L=30):
                 return result
             
             result.asignavarhijos(var,h0,h1)
+
+            
+
+        return result
+
+def calculaglobal(pot, conf = [], L=30):
+
+        result = arbol()
+        vars = set()
+        print(conf)
+        (orden,cnodo,maxp) = triangulacond(pot)
+        
+        if maxp <= L:
+            result.value = pot.copia()
+        else:
+            p0 = pot.reduce([cnodo], inplace = False)
+            p1 = pot.reduce([-cnodo], inplace = False)
+            p0.simplifica()
+            p1.simplifica()
+
+            if p0.contradict and p1.contradict:
+                result.anula()
+                return result
+
+            if p0.trivial() and p1.trivial():
+                return result
+
+            conf.append(-cnodo)
+            h0 = calculaglobal(p0,conf,L)
+            conf.pop()
+            conf.append(cnodo)
+
+            h1 = calculaglobal(p1,conf,L)
+            conf.pop()
+
+
+            if h0.value.contradict and h1.value.contradict:
+                result.anula()
+                return result
+
+            if h0.trivial() and h1.trivial():
+                return result
+            
+            result.asignavarhijos(cnodo,h0,h1)
 
             
 

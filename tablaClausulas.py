@@ -4,7 +4,7 @@ Created on 31 Enero 2022
 
 @author: Serafin
 """
- 
+
 from xmlrpc.client import boolean
 import networkx as nx
 import numpy as np
@@ -241,6 +241,22 @@ class PotencialTabla:
                 print("vars" , x.listavar)
                 print(x.tabla)
 
+        def cgrafo(self):
+            grafo = nx.Graph()
+        
+            vars = set(map(abs,self.unit))
+            for p in self.listap:
+                vars.update(p.listavar)
+        
+        
+            for p in self.listap:
+                for i in range(len(p.listavar)):
+                    for j in range(i+1,len(p.listavar)):
+                           grafo.add_edge(p.listavar[i],p.listavar[j])    
+            return grafo 
+
+        
+
         def copia(self):
             res = PotencialTabla()
             res.unit = self.unit.copy()
@@ -284,7 +300,7 @@ class PotencialTabla:
             
             xp = abs(x)
             for p in self.listap:
-                if xp in p.listavars:
+                if xp in p.listavar:
                     p.reduce({xp}, inplace = True)
 
         def reduceycombina(self, val, inplace = False):
@@ -336,8 +352,8 @@ class PotencialTabla:
             for p in bor:
                 self.listap.remove(p)
 
-            if uni:
-                self.insertaunit(uni)
+            for x in uni:
+                self.insertaunit(x)
                 print("units ",uni)
             return
 

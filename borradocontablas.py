@@ -10,6 +10,8 @@ from SimpleClausulas import *
 from ProblemaTrianFactor import *
 from time import *
 
+from arboltabla import calculaglobal
+
 def leeArchivoGlobal(Archivo):
     reader=open(Archivo,"r") 
     cadena = reader.readline()
@@ -226,59 +228,8 @@ def triangula(grafo):
     return (orden,clusters,borr,posvar,child,parent)
 
 
-def triangulacond(grafo):
-    orden = []
-    clusters = []
-    
-    borr = []
-    child = []
-    posvar = dict()
-    grafoc = grafo.copy()
-    centra = nx.algorithms.centrality.betweenness_centrality(grafoc)
-    ma = 0
-    mv = 0
-    n = len(grafo.nodes)
-    parent = [-1]*(n+1)
-    for i in range(n+1):
-        child.append(set())
-    
-    i= 0
-    total = set()
-    while grafo.nodes:
-
-        nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] + 2*centra[x])
-        # print(nnodo)
-        orden.append(nnodo)
-        veci = set(grafo[nnodo])
-        clus = veci.union({nnodo})
-        clusters.append(clus)
-
-        posvar[nnodo] = i
-
-        # print( i, clus) 
-        i += 1
-        grafo.remove_node(nnodo)
-        for x in veci:
-            for y in veci:
-                if not x==y:
-                    grafo.add_edge(x,y)
 
     
-    clusters.append(set())
-
-    h = list(map(len,clusters))
-    print("maximo: ", max(h), "suma: ", sum(h))
-    sleep(1)
-    for i in range(n):
-            con = clusters[i]
-            cons = con - {orden[i]}
-            if not cons:
-                parent[i] = n
-                child[n].add(i)
-            else:
-                pos = min(map(lambda h: posvar[h], cons))
-                parent[i] = pos
-                child[pos].add(i)
 
 
 
@@ -296,7 +247,7 @@ def triangulacond(grafo):
             
 
     # print(orden)
-    return (orden,clusters,borr,posvar,child,parent)
+    return (orden,cnodo,mh)
     
     
 def main(prob):
@@ -305,7 +256,12 @@ def main(prob):
         prob.inicial.contradict = False
         prob.inicial.solved = False         
         print("entro en main")
+
         prob.inicia0()                          
+
+
+        arbolcom = calculaglobal(prob.pinicial)
+
 
         grafo = prob.inicial.cgrafo()
         (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
