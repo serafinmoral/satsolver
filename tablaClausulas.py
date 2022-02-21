@@ -334,7 +334,7 @@ class PotencialTabla:
                 #     res.listap.append(p)
             return res
 
-        def simplifica(self,L=3):
+        def simplifica(self,L=6):
             bor = []
             uni = set()
             for p in self.listap:

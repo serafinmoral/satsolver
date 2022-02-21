@@ -118,9 +118,12 @@ def calculaglobal(pot, conf = [], L=30):
         print(conf)
         (orden,cnodo,maxp) = triangulacond(pot)
         
+
+
         if maxp <= L:
             result.value = pot.copia()
         else:
+            pot.borrafacil(orden)
             p0 = pot.reduce([cnodo], inplace = False)
             p1 = pot.reduce([-cnodo], inplace = False)
             p0.simplifica()
