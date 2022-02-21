@@ -334,6 +334,8 @@ class PotencialTabla:
                 #     res.listap.append(p)
             return res
 
+
+
         def simplifica(self,L=6):
             bor = []
             uni = set()
@@ -358,6 +360,57 @@ class PotencialTabla:
             return
 
 
+        def borrafacil(self,orden,L):
+            
+            for var in orden:
+                su = self.marginalizacond(var,L)
+                if not su:
+                    break
+                else:
+                    print("borrada ", var)
+
+
+        def marginalizacond(self,var,L, inplace=True):
+            
+            if inplace:
+                if self.contradict:
+                        return True
+                if var in  self.unit:
+                        self.unit.discard(var)
+                        return True
+                elif -var in self.unit:
+                        self.unit.discard(-var) 
+
+                        return True
+                
+                si = []    
+                vars =set()
+                for p in self.listap:
+            
+                
+                    if var in p.listavar:
+                            vars.update(p.listavar)
+                            si.append(p)
+        
+        
+                if len(vars) <= L+1:
+                        si.sort(key = lambda h: - len(h.listavar) )
+                        
+                        p = nodoTabla([])
+
+ 
+                        
+                        while si:
+                            
+                            q = si.pop()
+                            self.listap.remove(q)
+                            p.combina(q,inplace = True, des =True)
+                        r = p.borra([var], inplace=False)
+                        
+                        self.listap.append(p)
+                        return True
+                else:
+                        return False
 
         def marginaliza(self,var, inplace = False):
 

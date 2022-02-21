@@ -123,7 +123,7 @@ def calculaglobal(pot, conf = [], L=30):
         if maxp <= L:
             result.value = pot.copia()
         else:
-            # pot.borrafacil(orden)
+            pot.borrafacil(orden,L=6)
             p0 = pot.reduce([cnodo], inplace = False)
             p1 = pot.reduce([-cnodo], inplace = False)
             p0.simplifica()
