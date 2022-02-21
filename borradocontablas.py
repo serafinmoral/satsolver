@@ -8,7 +8,7 @@ Created on Wed Mar  6 13:30:14 2019
 import networkx as nx    
 from SimpleClausulas import *
 from ProblemaTrianFactor import *
-from time import time
+from time import *
 
 def leeArchivoGlobal(Archivo):
     reader=open(Archivo,"r") 
@@ -174,7 +174,7 @@ def triangula(grafo):
     while grafo.nodes:
 
         nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] + 2*centra[x])
-        print(nnodo)
+        # print(nnodo)
         orden.append(nnodo)
         veci = set(grafo[nnodo])
         clus = veci.union({nnodo})
@@ -182,7 +182,7 @@ def triangula(grafo):
 
         posvar[nnodo] = i
 
-        print( i, clus) 
+        # print( i, clus) 
         i += 1
         grafo.remove_node(nnodo)
         for x in veci:
@@ -193,7 +193,9 @@ def triangula(grafo):
     
     clusters.append(set())
 
-
+    h = list(map(len,clusters))
+    print("maximo: ", max(h), "suma: ", sum(h))
+    sleep(1)
     for i in range(n):
             con = clusters[i]
             cons = con - {orden[i]}
@@ -222,6 +224,80 @@ def triangula(grafo):
 
     # print(orden)
     return (orden,clusters,borr,posvar,child,parent)
+
+
+def triangulacond(grafo):
+    orden = []
+    clusters = []
+    
+    borr = []
+    child = []
+    posvar = dict()
+    grafoc = grafo.copy()
+    centra = nx.algorithms.centrality.betweenness_centrality(grafoc)
+    ma = 0
+    mv = 0
+    n = len(grafo.nodes)
+    parent = [-1]*(n+1)
+    for i in range(n+1):
+        child.append(set())
+    
+    i= 0
+    total = set()
+    while grafo.nodes:
+
+        nnodo = min(grafo.nodes,key = lambda x : grafo.degree[x] + 2*centra[x])
+        # print(nnodo)
+        orden.append(nnodo)
+        veci = set(grafo[nnodo])
+        clus = veci.union({nnodo})
+        clusters.append(clus)
+
+        posvar[nnodo] = i
+
+        # print( i, clus) 
+        i += 1
+        grafo.remove_node(nnodo)
+        for x in veci:
+            for y in veci:
+                if not x==y:
+                    grafo.add_edge(x,y)
+
+    
+    clusters.append(set())
+
+    h = list(map(len,clusters))
+    print("maximo: ", max(h), "suma: ", sum(h))
+    sleep(1)
+    for i in range(n):
+            con = clusters[i]
+            cons = con - {orden[i]}
+            if not cons:
+                parent[i] = n
+                child[n].add(i)
+            else:
+                pos = min(map(lambda h: posvar[h], cons))
+                parent[i] = pos
+                child[pos].add(i)
+
+
+
+    
+    
+    # total = clusters[n-1].copy()
+    # for i  in range(n-2,-1,-1):
+    #     clus = clusters[i]
+    #     for j in range(i+1,n,1):
+    #         if clus.intersection(total) == clus.intersection(clusters[j]):
+    #             parent[i] = j
+    #             child[j].add(i)
+    #             break
+    #     total.update(clus)
+            
+
+    # print(orden)
+    return (orden,clusters,borr,posvar,child,parent)
+    
     
 def main(prob):
         # info.contradict = False

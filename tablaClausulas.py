@@ -318,8 +318,9 @@ class PotencialTabla:
                 #     res.listap.append(p)
             return res
 
-        def simplifica(self,L=2):
+        def simplifica(self,L=3):
             bor = []
+            uni = set()
             for p in self.listap:
                 if len(p.listavar)<= L:
                     if p.trivial():
@@ -327,9 +328,17 @@ class PotencialTabla:
                     elif p.contradict():
                         self.anula()
                         return
+                    else:
+                        uni.update(p.calculaunit())
+
+             
 
             for p in bor:
                 self.listap.remove(p)
+
+            if uni:
+                self.insertaunit(uni)
+                print("units ",uni)
             return
 
 
