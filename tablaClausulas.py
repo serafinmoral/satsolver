@@ -336,11 +336,11 @@ class PotencialTabla:
 
 
 
-        def simplifica(self,L=6):
+        def simplifica(self,M=8):
             bor = []
             uni = set()
             for p in self.listap:
-                if len(p.listavar)<= L:
+                if len(p.listavar)<= M:
                     if p.trivial():
                         bor.append(p)
                     elif p.contradict():

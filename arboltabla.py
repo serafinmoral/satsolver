@@ -111,7 +111,7 @@ def calculadesdePotencial(pot,posvar, L=30):
 
         return result
 
-def calculaglobal(pot, conf = [], L=30):
+def calculaglobal(pot, conf = [], L=30, M=8):
 
         result = arbol()
         vars = set()
@@ -123,11 +123,11 @@ def calculaglobal(pot, conf = [], L=30):
         if maxp <= L:
             result.value = pot.copia()
         else:
-            pot.borrafacil(orden,L=6)
+            pot.borrafacil(orden,M)
             p0 = pot.reduce([cnodo], inplace = False)
             p1 = pot.reduce([-cnodo], inplace = False)
-            p0.simplifica()
-            p1.simplifica()
+            p0.simplifica(M)
+            p1.simplifica(M)
 
             if p0.contradict and p1.contradict:
                 result.anula()
