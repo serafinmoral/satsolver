@@ -360,17 +360,48 @@ class PotencialTabla:
             return
 
 
-        def borrafacil(self,orden,L):
+        def borrafacil(self,orden,M):
             
             for var in orden:
-                su = self.marginalizacond(var,L)
+                su = self.marginalizacond(var,M)
                 if not su:
                     break
                 else:
                     print("borrada ", var)
+        
+        def combinaincluidos(self,M):
+            i = 0
+            while i < len(self.listap)-1:
+                j = i+1
+                while j < len(self.listap):
+                    print(i,j)
+                    p = self.listap[i]
+                    q = self.listap[j]
+                    if set(p.listavar) <= set(q.listavar):
+                        q.combina(p, inplace = True)
+                        if len(p.listavar) <= M:
+                            self.listap.remove(p)
+                            if j == len(self.listap):
+                                i+=1
+                            break
+                        else:
+                            j += 1
+                            
+                    elif set(q.listavar) <= set(p.listavar):
+                        p.combina(q, inplace = True)
+                        if len(q.listavar) <= M:
+                            self.listap.remove(q)
+                        else:
+                            j += 1
+                    else:
+                        j+=1
+                    if j == len(self.listap):
+                                i+=1
 
 
-        def marginalizacond(self,var,L, inplace=True):
+
+
+        def marginalizacond(self,var,M, inplace=True):
             
             if inplace:
                 if self.contradict:
@@ -393,7 +424,7 @@ class PotencialTabla:
                             si.append(p)
         
         
-                if len(vars) <= L+1:
+                if len(vars) <= M+1:
                         si.sort(key = lambda h: - len(h.listavar) )
                         
                         p = nodoTabla([])

@@ -111,7 +111,7 @@ def calculadesdePotencial(pot,posvar, L=30):
 
         return result
 
-def calculaglobal(pot, conf = [], L=30, M=8):
+def calculaglobal(pot, conf = [], L=30, M=6):
 
         result = arbol()
         vars = set()

@@ -259,6 +259,7 @@ def main(prob):
 
         prob.inicia0()                          
 
+        prob.pinicial.combinaincluidos(M=6)
 
         arbolcom = calculaglobal(prob.pinicial)
 
