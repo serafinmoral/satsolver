@@ -263,8 +263,8 @@ def main(prob):
         arbolcom = calculaglobal(prob.pinicial)
 
 
-        grafo = prob.inicial.cgrafo()
-        (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
+        # grafo = prob.inicial.cgrafo()
+        # (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
        
 
         # prob.borraapro(M=4,T=3)
@@ -280,16 +280,16 @@ def main(prob):
         # # prob.randomsol()
         # prob.reinicia()
 
-        prob.inicia1()
-        prob.borrapro()
-        prob.borraproi()
+        # prob.inicia1()
+        # prob.borrapro()
+        # prob.borraproi()
 
-        prob.pasaarbol()
+        # prob.pasaarbol()
   
         
-        prob.findsol()
+        # prob.findsol()
 
-        print("salgo de inicio")
+        # print("salgo de inicio")
        
 #     
 # ********** Control de Aplicación ****************

@@ -136,10 +136,14 @@ def calculaglobal(pot, conf = [], L=30):
             conf.append(-cnodo)
             h0 = calculaglobal(p0,conf,L)
             conf.pop()
+
             conf.append(cnodo)
 
             h1 = calculaglobal(p1,conf,L)
             conf.pop()
+            
+            
+            
 
 
             if h0.value.contradict and h1.value.contradict:
