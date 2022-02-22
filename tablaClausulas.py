@@ -304,7 +304,8 @@ class PotencialTabla:
         
         def insertaunit(self,x):
             if -x in self.unit:
-                self.contradict = True
+                self.anula()
+                return
             else:
                 self.unit.add(x)
             
@@ -312,6 +313,34 @@ class PotencialTabla:
             for p in self.listap:
                 if xp in p.listavar:
                     p.reduce({xp}, inplace = True)
+
+        def propagaunits(self,su):
+            negu = set(map(lambda x: -x, su))
+            if negu.intersection(self.unit):
+                self.anula()
+                return 
+            else:
+                self.unit.update(su)
+            
+            vars = set(map(abs,su))
+            nu = set()
+            borr = []
+            for p in self.listap:
+                inter = vars.intersection(set(p.listavar))
+                if inter:
+                        p.reduce(inter , inplace = True)
+                        if p.contradict():
+                            self.anula()
+                            return
+                        if p.trivial():
+                            borr.append(p)
+                        else:
+                            nu.update(p.calculaunit())
+            for p in borr:
+                self.listap.remove(p)
+            if nu:
+                self.propagaunits(nu)
+                        
 
         def reduceycombina(self, val, inplace = False):
             res = PotencialTabla()
@@ -362,7 +391,7 @@ class PotencialTabla:
         def simplifica(self,l,M=8):
             bor = []
             uni = set()
-            for p in self.listap:
+            for p in l:
                 if len(p.listavar)<= M:
                     if p.trivial():
                         bor.append(p)
@@ -377,9 +406,8 @@ class PotencialTabla:
             for p in bor:
                 self.listap.remove(p)
 
-            for x in uni:
-                self.insertaunit(x)
-                print("units ",uni)
+            if uni:
+                self.propagaunits(uni)
             return
 
 
@@ -459,8 +487,16 @@ class PotencialTabla:
                             q = si.pop()
                             self.listap.remove(q)
                             p.combina(q,inplace = True, des =True)
+
+                        if p.contradict():
+                            self.anula()
+                            return True
                         
                         self.listap.append(p)
+                        su = p.calculaunit()
+                        if su:
+                            self.propagaunits(su)
+                        
                         return True
                 else:
                         return False
