@@ -266,6 +266,16 @@ class PotencialTabla:
                 res.listap.append(p.copia())
             return res
 
+        def getvars(self):
+            res = set()
+            res.update(set(map(abs,self.unit)))
+
+        
+
+            for p in self.listap:
+                res.update(set(p.listavar))
+            return res
+
         def computefromsimple(self,simple):
             self.unit = simple.unit.copy()
             (sets,clusters) = createclusters(simple.listaclaus)
@@ -334,9 +344,22 @@ class PotencialTabla:
                 #     res.listap.append(p)
             return res
 
+        def reducenv(self, val, l, inplace = False):
+            res = PotencialTabla()
+            if -val in self.unit:
+                    res.contradict = True
+                    return res
+            res.unit = self.unit-{val}
+            for p in self.listap:
+                if abs(val) in p.listavar:
+                    q = p.reduce([val],inplace = False)
+                    res.listap.append(q)
+                    l.append(q)
+                else:
+                     res.listap.append(p.copia())
+            return res
 
-
-        def simplifica(self,M=8):
+        def simplifica(self,l,M=8):
             bor = []
             uni = set()
             for p in self.listap:
@@ -436,7 +459,6 @@ class PotencialTabla:
                             q = si.pop()
                             self.listap.remove(q)
                             p.combina(q,inplace = True, des =True)
-                        r = p.borra([var], inplace=False)
                         
                         self.listap.append(p)
                         return True

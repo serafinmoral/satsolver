@@ -314,10 +314,10 @@ while reader:
 
     main(prob)
     # print("Conjunto solución: ",prob.sol)
-    if prob.inicial.contradict==False:
-        prob.compruebaSol()
-    else:
-        print("Problema no satisfactible")
+    # if prob.inicial.contradict==False:
+    #     prob.compruebaSol()
+    # else:
+    #     print("Problema no satisfactible")
     t5 = time()
     print("tiempo lectura ",t2-t1)
 #    print("tiempo inicio ",t3-t2)

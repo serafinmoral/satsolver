@@ -25,7 +25,7 @@ def triangulacond(pot):
     mv = 0
     n = len(grafo.nodes)
     
-    
+
     i= 0
     total = set()
     cnodo = max(grafo.nodes,key = lambda x : grafo.degree[x])
@@ -114,8 +114,11 @@ def calculadesdePotencial(pot,posvar, L=30):
 def calculaglobal(pot, conf = [], L=30, M=6):
 
         result = arbol()
-        vars = set()
-        print(conf)
+        vars = pot.getvars()
+        if len(vars)<= L:
+            result.value = pot.copia()
+            return result
+        print(conf) 
         (orden,cnodo,maxp) = triangulacond(pot)
         
 
@@ -124,10 +127,12 @@ def calculaglobal(pot, conf = [], L=30, M=6):
             result.value = pot.copia()
         else:
             pot.borrafacil(orden,M)
-            p0 = pot.reduce([cnodo], inplace = False)
-            p1 = pot.reduce([-cnodo], inplace = False)
-            p0.simplifica(M)
-            p1.simplifica(M)
+            l0 = []
+            l1 = []
+            p0 = pot.reducenv(cnodo, l0, inplace = False)
+            p1 = pot.reducenv(-cnodo, l1, inplace = False)
+            p0.simplifica(l0,M)
+            p1.simplifica(l1,M)
 
             if p0.contradict and p1.contradict:
                 result.anula()
