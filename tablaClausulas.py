@@ -287,6 +287,20 @@ class PotencialTabla:
         def inserta(self,p):
             self.listap.append(p)
 
+        def calculavarcond(self):
+            cont = dict()
+
+            vars = self.getvars()
+            for x in vars:
+                cont[x] = 0.0
+            for p in self.listap:
+                for x in p.listavar:
+                    cont[x] += 1/2**(len(p.listavar))
+
+            return max(cont, key = cont.get)
+
+
+
         def insertap(self,p):
             for x in p.unit:
                 self.insertaunit(x)
@@ -376,7 +390,7 @@ class PotencialTabla:
         def reducenv(self, val, l, inplace = False):
             res = PotencialTabla()
             if -val in self.unit:
-                    res.contradict = True
+                    res.anula()
                     return res
             res.unit = self.unit-{val}
             for p in self.listap:
@@ -419,6 +433,15 @@ class PotencialTabla:
                     break
                 else:
                     print("borrada ", var)
+
+        def combinafacil(self,orden,M):
+            
+            for var in orden:
+                su = self.combinacond(var,M)
+                if not su:
+                    break
+                else:
+                    print("borrada ", var)
         
         def combinaincluidos(self,M):
             i = 0
@@ -428,26 +451,37 @@ class PotencialTabla:
                     print(i,j)
                     p = self.listap[i]
                     q = self.listap[j]
-                    if set(p.listavar) <= set(q.listavar):
-                        q.combina(p, inplace = True)
-                        if len(p.listavar) <= M:
-                            self.listap.remove(p)
-                            if j == len(self.listap):
-                                i+=1
-                            break
-                        else:
-                            j += 1
+                    inter = set(p.listavar).intersection(q.listavar)
+                    if inter:
+                        pnoq = list(set(p.listavar) - inter)
+                        qnop = list(set(q.listavar) - inter)
+                        if not qnop:
+                            q.combina(p, inplace = True)
+                            if len(p.listavar) <= M:
+                                self.listap.remove(p)
+                                if j == len(self.listap):
+                                    i+=1
+                                break
+                            else:
+                                j += 1
                             
-                    elif set(q.listavar) <= set(p.listavar):
-                        p.combina(q, inplace = True)
-                        if len(q.listavar) <= M:
-                            self.listap.remove(q)
+                        elif not pnoq:
+                            p.combina(q, inplace = True)
+                            if len(q.listavar) <= M:
+                                self.listap.remove(q)
+                            else:
+                                j += 1
                         else:
-                            j += 1
+                            r = p.borra(pnoq,inplace = False)
+                            q.combina(r, inplace = True)
+                            r = q.borra(qnop, inplace = False)
+                            p.combina(r, inplace = True)
+
+                            j+=1
                     else:
                         j+=1
                     if j == len(self.listap):
-                                i+=1
+                            i+=1
 
 
 
@@ -474,6 +508,8 @@ class PotencialTabla:
                             vars.update(p.listavar)
                             si.append(p)
         
+                if not si:
+                    return True
         
                 if len(vars) <= M+1:
                         si.sort(key = lambda h: - len(h.listavar) )
@@ -486,7 +522,62 @@ class PotencialTabla:
                             
                             q = si.pop()
                             self.listap.remove(q)
-                            p.combina(q,inplace = True, des =True)
+                            p.combina(q,inplace = True, des = True)
+
+                        r = p.borra([var], inplace = False)
+                        if r.contradict():
+                            self.anula()
+                            return True
+                        
+                        if r.trivial():
+                            return True
+
+                        self.listap.append(r)
+                        su = r.calculaunit()
+                        if su:
+                            self.propagaunits(su)
+                        
+                        return True
+                else:
+                        return False
+
+        def combinacond(self,var,M, inplace=True):
+            
+            if inplace:
+                if self.contradict:
+                        return True
+                if var in  self.unit:
+                        self.unit.discard(var)
+                        return True
+                elif -var in self.unit:
+                        self.unit.discard(-var) 
+
+                        return True
+                
+                si = []    
+                vars =set()
+                for p in self.listap:
+            
+                
+                    if var in p.listavar:
+                            vars.update(p.listavar)
+                            si.append(p)
+        
+                if len(si) <= 1:
+                    return True
+                if len(vars) <= M:
+                        si.sort(key = lambda h: - len(h.listavar) )
+                        
+                        p = nodoTabla([])
+
+ 
+                        
+                        while si:
+                            
+                            q = si.pop()
+                            self.listap.remove(q)
+                            p.combina(q,inplace = True, des = True)
+
 
                         if p.contradict():
                             self.anula()
@@ -499,8 +590,10 @@ class PotencialTabla:
                         
                         return True
                 else:
-                        return False
-
+                         
+                    return False
+                        
+                        
         def marginaliza(self,var, inplace = False):
 
             if not inplace:
