@@ -10,7 +10,7 @@ from SimpleClausulas import *
 from ProblemaTrianFactor import *
 from time import *
 
-from arboltabla import calculaglobal
+from arboltablaglobal import *
 
 def leeArchivoGlobal(Archivo):
     reader=open(Archivo,"r") 
@@ -259,11 +259,14 @@ def main(prob):
 
         prob.inicia0()                          
 
-        # prob.pinicial.combinaincluidos(M=6)
+        prob.pinicial.combinaincluidos(M=6)
 
         arbolcom = calculaglobal(prob.pinicial.copia())
 
+        arbolcom.imprime()
 
+        sol = set()
+        # encontrado = arbolcom.findsol(sol)
         # grafo = prob.inicial.cgrafo()
         # (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
        

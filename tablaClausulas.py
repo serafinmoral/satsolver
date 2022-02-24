@@ -237,6 +237,7 @@ class PotencialTabla:
         def imprime(self):
             print("unit: ", self.unit)
             print("tablas ")
+            print("contradiccion ", self.contradict)
             for x in self.listap:
                 print("vars" , x.listavar)
                 print(x.tabla)
@@ -342,7 +343,8 @@ class PotencialTabla:
             for p in self.listap:
                 inter = vars.intersection(set(p.listavar))
                 if inter:
-                        p.reduce(inter , inplace = True)
+                        nsu = set(filter(lambda x: abs(x) in inter, su))
+                        p.reduce(nsu , inplace = True)
                         if p.contradict():
                             self.anula()
                             return

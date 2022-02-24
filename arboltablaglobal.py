@@ -66,52 +66,9 @@ def triangulacond(pot):
     return (orden,cnodo,mh)
     
 
-def calculadesdePotencial(pot,posvar, L=30):
-
-        result = arbol()
-        vars = set()
-        for p in pot.listap:
-            vars.update(p.listavar)
-        
-        if len(vars)<=L:
-            result.asignaval(pot)
-            return result
-        else:
-            result.value.unit = pot.unit.copy()
-            pot.unit = set()
-            
-            var = max(vars, key = lambda x: posvar[x])
-        
-            p0 = pot.reduce([var], inplace = False)
-            p1 = pot.reduce([-var], inplace = False)
-            p0.simplifica()
-            p1.simplifica()
-
-            if p0.contradict and p1.contradict:
-                result.anula()
-                return result
-
-            if p0.trivial() and p1.trivial():
-                return result
 
 
-            h0 = calculadesdePotencial(p0,posvar,L)
-            h1 = calculadesdePotencial(p1,posvar,L)
-
-            if h0.value.contradict and h1.value.contradict:
-                result.anula()
-                return result
-
-            if h0.trivial() and h1.trivial():
-                return result
-            
-            result.asignavarhijos(var,h0,h1)
-
-            
-
-        return result
-
-def calculaglobal(pot, conf = [], L=30, M=5):
+def calculaglobal(pot, conf = [], L=31, M=25):
 
         result = arbol()
         vars = pot.getvars()
@@ -119,6 +76,13 @@ def calculaglobal(pot, conf = [], L=30, M=5):
             result.value = pot
             return result
         print(conf) 
+
+
+        result.value =  PotencialTabla()
+        result.value.unit = pot.unit.copy()
+        pot.unit = set()
+
+
         (orden,cnodo,maxp) = triangulacond(pot)
         
         cnodo = pot.calculavarcond()
@@ -126,11 +90,16 @@ def calculaglobal(pot, conf = [], L=30, M=5):
         if maxp <= L:
             result.value = pot
         else:
-            pot.combinafacil(orden,M=6)
+            pot.borrafacil(orden,M)
             l0 = []
             l1 = []
             p0 = pot.reducenv(cnodo, l0, inplace = False)
             p1 = pot.reducenv(-cnodo, l1, inplace = False)
+
+            if p0.contradict:
+                p0.imprime()
+                pot.imprime()
+
             p0.simplifica(l0,M)
             p1.simplifica(l1,M)
 
@@ -168,26 +137,7 @@ def calculaglobal(pot, conf = [], L=30, M=5):
 
         return result
 
-def createft(nt):
-    ar = arbol()
-    
-    if len(nt.listavar)==0:
-        if ar.contradict:
-            ar.anula()
-        return ar
-    elif len(nt.listavar) == 1:
-        if nt.tabla.trivial:
-            return ar
-        elif nt.tabla.contradict:
-            ar.anula()
-            return ar
-        elif not nt.tabla[0]:
-            ar.unit.add(nt.listavar[0])
-        elif not nt.tabla[1]:
-            ar.unit.add(-nt.listavar[0])
-    else:
-        ar.value = nt
-    return ar
+
 
 
 
@@ -210,8 +160,7 @@ class arbol:
 
     def void(self):
         self.var = 0
-        self.value = simpleClausulas()
-        self.unit = set()
+        self.value = PotencialTabla()
         self.hijos = [None,None]
 
     def trivial(self):
@@ -519,146 +468,6 @@ class arbol:
                 self.hijos[1].insertaunit(units,conf.copy(),N,posvar)
                 self.hijos[0].insertaunit(units,conf,N,posvar)
 
-
-    def insertatabla(self,tab,conf,N, posvar):
-        if self.unit.intersection(conf):
-                return
-        else:
-            neg = set(map(lambda x: -x, self.unit))
-            conf.difference_update(neg)
-        tab.reduce(self.unit,inplace =True )
-        if tab.tabla.contradict:
-            self.anula()
-            self.contradict = True
-            return
-
-        if tab.tabla.ndim==1:
-            if not tab.tabla[0]:
-                h = {tab.listavar[0]}
-                self.insertaunits(h,conf,N,posvar)
-            elif not tab.tabla[1]:
-                h = {-tab.listavar[0]}
-                self.insertaunits(h,conf,N,posvar)
-            return
-
-
-
-
-        if not conf:
-            if self.var == 0:
-                arb = createft(tab)
-                if arb.var ==0:
-                    self.asignaval(arb.value,arb.unit)
-                else:
-                    self.asignavarhijosv(arb.var,arb.hijos[0],arb.hijos[1],arb.unit)
-            else:
-                v = self.var
-                t0 = tab.reduce(-v,inplace = False)
-                t1 = tab.reduce(v,inplace = False)
-                self.hijos[0].insertatabla(t0,conf,N,posvar)
-                self.hijos[1].insertatabla(t1,conf,N,posvar)
-        elif self.var==0:
-            va = max (conf, key = lambda x: posvar[abs(x)])
-            v = abs(va)
-            tab0 = self.value.reduce(-v, inplace=False)
-            tab1 = self.value.reduce(v, inplace=False)
-            ar0 = createft(tab0)
-            ar1 = createft(tab1)
-
-            self.asignavarhijosv(v,ar0,ar1,self.unit)
-
-            if self.hijos[0].contradict:
-                self.unit.add(v)
-                self.hijos[1].union_update(self.unit)
-                self.value = self.hijos[1].value
-                self.var = self.hijos[1].var
-                self.hijos = self.hijos[1].hijos
-                conf.discard(va)
-                self.insertatabla(tab,conf,N,posvar)
-                return
-
-
-
-            elif self.hijos[1].contradict:
-                self.unit.add(-v)
-                self.hijos[0].union_update(self.unit)
-                self.value = self.hijos[0].value
-                self.var = self.hijos[0].var
-                self.hijos = self.hijos[0].hijos
-                self.insertatabla(tab,conf,N,posvar)
-                return
-
-            conf.discard(va)
-            if v == -va:
-                self.hijos[0].insertatabla(tab,conf,N,posvar)
-            else:
-                self.hijos[1].insertatabla(tab,conf,N,posvar)
-
-
-        else:
-            v = self.var
-            if v in conf:
-                conf.discard(v)
-                self.hijos[1].insertatabla(tab,conf,N,posvar)
-            elif -v in conf:
-                conf.discard(-v)
-                self.hijos[0].insertatabla(tab,conf,N,posvar)
-            else:
-                self.hijos[0].insertatabla(tab,conf.copy(),N,posvar)
-                self.hijos[1].insertatabla(tab,conf.copy(),N,posvar)
-
-
-
-
-
-        return
-    
-    def inserta(self, p, conf):
-        return
-
-    def combina(self,t,N,varpos,inplace=True,des=True):
-        res = self if inplace else self.copia()
-
-        t.reduce(res.units, inplace=True)
-        res.reduce(t.units, inplace = True)
-        if res.contradict:
-            return
-
-        res.units.update(t.units)
-        t.units = ()
-
-        if res.var == 0:
-            if t.var == 0:
-                vars = set(res.value.listavars).union(t.value.listavars)
-                if len(vars) <=N:
-                    res.value.combina(t.value,inplace = True)
-                else:
-                    pot = PotencialTabla()
-                    pot.listap.append(res.value)
-                    pot.listap.append(t.value)
-                    ar = calculadesdePotencial(pot,varpos)
-                    res.hijos = ar.hijos
-                    res.value  = ar.value
-                    res.var = ar.var
-                    res.contradict = ar.contradict
-            else:
-                res.hijos = t.hijos
-                res.value  = t.value
-                res.var = t.var
-                res.unit = t.unit
-                res.contradict = t.contradict
-
-        else:
-            v = res.var
-            r0 = t.reduce(v, inplace=False)
-            r1 = t.reduce(-v, inplace=False)
-            res.hijos[0].combina(r0,N, varpos)
-            res.hijos[1].combina(r1,N, varpos)
-
-
-        if not inplace:
-            return res        
-               
 
 
 
