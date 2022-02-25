@@ -261,14 +261,13 @@ def main(prob):
 
         prob.pinicial.combinaincluidos(M=6)
 
-        arbolcom = calculaglobal(prob.pinicial.copia())
+        # arbolcom = calculaglobal(prob.pinicial.copia())
 
-        arbolcom.imprime()
+        # arbolcom.imprime()
 
-        sol = set()
         # encontrado = arbolcom.findsol(sol)
-        # grafo = prob.inicial.cgrafo()
-        # (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
+        grafo = prob.inicial.cgrafo()
+        (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
        
 
         # prob.borraapro(M=4,T=3)
@@ -284,9 +283,9 @@ def main(prob):
         # # prob.randomsol()
         # prob.reinicia()
 
-        # prob.inicia1()
-        # prob.borrapro()
-        # prob.borraproi()
+        prob.inicia1()
+        prob.borrapro()
+        prob.borraproi()
 
         # prob.pasaarbol()
   

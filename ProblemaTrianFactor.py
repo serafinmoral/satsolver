@@ -11,8 +11,8 @@ from SimpleClausulas import *
 from arboltabla import calculadesdePotencial
 from tablaClausulas import *
 class problemaTrianFactor:
-    def __init__(self,info,N=100):
-         self.N = N
+    def __init__(self,info,M=25):
+         self.M = M
          self.inicial = info
          self.pinicial = PotencialTabla()
          self.orden = []
@@ -51,10 +51,16 @@ class problemaTrianFactor:
            
     def insertaunit(self,x):
         xp = abs(x)
+        nu = set()
         for pos in range(len(self.clusters)):
             if xp in self.clusters[pos]:
                 pot = self.lqueue[pos]  
-                pot.insertaunit(x)
+                nu.update(pot.insertaunit(x))
+        if nu:
+            print("nuevas unidades", nu)
+            for y in nu:
+                
+                self.insertaunit(y)
 
 
 
@@ -71,7 +77,11 @@ class problemaTrianFactor:
             else:
                 pos = len(self.orden)
             pot = self.lqueue[pos]
-            pot.inserta(p)
+            uni = pot.insertatablacombinasi(p, self.M)
+            if uni:
+                print("nuevas uni",uni)
+                for x in uni:
+                    self.insertaunit(x)
 
 
     def introducecorclau(self,cl):

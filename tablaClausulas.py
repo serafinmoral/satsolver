@@ -310,6 +310,41 @@ class PotencialTabla:
                     self.listap[0].combina(q, inplace=True, des= True)
                 else: 
                     self.listap = [q]
+                    
+
+        def insertatablacombinasi(self,p, M):
+        
+            insertado = False
+            nu = set()
+            spl = set(p.listavar)
+            for q in self.listap:
+                sql = set(q.listavar)
+                tot = sql.union(spl)
+                if len(tot)<= M:
+                    q.combina(p,inplace= True)
+                    insertado = True
+                    break
+                else:
+                    inter = sql.intersection(spl)
+                    dif = list(spl-inter)
+                    pm = p.borra(dif,inplace=False)
+                    q.combina(pm, incplace=True)
+                if q.contradict():
+                        self.anula()
+                        return
+                nu.update(q.calculaunits())
+            if not insertado:
+                self.listap.append(p)
+            return nu
+
+                    
+
+                    
+
+
+
+        
+
 
         def insertaa(self,p):
             for x in p.unit:
@@ -320,14 +355,21 @@ class PotencialTabla:
         def insertaunit(self,x):
             if -x in self.unit:
                 self.anula()
-                return
+                return set()
             else:
                 self.unit.add(x)
             
             xp = abs(x)
+            un = set()
             for p in self.listap:
                 if xp in p.listavar:
                     p.reduce({xp}, inplace = True)
+                    if p.contradict():
+                        return set()
+                    h = p.calculaunit()
+                    un.update(h)
+            return un
+
 
         def propagaunits(self,su):
             negu = set(map(lambda x: -x, su))

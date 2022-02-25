@@ -90,7 +90,7 @@ def calculaglobal(pot, conf = [], L=31, M=25):
         if maxp <= L:
             result.value = pot
         else:
-            pot.borrafacil(orden,M)
+            pot.borrafacil(orden,M=15)
             l0 = []
             l1 = []
             p0 = pot.reducenv(cnodo, l0, inplace = False)
