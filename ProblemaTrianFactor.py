@@ -80,31 +80,14 @@ class problemaTrianFactor:
             uni = pot.insertatablacombinasi(p, self.M)
             if uni:
                 print("nuevas uni",uni)
+                time.sleep(1)
                 for x in uni:
                     self.insertaunit(x)
 
 
-    def introducecorclau(self,cl):
-        vars = set(map(lambda x:abs(x),cl))
-        for pos in range(len(self.clusters)):
-            if vars <= self.clusters[pos]:
-                simple = self.cortas[pos]
-                simple.insertar(cl)
+    
 
-
-    def introducecortas(self,simple):
-        for x in simple.unit:
-            self.introducecorclau({x})
-
-        for x in simple.two:
-            for y in simple.two[x]:
-                self.introducecorclau({x,y})
-
-        for cl in simple.listaclaus:
-            self.introducecorclau(cl)
-
-
-    def borraproi(self,L=25):
+    def borraproi(self):
         
         for i in reversed(range(len(self.orden))):
             if self.inicial.contradict:
@@ -122,7 +105,7 @@ class problemaTrianFactor:
                 dif = self.clusters[i]-self.clusters[j]
                 print(dif)
                 
-                potn = pot.marginalizapros(dif,L,inplace=False)
+                potn = pot.marginalizapros(dif,self.M,inplace=False)
                 
             
             
@@ -133,7 +116,7 @@ class problemaTrianFactor:
 
                     
 
-                self.lqueue[j].insertaa(potn)
+                self.lqueue[j].insertaa(potn,self.M)
 
         
     def borrai(self):
@@ -177,7 +160,7 @@ class problemaTrianFactor:
             print("cluster ", self.clusters[i])
 
             p = self.lqueue[i]
-            ap = calculadesdePotencial(p, self.posvar)
+            ap = calculadesdePotencial(p)
                        
             self.lqueue[i] = ap
 
@@ -191,24 +174,24 @@ class problemaTrianFactor:
             if self.inicial.contradict:
                 break
             var = self.orden[i]
-            # print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
        
             # pot.imprime()
             
-            if pot.contradict:
+            if pot.value.contradict:
                 self.inicial.contradict=True #ojo
                 print("contradiccion antes de normalizar ")
                 break
             
             
-            potn = pot.marginaliza(var)
+            potn = pot.marginaliza(var, L=30)
 
             pos = self.parent[i]
 
             poti = self.lqueue[pos]
 
-            poti.insertap(potn)
+            poti.combina(potn, self.M, self.posvar)
             
             # potn.imprime()
             # if self.parent[i]==-1:
@@ -223,7 +206,7 @@ class problemaTrianFactor:
             # else:
             #     self.inserta(potn)
 
-    def borrapro(self, L = 25):
+    def borrapro(self):
         print(len(self.orden))
         for i in range(len(self.orden)):
             if self.inicial.contradict:
@@ -240,14 +223,14 @@ class problemaTrianFactor:
                 break
             
             
-            potn = pot.marginalizapro(var,L)
+            potn = pot.marginalizapro(var,self.M)
             
             # potn.imprime()
             pos = self.parent[i]
 
             poti = self.lqueue[pos]
 
-            poti.insertaa(potn)
+            poti.insertaa(potn,self.M)
 
 
     def inserta(self,pot):
@@ -260,93 +243,7 @@ class problemaTrianFactor:
 
 
 
-    def borra2(self):
-        print(len(self.orden))
-        for i in range(len(self.orden)):
-                t0 = arboldoble()
-                t1 = arboldoble()
-                self.lqp.append(t1)
-                self.lqn.append(t0)
-                c = simpleClausulas()
-                self.cortas.append(c)
-        for j in range(len(self.orden),0,-1):
-            print("j= ", j)
-            if self.inicial.contradict:
-                    break
-            for i in range(j,len(self.orden)):
-            
-                if self.inicial.contradict:
-                    break
-                var = self.orden[i]
-                print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
-                pot = self.lqueue[i]
-                
-                if pot.value.contradict:
-                    self.inicial.contradict=True #ojo
-                    print("contradiccion antes de normalizar ")
-                    break
-                print("entro en normaliza")
-                # if pot.checkrep():
-                #     print("proeblma de repeticion antes de normalizar")
-                pot.normaliza(self.N) 
-                if pot.value.contradict:
-                    self.inicial.contradict=True #ojo
-                    print("contradiccion después de normalizar ")
-                    break
-                print("entro en split")
-                # if pot.checkrep():
-                #     print("proeblma de repeticion")
-                (t0,t1,t2) = pot.splitborra(var)
-                
-                r0 = self.lqn[i]
-                r1 = self.lqp[i]
-
-                
-                print("ntro en combinaborra")
-                res1 = t0.combinaborra(t1,self.N)
-                res2 = t0.combinaborra(r1,self.N)
-                res3 = t1.combinaborra(r0,self.N)
-
-                r0.inserta(t0,self.N)
-                r1.inserta(t1,self.N)
-
-                c1 = res1.extraecortas()
-                c2 = res2.extraecortas()
-                c3 = res3.extraecortas()
-
-
-                if not c1.nulo():
-                    
-                    self.introducecortas(c1)
-
-                    c1.imprime()
-                    time.sleep(3)
-                
-                if not c2.nulo():
-                    self.introducecortas(c2)
-
-                    c2.imprime()
-                    time.sleep(3)
-
-                if not c3.nulo():
-                    self.introducecortas(c3)
-
-                    c3.imprime()
-                    time.sleep(3)
-
-
-
-                print("inserto t2")
-                self.insertacola(t2,i)
-                res1.normaliza(self.N)
-
-                if res1.value.contradict:
-                    print("contradiccion en resultado")
-                pot.void()
-                print("Ahora inserto en la cola")
-                self.insertacola(res1,i)
-                self.insertacola(res2,i)
-                self.insertacola(res3,i)
+    
 
 
             

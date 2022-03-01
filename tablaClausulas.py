@@ -271,10 +271,25 @@ class PotencialTabla:
             res = set()
             res.update(set(map(abs,self.unit)))
 
-        
+
 
             for p in self.listap:
                 res.update(set(p.listavar))
+            return res
+
+        def getvarsp(self):
+            res = set()
+    
+            for p in self.listap:
+                res.update(set(p.listavar))
+            return res
+
+        def getvarspv(self,v):
+            res = set()
+    
+            for p in self.listap:
+                if v in p.listavar:
+                    res.update(set(p.listavar))
             return res
 
         def computefromsimple(self,simple):
@@ -316,23 +331,26 @@ class PotencialTabla:
         
             insertado = False
             nu = set()
-            spl = set(p.listavar)
+            p.reduce(self.unit,inplace=True)
             for q in self.listap:
                 sql = set(q.listavar)
+                spl = set(p.listavar)
                 tot = sql.union(spl)
+                print(M,len(tot))
+
                 if len(tot)<= M:
                     q.combina(p,inplace= True)
                     insertado = True
                     break
-                else:
-                    inter = sql.intersection(spl)
-                    dif = list(spl-inter)
-                    pm = p.borra(dif,inplace=False)
-                    q.combina(pm, incplace=True)
-                if q.contradict():
-                        self.anula()
-                        return
-                nu.update(q.calculaunits())
+                # else:
+                #     inter = sql.intersection(spl)
+                #     dif = list(spl-inter)
+                #     pm = p.borra(dif,inplace=False)
+                #     q.combina(pm, inplace=True)
+                # if q.contradict():
+                #         self.anula()
+                #         return
+                # nu.update(q.calculaunit())
             if not insertado:
                 self.listap.append(p)
             return nu
@@ -346,12 +364,21 @@ class PotencialTabla:
         
 
 
-        def insertaa(self,p):
+        def insertaa(self,p,M):
+            old = self.unit.copy()
             for x in p.unit:
                 self.insertaunit(x)
+            nu = set()
             for q in p.listap:
-                self.listap.append(q)
+                nu.update(self.insertatablacombinasi(q,M))
+
+            if nu:
+                for x in nu:
+                    self.insertaunit(x)
+                    print("Nueva unidad       ",x)
         
+
+
         def insertaunit(self,x):
             if -x in self.unit:
                 self.anula()
@@ -774,7 +801,6 @@ class PotencialTabla:
                         p = nodoTabla([])
                         
 
-                        
                         while si:
 
                             q = si.pop()
@@ -782,15 +808,18 @@ class PotencialTabla:
                                 p.combina(q,inplace = True, des=False)
                             else:
                                 r = p.borra([var], inplace=False)
+                                
                                 res.listap.append(r)
                                 p = q.copia()
                                 print("aproximo")
 
                             
                         r = p.borra([var], inplace=False)
+                       
                         
                         
                         res.listap.append(r)
+                        
                         
 
                         

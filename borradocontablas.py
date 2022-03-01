@@ -10,7 +10,7 @@ from SimpleClausulas import *
 from ProblemaTrianFactor import *
 from time import *
 
-from arboltablaglobal import *
+from arboltabla import *
 
 def leeArchivoGlobal(Archivo):
     reader=open(Archivo,"r") 
@@ -287,8 +287,11 @@ def main(prob):
         prob.borrapro()
         prob.borraproi()
 
-        # prob.pasaarbol()
-  
+        prob.pasaarbol()
+
+        print("empiezo a borrar")
+
+        prob.borra()
         
         # prob.findsol()
 

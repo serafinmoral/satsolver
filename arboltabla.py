@@ -66,51 +66,12 @@ def triangulacond(pot):
     return (orden,cnodo,mh)
     
 
-def calculadesdePotencial(pot,posvar, L=30):
+def calculadesdePotencial(pot):
 
         result = arbol()
-        vars = set()
-        for p in pot.listap:
-            vars.update(p.listavar)
-        
-        if len(vars)<=L:
-            result.asignaval(pot)
-            return result
-        else:
-            result.value.unit = pot.unit.copy()
-            pot.unit = set()
-            
-            var = max(vars, key = lambda x: posvar[x])
-        
-            p0 = pot.reduce([var], inplace = False)
-            p1 = pot.reduce([-var], inplace = False)
-            p0.simplifica()
-            p1.simplifica()
-
-            if p0.contradict and p1.contradict:
-                result.anula()
-                return result
-
-            if p0.trivial() and p1.trivial():
-                return result
-
-
-            h0 = calculadesdePotencial(p0,posvar,L)
-            h1 = calculadesdePotencial(p1,posvar,L)
-
-            if h0.value.contradict and h1.value.contradict:
-                result.anula()
-                return result
-
-            if h0.trivial() and h1.trivial():
-                return result
-            
-            result.asignavarhijos(var,h0,h1)
-
-            
-
+        result.asignaval(pot)
         return result
-
+        
 def calculaglobal(pot, conf = [], L=30, M=5):
 
         result = arbol()
@@ -197,6 +158,9 @@ class arbol:
         self.value = PotencialTabla()
         self.hijos = [None,None]
 
+
+
+
     def anula(self):
         self.var = 0
         self.value.anula()
@@ -210,7 +174,7 @@ class arbol:
 
     def void(self):
         self.var = 0
-        self.value = simpleClausulas()
+        self.value = PotencialTabla()
         self.unit = set()
         self.hijos = [None,None]
 
@@ -301,9 +265,9 @@ class arbol:
 
     def reduce(self,v, inplace = False):
         res = self if inplace else self.copia()
-        if v in res.unit:
+        if v in res.value.unit:
             res.unit.discard(v)
-        if -v in res.unit:
+        if -v in res.value.unit:
             res.anula
             res.contradict = True
             return res
@@ -613,37 +577,38 @@ class arbol:
 
         return
     
-    def inserta(self, p, conf):
-        return
+    def marginaliza(self,var, L):
+        res = arbol()
+        if self.var == 0:
+            tvar = self.value.getvarspv(var)
+            if len(tvar) <= L:
+                nvalue = self.value.marginaliza(var)
+                res.asignaval(nvalue)
+                return res
 
-    def combina(self,t,N,varpos,inplace=True,des=True):
+
+
+
+    def combina(self,t,M,varpos,inplace=True,des=True):
         res = self if inplace else self.copia()
+        if res.value.unit:
+            t.reduce(res.value.unit, inplace=True)
+        if t.value.unit:
+            res.reduce(t.value.unit, inplace = True)
+        if res.value.contradict:
+            return res
 
-        t.reduce(res.units, inplace=True)
-        res.reduce(t.units, inplace = True)
-        if res.contradict:
-            return
 
-        res.units.update(t.units)
-        t.units = ()
+        res.value.unit.update(t.value.unit)
+        t.value.unit = ()
 
         if res.var == 0:
             if t.var == 0:
-                vars = set(res.value.listavars).union(t.value.listavars)
-                if len(vars) <=N:
-                    res.value.combina(t.value,inplace = True)
-                else:
-                    pot = PotencialTabla()
-                    pot.listap.append(res.value)
-                    pot.listap.append(t.value)
-                    ar = calculadesdePotencial(pot,varpos)
-                    res.hijos = ar.hijos
-                    res.value  = ar.value
-                    res.var = ar.var
-                    res.contradict = ar.contradict
+                for p in t.value.listap:
+                    res.value.insertatablacombinasi(p,M)
             else:
                 res.hijos = t.hijos
-                res.value  = t.value
+                res.value.listap  = []
                 res.var = t.var
                 res.unit = t.unit
                 res.contradict = t.contradict
