@@ -55,12 +55,8 @@ class problemaTrianFactor:
         for pos in range(len(self.clusters)):
             if xp in self.clusters[pos]:
                 pot = self.lqueue[pos]  
-                nu.update(pot.insertaunit(x))
-        if nu:
-            print("nuevas unidades", nu)
-            for y in nu:
-                
-                self.insertaunit(y)
+                pot.insertaunit(x)
+    
 
 
 
@@ -185,13 +181,13 @@ class problemaTrianFactor:
                 break
             
             
-            potn = pot.marginaliza(var, L=30)
+            potn = pot.marginaliza(var,self.posvar, L=30)
 
             pos = self.parent[i]
 
             poti = self.lqueue[pos]
 
-            poti.combina(potn, self.M, self.posvar)
+            poti.combina(potn, self.M)
             
             # potn.imprime()
             # if self.parent[i]==-1:

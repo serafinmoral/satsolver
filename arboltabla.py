@@ -3,6 +3,7 @@ Spyder Editor
 
 This is a temporary script file.
 """
+from re import I
 import networkx as nx    
 
 import os
@@ -199,7 +200,12 @@ class arbol:
         self.hijos[1] = h1
 
 
+    def asignavarhijosv(self,p,h0,h1,v):
+        self.var = p
 
+        self.hijos[0] = h0
+        self.hijos[1] = h1
+        self.value = v
 
 
     def asignaval(self,x):
@@ -246,13 +252,13 @@ class arbol:
 
         if self.var == 0:
             res.asignaval(self.value.copia())
-            res.unit = self.unit.copia()
+            res.value = self.value.copia()
 
         else:
             v = self.var
             h0 = self.hijos[0].copia()
             h1 = self.hijos[1].copia()
-            u = self.unit.copia()
+            u = self.value.copia()
             res.asignavarhijosv(v,h0,h1,u)
 
         return res
@@ -267,6 +273,7 @@ class arbol:
         res = self if inplace else self.copia()
         if v in res.value.unit:
             res.unit.discard(v)
+            return res
         if -v in res.value.unit:
             res.anula
             res.contradict = True
@@ -277,20 +284,8 @@ class arbol:
             res.anula()
             return res 
 
-        if len(res.value.listvar)==1:
-            if res.value.trivial():
-                res.value = nodoTabla()
-
-            elif not res.value.tabla[0]:
-                nv = res.value.listavar[0]
-                res.insertau({nv})
-            elif not res.value.tabla[1]:
-                nv = -res.value.listavar[0]
-                res.insertau({-nv})
-            if inplace:
-                return res
-            else:
-                return
+        
+    
 
         if not res.var == 0:
             if res.var == v:
@@ -298,6 +293,7 @@ class arbol:
                 res.value = res.hijos[1].value
                 res.var = res.hijos[1].var
                 res.hijos = res.hijos[1].hijos
+        
 
             elif -res.var == v:
                 res.hijos[0].value.combina(res.value, inplace=True)
@@ -307,6 +303,8 @@ class arbol:
             else:
                 res.hijos[0].reduce(v,inplace=True)
                 res.hijos[1].reduce(v, inplace=True)
+                if res.hijos[0].value.contradict() and res.hijos[1].value.contradict():
+                    res.anula()
 
         if not inplace:
             return res
@@ -315,38 +313,10 @@ class arbol:
 
 
     def reduces(self,s, inplace=False):
-        
-        v = set(s)
-
         res = self if inplace else self.copia()
-        
-        res.unit.difference_update(v)
-        mv = set(map(lambda x:-x,v))
-        if mv.intersection(res.unit):
-            res.anula
-            res.contradict = True
-            return res
-        res.value.reduce(list(v), inplace=True)
-        if res.value.contradict:
-            res.asignaval(res.value,set())
-            return res
-        if not res.var == 0:
-            if res.var in v:
-                res.hijos[1].reduces(s,inplace=True)
-                res.hijos[1].value.combina(res.value)
-                res.value = res.hijos[1].value
-                res.var = res.hijos[1].var
-                res.hijos = res.hijos[1].hijos
 
-            elif -res.var in v:
-                res.hijos[0].reduces(s,inplace=True)
-                res.hijos[0].value.combina(res.value)
-                res.value = res.hijos[0].value
-                res.var = res.hijos[0].var
-                res.hijos = res.hijos[0].hijos
-            else:
-                res.hijos[0].reduces(v, inplace=True)
-                res.hijos[1].reduces(v, inplace=True)
+        for x in s:
+            res.reduce(x,inplace=True)
 
         if not inplace:
             return res
@@ -484,7 +454,7 @@ class arbol:
                 self.hijos[0].insertaunit(units,conf,N,posvar)
 
 
-    def insertatabla(self,tab,conf,N, posvar):
+    def insertatabla(self,tab,conf,M):
         if self.unit.intersection(conf):
                 return
         else:
@@ -499,10 +469,10 @@ class arbol:
         if tab.tabla.ndim==1:
             if not tab.tabla[0]:
                 h = {tab.listavar[0]}
-                self.insertaunits(h,conf,N,posvar)
+                self.insertaunits(h,conf,N)
             elif not tab.tabla[1]:
                 h = {-tab.listavar[0]}
-                self.insertaunits(h,conf,N,posvar)
+                self.insertaunits(h,conf,N)
             return
 
 
@@ -519,8 +489,8 @@ class arbol:
                 v = self.var
                 t0 = tab.reduce(-v,inplace = False)
                 t1 = tab.reduce(v,inplace = False)
-                self.hijos[0].insertatabla(t0,conf,N,posvar)
-                self.hijos[1].insertatabla(t1,conf,N,posvar)
+                self.hijos[0].insertatabla(t0,conf,M)
+                self.hijos[1].insertatabla(t1,conf,M)
         elif self.var==0:
             va = max (conf, key = lambda x: posvar[abs(x)])
             v = abs(va)
@@ -577,30 +547,68 @@ class arbol:
 
         return
     
-    def marginaliza(self,var, L):
+    def marginaliza(self,varm, posvar, L):
         res = arbol()
         if self.var == 0:
-            tvar = self.value.getvarspv(var)
+            self.value.extraeunits()
+            tvar = self.value.getvarspv(varm)
             if len(tvar) <= L:
-                nvalue = self.value.marginaliza(var)
+                nvalue = self.value.marginaliza(varm, inplace = False)
                 res.asignaval(nvalue)
                 return res
+            else:
+                nvar = max(tvar, key = lambda x: posvar[abs(x)])
+                res.value.unit = self.value.unit.copy()
+                self.value.unit = set()
+                t0 = self.reduce(-nvar, inplace=False)
+                t1 = self.reduce(nvar, inplace=False)
+                self.value.unit = res.value.unit.copy()
+
+                h0 = t0.marginaliza(varm,posvar,L)
+                h1 = t1.marginaliza(varm,posvar,L)
+                res.var = nvar
+                res.hijos[0] = h0
+                res.hijos[1] = h1
+
+        elif not self.var == varm:
+
+            res.asignavarhijos(self.var,self.hijos[0].marginaliza(varm, posvar,L), self.hijos[1].marginaliza(varm, posvar,L))
+            
+        else:
+            res = self.hijos[0].suma(self.hijos[1], posvar, L, inplace = False)
+            res.value.unit.update(self.value.unit)
+
+        return res
 
 
 
 
-    def combina(self,t,M,varpos,inplace=True,des=True):
+
+
+                
+
+
+
+
+
+    def combina(self,t,M,inplace=True,des=True):
         res = self if inplace else self.copia()
-        if res.value.unit:
-            t.reduce(res.value.unit, inplace=True)
-        if t.value.unit:
-            res.reduce(t.value.unit, inplace = True)
-        if res.value.contradict:
-            return res
+        
+        newu = res.value.unit
+        
+        while newu or t.value.unit:
+            if newu:
+                t.reduces(newu, inplace=True)
+            if t.value.unit:
+                oldu = res.value.unit.copy()
+                res.reduces(t.value.unit, inplace = True)
+                newu = res.value.unit-oldu
+            if res.value.contradict:
+                return res
+            res.value.unit.update(t.value.unit)
+            t.value.unit = ()
 
-
-        res.value.unit.update(t.value.unit)
-        t.value.unit = ()
+        
 
         if res.var == 0:
             if t.var == 0:
@@ -608,17 +616,18 @@ class arbol:
                     res.value.insertatablacombinasi(p,M)
             else:
                 res.hijos = t.hijos
+                for x in res.value.litap:
+                    t.insertatabla(x,M)
                 res.value.listap  = []
                 res.var = t.var
-                res.unit = t.unit
-                res.contradict = t.contradict
+                res.contradict = t.contradict|res.contradict
 
         else:
             v = res.var
             r0 = t.reduce(v, inplace=False)
             r1 = t.reduce(-v, inplace=False)
-            res.hijos[0].combina(r0,N, varpos)
-            res.hijos[1].combina(r1,N, varpos)
+            res.hijos[0].combina(r0,M)
+            res.hijos[1].combina(r1,M)
 
 
         if not inplace:

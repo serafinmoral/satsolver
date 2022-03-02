@@ -383,19 +383,11 @@ class PotencialTabla:
             if -x in self.unit:
                 self.anula()
                 return set()
-            else:
+            self.reduce({x}, inplace=True)
+            if not self.contradict:
                 self.unit.add(x)
             
-            xp = abs(x)
-            un = set()
-            for p in self.listap:
-                if xp in p.listavar:
-                    p.reduce({xp}, inplace = True)
-                    if p.contradict():
-                        return set()
-                    h = p.calculaunit()
-                    un.update(h)
-            return un
+            
 
 
         def propagaunits(self,su):
@@ -443,20 +435,43 @@ class PotencialTabla:
             return res
 
         def reduce(self, val, inplace = False):
-            res = PotencialTabla()
+            res = self if inplace else self.copia()   
+            varv = set(map(abs,val))
             for x in self.unit:
                 if -x in val:
                     res.contradict = True
                     return res
-                elif not x in val:
-                    res.unit.add(x)
-            for p in self.listap:
-                # if abs(val) in p.listavar:
-                    q = p.reduce(val,inplace = False)
-                    res.listap.append(q)
-                # else:
-                #     res.listap.append(p)
-            return res
+            res.unit.difference_update(set(val))
+            bor = []
+            un = set()
+            for p in res.listap:
+                if varv.intersection(set(p.listavar)):
+                    p.reduce(val,inplace = True)
+        
+                    if len(p.listavar)<= 1:
+                        if p.trivial():
+                            bor.append(p)
+                        if p.contradict():
+                            res.anula()
+                            return res
+                        if len(p.listavar) == 1:
+                            if not p.tabla[0]:
+                                un.add(p.listavar[0])
+                                bor.append(p)
+                            elif not p.tabla[1]:
+                                un.add(-p.listavar[0])
+                                bor.append(p)
+
+            for p in bor:
+                res.listap.remove(p)
+            for x in un:
+                res.insertaunit(x)
+
+
+
+
+            if not inplace:
+                return res
 
         def reducenv(self, val, l, inplace = False):
             res = PotencialTabla()
@@ -495,6 +510,26 @@ class PotencialTabla:
                 self.propagaunits(uni)
             return
 
+        def extraeunits(self):
+            bor = []
+            uni = set()
+            for p in self.listap:
+                    if p.trivial():
+                        bor.append(p)
+                    elif p.contradict():
+                        self.anula()
+                        return
+                    else:
+                        uni.update(p.calculaunit())
+
+             
+
+            for p in bor:
+                self.listap.remove(p)
+
+            if uni:
+                self.propagaunits(uni)
+            return
 
         def borrafacil(self,orden,M):
             
@@ -684,10 +719,10 @@ class PotencialTabla:
                         return res
                     else:
                         res.unit.add(x)
-                si = []
-                i = 0
+    
                 
                 si = self.listap.copy()
+                
 
                 if si:
                         si.sort(key = lambda h: - len(h.listavar) )
