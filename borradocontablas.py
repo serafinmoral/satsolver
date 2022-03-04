@@ -286,12 +286,17 @@ def main(prob):
         prob.inicia1()
         prob.borrapro()
         prob.borraproi()
+        prob.combinaincluidos()
 
-        prob.pasaarbol()
+        nu = prob.calculanu()
+        print("nuevas unidades ", nu)
+        sleep(4)
 
-        print("empiezo a borrar")
+        # prob.pasaarbol()
 
-        prob.borra()
+        # print("empiezo a borrar")
+
+        # prob.borra()
         
         # prob.findsol()
 

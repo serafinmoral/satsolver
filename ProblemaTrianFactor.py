@@ -73,12 +73,8 @@ class problemaTrianFactor:
             else:
                 pos = len(self.orden)
             pot = self.lqueue[pos]
-            uni = pot.insertatablacombinasi(p, self.M)
-            if uni:
-                print("nuevas uni",uni)
-                time.sleep(1)
-                for x in uni:
-                    self.insertaunit(x)
+            pot.insertatablacombinasi(p, self.M)
+            
 
 
     
@@ -90,7 +86,8 @@ class problemaTrianFactor:
                 break
             print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
-            
+
+           
             if pot.contradict:
                 self.inicial.contradict=True #ojo
                 print("contradiccion antes de normalizar ")
@@ -99,14 +96,13 @@ class problemaTrianFactor:
             for j in self.child[i]:
                 print (j)
                 dif = self.clusters[i]-self.clusters[j]
-                print(dif)
                 
                 potn = pot.marginalizapros(dif,self.M,inplace=False)
                 
             
             
 
-                       
+                  
 
                     
 
@@ -114,9 +110,12 @@ class problemaTrianFactor:
 
                 self.lqueue[j].insertaa(potn,self.M)
 
+                
+
         
     def borrai(self):
         
+
         for i in reversed(range(len(self.orden))):
             if self.inicial.contradict:
                 break
@@ -160,6 +159,24 @@ class problemaTrianFactor:
                        
             self.lqueue[i] = ap
 
+    def combinaincluidos(self):
+        for i in range(len(self.orden)):
+            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            pot = self.lqueue[i]
+            pot.combinaincluidos()
+
+    def calculanu(self):
+        nu = set()
+        for i in range(len(self.orden)):
+            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            pot = self.lqueue[i]
+            for p in pot.listap:
+                nu.update(p.calculaunit())
+
+        return nu
+
+
+        
 
 
 
@@ -181,14 +198,16 @@ class problemaTrianFactor:
                 break
             
             
-            potn = pot.marginaliza(var,self.posvar, L=30)
+            potn = pot.marginaliza(var,self.posvar, L=23)
+
+            print("fin marginaliza")
 
             pos = self.parent[i]
 
             poti = self.lqueue[pos]
 
             poti.combina(potn, self.M)
-            
+            print("fin de combina")
             # potn.imprime()
             # if self.parent[i]==-1:
                 
@@ -212,6 +231,8 @@ class problemaTrianFactor:
             pot = self.lqueue[i]
        
             # pot.imprime()
+
+            
             
             if pot.contradict:
                 self.inicial.contradict=True #ojo
@@ -226,7 +247,12 @@ class problemaTrianFactor:
 
             poti = self.lqueue[pos]
 
+            
+
+            
             poti.insertaa(potn,self.M)
+
+            
 
 
     def inserta(self,pot):

@@ -9,7 +9,7 @@ from xmlrpc.client import boolean
 import networkx as nx
 import numpy as np
 from SimpleClausulas import * 
-
+from time import *
 
 class nodoTabla:
 
@@ -69,6 +69,51 @@ class nodoTabla:
         result.tabla = result.tabla & op.tabla    
         if not inplace:
             return result
+
+
+    def suma(self,op,inplace = False, des= False):
+        result = self if inplace else self.copia()
+        if isinstance(op,boolean):
+            if op:
+                return result
+            else:
+                result.tabla = result.tabla | op
+                return result
+
+        if not des:
+            op = op.copia()
+        extra = set(op.listavar) - set(result.listavar)
+        if extra:
+                slice_ = [slice(None)] * len(result.listavar)
+                slice_.extend([np.newaxis] * len(extra))
+
+                result.tabla = result.tabla[tuple(slice_)]
+
+                result.listavar.extend(extra)
+
+        extra = set(result.listavar) - set(op.listavar)
+        if extra:
+                slice_ = [slice(None)] * len(op.listavar)
+                slice_.extend([np.newaxis] * len(extra))
+
+                op.tabla = op.tabla[tuple(slice_)]
+
+                op.listavar.extend(extra)
+                # No need to modify cardinality as we don't need it.
+
+            # rearranging the axes of phi1 to match phi
+        for axis in range(result.tabla.ndim):
+            exchange_index = op.listavar.index(result.listavar[axis])
+            op.listavar[axis], op.listavar[exchange_index] = (
+                op.listavar[exchange_index],
+                op.listavar[axis],
+            )
+            op.tabla = op.tabla.swapaxes(axis, exchange_index)
+
+        result.tabla = result.tabla | op.tabla    
+        if not inplace:
+            return result
+
 
     def reduce(self, val, inplace=False):
         
@@ -330,30 +375,19 @@ class PotencialTabla:
         def insertatablacombinasi(self,p, M):
         
             insertado = False
-            nu = set()
             p.reduce(self.unit,inplace=True)
             for q in self.listap:
                 sql = set(q.listavar)
                 spl = set(p.listavar)
                 tot = sql.union(spl)
-                print(M,len(tot))
 
                 if len(tot)<= M:
                     q.combina(p,inplace= True)
                     insertado = True
                     break
-                # else:
-                #     inter = sql.intersection(spl)
-                #     dif = list(spl-inter)
-                #     pm = p.borra(dif,inplace=False)
-                #     q.combina(pm, inplace=True)
-                # if q.contradict():
-                #         self.anula()
-                #         return
-                # nu.update(q.calculaunit())
+             
             if not insertado:
                 self.listap.append(p)
-            return nu
 
                     
 
@@ -368,14 +402,10 @@ class PotencialTabla:
             old = self.unit.copy()
             for x in p.unit:
                 self.insertaunit(x)
-            nu = set()
             for q in p.listap:
-                nu.update(self.insertatablacombinasi(q,M))
+                self.insertatablacombinasi(q,M)
 
-            if nu:
-                for x in nu:
-                    self.insertaunit(x)
-                    print("Nueva unidad       ",x)
+            
         
 
 
@@ -549,7 +579,7 @@ class PotencialTabla:
                 else:
                     print("borrada ", var)
         
-        def combinaincluidos(self,M):
+        def combinaincluidos(self):
             i = 0
             while i < len(self.listap)-1:
                 j = i+1
@@ -563,20 +593,18 @@ class PotencialTabla:
                         qnop = list(set(q.listavar) - inter)
                         if not qnop:
                             q.combina(p, inplace = True)
-                            if len(p.listavar) <= M:
-                                self.listap.remove(p)
-                                if j == len(self.listap):
-                                    i+=1
+                        
+                            self.listap.remove(p)
+                            if j == len(self.listap):
+                                i+=1
                                 break
                             else:
                                 j += 1
                             
                         elif not pnoq:
                             p.combina(q, inplace = True)
-                            if len(q.listavar) <= M:
-                                self.listap.remove(q)
-                            else:
-                                j += 1
+                            self.listap.remove(q)
+                            
                         else:
                             r = p.borra(pnoq,inplace = False)
                             q.combina(r, inplace = True)
@@ -801,6 +829,37 @@ class PotencialTabla:
                         
 
                 return res
+
+
+        def atabla(self,un):
+            res = nodoTabla([])
+            for p in self.listap:
+                res.combina(p, inplace=True)
+            for x in un:
+                parcial = nodoTabla([abs(x)])
+                if x>0:
+                    parcial.tabla[0] = False
+                else:
+                    parcial.tabla[1] = False
+                res.combina(parcial, inplace=True)
+            return res
+
+
+
+
+        def suma(self, opera, inplace = False):
+            inter = self.unit.intersection(opera.unit)
+            res = PotencialTabla()
+            res.unit = inter
+
+            t0 = self.atabla(self.unit-inter)
+            t1 = opera.atabla(opera.unit-inter)
+
+            tt = t0.suma(t1,inplace=True)
+            res.listap = [tt]
+
+            return res
+
         
         def marginalizapro(self,var, L,inplace = False):
 
@@ -812,12 +871,12 @@ class PotencialTabla:
                     return res
                 for x in self.unit:
                     if x == var:
-                        res.unit = self.unit-{var}
-                        res.listap = self.listap.copy()
+                        res = self.copia()
+                        res.unit.discard(var)
                         return res
                     elif x== -var:
-                        res.unit = self.unit-{-var}
-                        res.listap = self.listap.copy()
+                        res = self.copia()
+                        res.unit.discard(-var)
                         return res
                     else:
                         res.unit.add(x)
@@ -828,7 +887,7 @@ class PotencialTabla:
                     if var in p.listavar:
                             si.append(p)
                     else:
-                            res.listap.append(p)
+                            res.listap.append(p.copia())
         
                 if si:
                         si.sort(key = lambda h: - len(h.listavar) )
@@ -868,18 +927,24 @@ class PotencialTabla:
                 res = PotencialTabla()
 
                 if self.contradict:
-                    res.contradict = True
+                    res.anula()
                     return res
-                uv = self.unit.intersection(set(vars))
+                uv = self.unit.intersection(vars)
                 nvars = set(map(lambda x: -x, vars))
                 nuv = self.unit.intersection(nvars)
 
+            
+
                 if uv:
+                    print("unitaria ", uv)
+                    sleep(2)
                     res.unit = self.unit - uv
                     vars = vars - uv
                 else:
                     res.unit = self.unit.copy()
                 if nuv:
+                    print("unitaria ", nuv)
+                    sleep(2)
                     res.unit = res.unit - nuv
                     puv = set(map(lambda x: -x, nuv)) 
                     vars = vars - puv
@@ -891,7 +956,7 @@ class PotencialTabla:
                     if set(p.listavar).intersection(vars):
                             si.append(p)
                     else:
-                            res.listap.append(p)
+                            res.listap.append(p.copia())
         
                 if si:
                         si.sort(key = lambda h: - len(h.listavar) )

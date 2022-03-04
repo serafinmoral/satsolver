@@ -265,7 +265,9 @@ class arbol:
 
 
 
-
+    def insertaunit(self,v):
+        self.reduce(v,inplace=True)
+        self.value.unit.add(v)
     
 
 
@@ -289,14 +291,14 @@ class arbol:
 
         if not res.var == 0:
             if res.var == v:
-                res.hijos[1].value.combina(res.value, inplace=True)
+                res.hijos[1].value.insertaa(res.value, M=30)
                 res.value = res.hijos[1].value
                 res.var = res.hijos[1].var
                 res.hijos = res.hijos[1].hijos
         
 
             elif -res.var == v:
-                res.hijos[0].value.combina(res.value, inplace=True)
+                res.hijos[0].value.insertaa(res.value, M=30)
                 res.value = res.hijos[0].value
                 res.var = res.hijos[0].var
                 res.hijos = res.hijos[0].hijos
@@ -336,221 +338,46 @@ class arbol:
 
     
 
-    def normaliza(self,N, inplace = True):
-      
-        if self.var == 0:
-            return
-        else:
-            self.hijos[0].normaliza(N)
-            self.hijos[1].normaliza(N)
-            v = self.var
-            if self.hijos[0].contradict:
-                self.unit.add(v)
-                self.hijos[1].union_update(self.unit)
-                self.value = self.hijos[1].value
-                self.var = self.hijos[1].var
-                self.hijos = self.hijos[1].hijos
 
-            elif self.hijos[1].contradict:
-                self.unit.add(-v)
-                self.hijos[0].union_update(self.unit)
-                self.value = self.hijos[0].value
-                self.var = self.hijos[0].var
-                self.hijos = self.hijos[0].hijos
-            
-            else:
-                vars = self.hijos[0].unit.intersection(self.hijos[1].unit)
-                if vars:
-                    self.unit.update(vars)
-                    self.hijos[0].unit.difference_update(vars)
-                    self.hijos[1].unit.difference_update(vars)
+          
 
-            if  self.hijos[0].var == 0 and self.hijos[1].var == 0:
-                vars = set(self.hijos[0].value.listavar).union(set(self.hijos[1].value.listavar))
-                varsunit0 = set(map(abs,self.hijos[0].value.unit))
-                varsunit1 = set(map(abs,self.hijos[1].value.unit))
-                vars.update(varsunit0.union(varsunit1))
-                if len(vars) < N:
-                    l0 = self.hijos[0].value
-                    l1 = self.hijos[1].value
-                    self.hijos[0].unit.add(-v)
-                    self.hijos[1].unit.add(v)
-                    l0.extendunits(self.hijos[0].unit)
-                    l1.extendunits(self.hijos[1].unit)
-                    l0.suma(l1, inplace=True)
-                    self.value = l0
-                    self.var = 0
-
-            
-
-
-            
-
-    def insertau(self,units,conf,N, posvar):
-        if self.unit.intersection(conf):
-                return
-        else:
-            neg = set(map(lambda x: -x, self.unit))
-            conf.difference_update(neg)
-            
-        if not conf:
-            self.reduces(units)
-            self.unit.update(units)
-        elif self.var==0:
-            
-            va = max (conf, key = lambda x: posvar[abs(x)])
-            v = abs(va)
-            tab0 = self.value.reduce(-v, inplace=False)
-            tab1 = self.value.reduce(v, inplace=False)
-            ar0 = createft(tab0)
-            ar1 = createft(tab1)
-
-            self.asignavarhijosv(v,ar0,ar1,self.unit)
-
-            if self.hijos[0].contradict:
-                self.unit.add(v)
-                self.hijos[1].union_update(self.unit)
-                self.value = self.hijos[1].value
-                self.var = self.hijos[1].var
-                self.hijos = self.hijos[1].hijos
-                conf.discard(va)
-                self.insertaunit(units,conf,N,posvar)
-                return
-
-
-
-            elif self.hijos[1].contradict:
-                self.unit.add(-v)
-                self.hijos[0].union_update(self.unit)
-                self.value = self.hijos[0].value
-                self.var = self.hijos[0].var
-                self.hijos = self.hijos[0].hijos
-                self.insertaunit(units,conf,N,posvar)
-                return
-
-            conf.discard(va)
-            if v == -va:
-                self.hijos[0].insertaunit(units,conf,N,posvar)
-            else:
-                self.hijos[1].insertaunit(units,conf,N,posvar)
-        else:
-            v = self.var
-            if -v in conf:
-                conf.discard(-v)
-                self.hijos[0].insertaunit(units,conf,N,posvar)
-            elif v in conf:
-                conf.discard(v)
-                self.hijos[1].insertaunit(units,conf,N,posvar)
-            elif -v in units:
-                r = min(conf,key= lambda x: posvar[abs(x)])
-                conf.discard(r)
-                self.hijos[0].insertaunit({r},conf,N,posvar)
-            elif v in units:
-                r = min(conf,key= lambda x: posvar[abs(x)])
-                conf.discard(r)
-                self.hijos[1].insertaunit({r},conf,N,posvar)
-            else:
-                self.hijos[1].insertaunit(units,conf.copy(),N,posvar)
-                self.hijos[0].insertaunit(units,conf,N,posvar)
-
-
-    def insertatabla(self,tab,conf,M):
-        if self.unit.intersection(conf):
-                return
-        else:
-            neg = set(map(lambda x: -x, self.unit))
-            conf.difference_update(neg)
-        tab.reduce(self.unit,inplace =True )
-        if tab.tabla.contradict:
+    def insertatabla(self,tab,M):
+        
+        if self.value.unit:
+            tab.reduce(self.value.unit,inplace =True )
+        if tab.tabla.ndim==0 and not tab.tabla[0]:
             self.anula()
-            self.contradict = True
+        
             return
 
         if tab.tabla.ndim==1:
             if not tab.tabla[0]:
-                h = {tab.listavar[0]}
-                self.insertaunits(h,conf,N)
+                self.insertaunit(tab.listavar[0])
             elif not tab.tabla[1]:
-                h = {-tab.listavar[0]}
-                self.insertaunits(h,conf,N)
+                self.insertaunit(-tab.listavar[0])
             return
 
-
-
-
-        if not conf:
-            if self.var == 0:
-                arb = createft(tab)
-                if arb.var ==0:
-                    self.asignaval(arb.value,arb.unit)
-                else:
-                    self.asignavarhijosv(arb.var,arb.hijos[0],arb.hijos[1],arb.unit)
-            else:
-                v = self.var
-                t0 = tab.reduce(-v,inplace = False)
-                t1 = tab.reduce(v,inplace = False)
-                self.hijos[0].insertatabla(t0,conf,M)
-                self.hijos[1].insertatabla(t1,conf,M)
-        elif self.var==0:
-            va = max (conf, key = lambda x: posvar[abs(x)])
-            v = abs(va)
-            tab0 = self.value.reduce(-v, inplace=False)
-            tab1 = self.value.reduce(v, inplace=False)
-            ar0 = createft(tab0)
-            ar1 = createft(tab1)
-
-            self.asignavarhijosv(v,ar0,ar1,self.unit)
-
-            if self.hijos[0].contradict:
-                self.unit.add(v)
-                self.hijos[1].union_update(self.unit)
-                self.value = self.hijos[1].value
-                self.var = self.hijos[1].var
-                self.hijos = self.hijos[1].hijos
-                conf.discard(va)
-                self.insertatabla(tab,conf,N,posvar)
-                return
-
-
-
-            elif self.hijos[1].contradict:
-                self.unit.add(-v)
-                self.hijos[0].union_update(self.unit)
-                self.value = self.hijos[0].value
-                self.var = self.hijos[0].var
-                self.hijos = self.hijos[0].hijos
-                self.insertatabla(tab,conf,N,posvar)
-                return
-
-            conf.discard(va)
-            if v == -va:
-                self.hijos[0].insertatabla(tab,conf,N,posvar)
-            else:
-                self.hijos[1].insertatabla(tab,conf,N,posvar)
-
-
+        if self.var == 0:
+            self.value.insertatablacombinasi(tab,M)
         else:
             v = self.var
-            if v in conf:
-                conf.discard(v)
-                self.hijos[1].insertatabla(tab,conf,N,posvar)
-            elif -v in conf:
-                conf.discard(-v)
-                self.hijos[0].insertatabla(tab,conf,N,posvar)
+            if v in tab.listavar:
+                t0 = tab.reduce([-v],inplace = False)
+                t1 = tab.reduce([v],inplace = False)
             else:
-                self.hijos[0].insertatabla(tab,conf.copy(),N,posvar)
-                self.hijos[1].insertatabla(tab,conf.copy(),N,posvar)
+                t0 = tab.copia()
+                t1 = tab.copia()
+            self.hijos[0].insertatabla(t0,M)
+            self.hijos[1].insertatabla(t1,M)
+        
 
-
-
-
+           
 
         return
     
     def marginaliza(self,varm, posvar, L):
         res = arbol()
         if self.var == 0:
-            self.value.extraeunits()
             tvar = self.value.getvarspv(varm)
             if len(tvar) <= L:
                 nvalue = self.value.marginaliza(varm, inplace = False)
@@ -575,7 +402,7 @@ class arbol:
             res.asignavarhijos(self.var,self.hijos[0].marginaliza(varm, posvar,L), self.hijos[1].marginaliza(varm, posvar,L))
             
         else:
-            res = self.hijos[0].suma(self.hijos[1], posvar, L, inplace = False)
+            res = self.hijos[0].suma(self.hijos[1], posvar, inplace = False)
             res.value.unit.update(self.value.unit)
 
         return res
@@ -606,7 +433,7 @@ class arbol:
             if res.value.contradict:
                 return res
             res.value.unit.update(t.value.unit)
-            t.value.unit = ()
+            t.value.unit = set()
 
         
 
@@ -616,11 +443,12 @@ class arbol:
                     res.value.insertatablacombinasi(p,M)
             else:
                 res.hijos = t.hijos
-                for x in res.value.litap:
+                for x in res.value.listap:
                     t.insertatabla(x,M)
                 res.value.listap  = []
                 res.var = t.var
-                res.contradict = t.contradict|res.contradict
+                res.hijos = t.hijos
+                res.value.contradict = t.value.contradict|res.value.contradict
 
         else:
             v = res.var
@@ -635,6 +463,46 @@ class arbol:
                
 
 
+
+
+
+
+    def suma(self,t,M,inplace=True,des=True):
+        res = self if inplace else self.copia()
+        
+        
+        if res.var == 0:
+            if t.var == 0:
+                res.value = res.value.suma(t.value)
+                return t
+            else:
+                t.hijos[0].value.unit.update(t.value.unit)
+                t.hijos[1].value.unit.update(t.value.unit)
+                t.value.unit = set()
+                t.suma(res, inplace=True)
+                
+                res.var = t.var
+                res.value = t.value
+                res.contradict = t.contradict
+                res.hijos = t.hijos
+                
+            
+
+        else:
+            res.hijos[0].value.unit.update(res.value.unit)
+            res.hijos[1].value.unit.update(res.value.unit)
+            res.value.unit = set()
+
+            v = res.var
+            r0 = t.reduce(v, inplace=False)
+            r1 = t.reduce(-v, inplace=False)
+            res.hijos[0].suma(r0,M)
+            res.hijos[1].suma(r1,M)
+
+
+        if not inplace:
+            return res        
+               
 
 
 
