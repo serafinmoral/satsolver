@@ -305,7 +305,7 @@ class arbol:
             else:
                 res.hijos[0].reduce(v,inplace=True)
                 res.hijos[1].reduce(v, inplace=True)
-                if res.hijos[0].value.contradict() and res.hijos[1].value.contradict():
+                if res.hijos[0].value.contradict and res.hijos[1].value.contradict:
                     res.anula()
 
         if not inplace:

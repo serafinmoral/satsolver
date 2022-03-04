@@ -257,7 +257,9 @@ def main(prob):
         prob.inicial.solved = False         
         print("entro en main")
 
-        prob.inicia0()                          
+        prob.inicia0()        
+
+        prob.previo()                  
 
         # prob.pinicial.combinaincluidos(M=6)
 
@@ -286,6 +288,7 @@ def main(prob):
         prob.inicia1()
         prob.borrapro()
         prob.borraproi()
+        prob.limpia()
         prob.combinaincluidos()
 
         nu = prob.calculanu()

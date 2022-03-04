@@ -70,6 +70,22 @@ class nodoTabla:
         if not inplace:
             return result
 
+    def checkdetermi(self,v):
+        if v not in self.listavar:
+            return False
+        t0 = self.reduce([v])
+        t1 = self.reduce([-v])
+
+        t = t0.combina(t1, inplace=False)
+
+        if t.contradict():
+            return True
+        else:
+            return False
+
+
+
+
 
     def suma(self,op,inplace = False, des= False):
         result = self if inplace else self.copia()

@@ -5,7 +5,10 @@ Created on Tue Oct 19 20:13:39 2021
 @author: efrai
 """
 
+from operator import index
 import time
+
+from numpy import False_
 
 from SimpleClausulas import *
 from arboltabla import calculadesdePotencial
@@ -28,6 +31,12 @@ class problemaTrianFactor:
          self.maximal = []
          self.child = []
          self.parent = []
+         self.contradict = False
+
+         self.varpar = []
+         self.potpar = []
+
+
 
     
         
@@ -48,6 +57,80 @@ class problemaTrianFactor:
         self.lqueue.append(y)
 
         self.inserta(self.pinicial)    
+
+
+
+    def previo(self, Q = 3):
+        for x in self.pinicial.unit:
+            self.varpar.append(abs(x))
+            pot = PotencialTabla()
+            pot.unit.add(x)
+            self.potpar.append(pot)
+        self.pinicial.unit = set()
+
+
+        vars = self.pinicial.getvars()
+
+        
+
+        count = dict()
+        pots = dict()
+
+        for v in vars:
+            count[v] = 0
+        
+        for p in self.pinicial.listap:
+            for v in p.listavar:
+                count[v] +=1
+                pots[v] = p
+        for v in vars:
+            print ("var ", v, "num ", count[v])
+            if count[v] == 1:
+                    pot = pots[v]
+                    pos = self.pinicial.listap.index(p)
+                    print("var ", v ,"encontrada una vez")
+
+                
+                    sleep(3)
+                    print("borrando esta variable")
+                    self.varpar.append(v)
+                    self.potpar.append(p)
+
+                    r = p.borra([v],inplace = False)
+                    self.pinicial.listap[pos] = r
+
+
+
+
+        sleep(3)
+        total = 0
+        for K in range(2,Q+1):
+            varb = []
+            potb = []
+            i = 0
+            while i < len(self.pinicial.listap):
+                p = self.pinicial.listap[i]
+                if len(p.listavar) == K:
+                    for v in p.listavar:
+                            deter = p.checkdetermi(v)
+                            if deter:
+                                varb.append(v)
+                                potb.append(p)
+                                print("variable ", v, " determinada ", p.listavar)
+                                print(p.tabla)
+                                
+                                total += 1
+                                break
+                i+= 1
+            print(total)
+            sleep(10)
+
+    def anula(self):
+
+        for i in range(len(self.orden)):
+            self.lqueue[i].anula()
+        self.contradict = True
+
            
     def insertaunit(self,x):
         xp = abs(x)
@@ -172,6 +255,23 @@ class problemaTrianFactor:
             pot = self.lqueue[i]
             for p in pot.listap:
                 nu.update(p.calculaunit())
+
+        return nu
+
+    def limpia(self):
+        for i in range(len(self.orden)):
+            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            pot = self.lqueue[i]
+            bor =  []
+            for p in pot.listap:
+                if p.trivial():
+                    print("uno trivial", p.listavar)
+                    bor.append(p)
+                if p.contradict():
+                    self.anula()
+                    return
+            for p in bor:
+                pot.listap.remove(p)
 
         return nu
 
