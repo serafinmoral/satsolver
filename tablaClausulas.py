@@ -10,6 +10,7 @@ import networkx as nx
 import numpy as np
 from SimpleClausulas import * 
 from time import *
+import math
 
 class nodoTabla:
 
@@ -208,6 +209,15 @@ class nodoTabla:
 
     def contradict(self):
         return not np.amax(self.tabla)
+
+    def cuenta(self,v):
+        t0 = self.reduce([v],inplace=False)
+        t1 = self.reduce([-v],inplace=False)
+        x0 = np.sum(t0.tabla)
+        x1 = np.sum(t1.tabla)
+        return (x0,x1)
+
+
 
     def trivial(self):
         return  np.amin(self.tabla)
@@ -433,7 +443,35 @@ class PotencialTabla:
             if not self.contradict:
                 self.unit.add(x)
             
-            
+        def cuenta(self,v):
+            if v in self.unit:
+                return (0,1)
+            elif -v in self.unit:
+                return (1,0)
+            else:
+                x0 = 1
+                x1 = 1
+                for p in self.listap:
+                    if v in p.listavar:
+                        (y0,y1) = p.cuenta(v)
+                        x0 *= y0
+                        x1 *= y1
+            return (x0,x1)
+
+        def entropia(self,v):
+            (x0,x1) = self.cuenta(v)
+            if x0==0 or x1==0:
+                return 0.0
+            else:
+                z0 = x0/(x0+x1)
+                z1  = x1/(x0+x1)
+                x = (-z0*math.log(z0) - z1*math.log(z1))
+            return x
+
+        def calculamin(self):
+            vars = self.getvars()
+            return min(vars,key = lambda v: self.entropia(v))
+
 
 
         def propagaunits(self,su):
@@ -907,6 +945,9 @@ class PotencialTabla:
 
             return res
 
+
+            
+
         
         def marginalizapro(self,var, L,inplace = False, M=5):
 
@@ -940,11 +981,11 @@ class PotencialTabla:
                                 if encontr:
                                     keyp = p
                                     print("variable determinada ", p.listavar)
-                                    sleep(0.5)
+                                    # sleep(0.5)
                     else:
                             res.listap.append(p.copia())
         
-                if (si and not encontr) or len(si)<=2:
+                if si and (not encontr or len(si)<=2):
                         if encontr:
                             print("solo 2")
                         si.sort(key = lambda h: - len(h.listavar) )
@@ -959,13 +1000,22 @@ class PotencialTabla:
                                 p.combina(q,inplace = True, des=False)
                             else:
                                 r = p.borra([var], inplace=False)
+                                if not r.trivial():
                                 
-                                res.listap.append(r)
+                                    res.listap.append(r)
+                                else:
+                                    print(p.listavar, " trivial")
+                                    sleep(2)
                                 p = q.copia()
                                 print("aproximo")
 
-                            
                         r = p.borra([var], inplace=False)
+
+                        if not r.trivial():
+                                res.listap.append(r)
+                        else:
+                                    print(p.listavar, " trivial")   
+                                    sleep(2)
                        
                         
                         
@@ -979,7 +1029,10 @@ class PotencialTabla:
                             q = si.pop()
                             if q == keyp:
                                 r = q.borra([var], inplace=False)
-                                res.listap.append(r)
+                                if not r.trivial():
+                                    res.listap.append(r)
+                                else:
+                                    print("trivial 1")
                             else:
                                 if  len(set(keyp.listavar).union(set(q.listavar)))<=L:     
                                     r = q.combina(keyp,inplace = False, des=False)
@@ -988,7 +1041,10 @@ class PotencialTabla:
                                     print("aproximo")
 
                                 r.borra([var],inplace = True)
-                                res.listap.append(r)
+                                if not r.trivial():
+                                    res.listap.append(r)
+                                else:
+                                    print("trivial 2")
                             
 
                             

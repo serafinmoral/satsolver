@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 Created on Wed Mar  6 13:30:14 2019
@@ -10,7 +9,7 @@ from SimpleClausulas import *
 from ProblemaTrianFactor import *
 from time import *
 
-from arboltablaglobal import *
+from arboltabla import *
 
 def leeArchivoGlobal(Archivo):
     reader=open(Archivo,"r") 
@@ -263,11 +262,17 @@ def main(prob):
 
         # prob.pinicial.combinaincluidos(M=6)
 
-        arbolcom = calculaglobal(prob.pinicial.copia())
+        # arbolcom = calculaglobal(prob.pinicial.copia())
 
         # arbolcom.imprime()
 
         # encontrado = arbolcom.findsol(sol)
+
+        # tvars = prob.pinicial.getvars()
+        # for v in tvars:
+        #     print("v : " , prob.pinicial.entropia(v))
+        #     sleep(1)
+
         grafo = prob.pinicial.cgrafo()
         (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
        
@@ -287,13 +292,13 @@ def main(prob):
 
         prob.inicia1()
         prob.borrapro()
-        prob.borraproi()
-        prob.limpia()
-        prob.combinaincluidos()
+        # prob.borraproi()
+        # prob.limpia()
+        # prob.combinaincluidos()
 
-        nu = prob.calculanu()
-        print("nuevas unidades ", nu)
-        sleep(4)
+        # nu = prob.calculanu()
+        # print("nuevas unidades ", nu)
+        # sleep(4)
 
         # prob.pasaarbol()
 

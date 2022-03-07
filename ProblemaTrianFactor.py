@@ -143,6 +143,10 @@ class problemaTrianFactor:
                 else:
                     h = q.combina(p,inplace = False, des= False)
                     h.borra([v], inplace = True)
+                    if h.trivial():
+                        bor.append(h)
+                        print("trivial 2")
+                        sleep(1)
                 self.pinicial.listap[i] = h
                 
         for q in bor:
@@ -317,21 +321,22 @@ class problemaTrianFactor:
        
             # pot.imprime()
             
-            if pot.value.contradict:
+            if pot.contradict:
                 self.inicial.contradict=True #ojo
                 print("contradiccion antes de normalizar ")
                 break
             
             
-            potn = pot.marginaliza(var,self.posvar, L=23)
+            # potn = pot.marginaliza(var,self.posvar, L=23)
 
+            potn = pot.marginaliza(var)
             print("fin marginaliza")
 
             pos = self.parent[i]
 
             poti = self.lqueue[pos]
 
-            poti.combina(potn, self.M)
+            poti.inserta(potn)
             print("fin de combina")
             # potn.imprime()
             # if self.parent[i]==-1:
