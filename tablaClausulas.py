@@ -419,7 +419,7 @@ class PotencialTabla:
             for x in p.unit:
                 self.insertaunit(x)
             for q in p.listap:
-                self.insertatablacombinasi(q,M)
+                self.listap.append(q)
 
             
         
@@ -533,6 +533,8 @@ class PotencialTabla:
                 else:
                      res.listap.append(p.copia())
             return res
+
+        
 
         def simplifica(self,l,M=8):
             bor = []
@@ -651,17 +653,46 @@ class PotencialTabla:
                 
                 si = []    
                 vars =set()
+                deter = False
+            
                 for p in self.listap:
             
                 
                     if var in p.listavar:
                             vars.update(p.listavar)
                             si.append(p)
+                            if not deter:
+                                deter = p.checkdetermi(var)
+                                if deter: 
+                                    keyp = p
         
                 if not si:
                     return True
+
+                if deter:
+                    dele = True
+                    for q in si:
+                        if len(set(q.listavar).union(keyp.listavar)) >M+1:
+                            dele = False
+                    if not dele:
+                        return False
+                    else:
+                        while si:
+                            q = si.pop()
+                            self.listap.remove(q) 
+                            if q == keyp:
+                                r = q.borra([var],inplace = False)
+                            else:
+                                r = q.combina(keyp,inplace = False, des = False)
+                                r.borra([var],inplace = True)
+                            self.listap.append(r)
+                        return True
+
+
+
+
         
-                if len(vars) <= M+1:
+                elif len(vars) <= M+1:
                         si.sort(key = lambda h: - len(h.listavar) )
                         
                         p = nodoTabla([])
@@ -877,7 +908,7 @@ class PotencialTabla:
             return res
 
         
-        def marginalizapro(self,var, L,inplace = False):
+        def marginalizapro(self,var, L,inplace = False, M=5):
 
             if not inplace:
                 res = PotencialTabla()
@@ -897,15 +928,25 @@ class PotencialTabla:
                     else:
                         res.unit.add(x)
                 si = []
+                encontr = False
+                
                 for p in self.listap:
             
                 
                     if var in p.listavar:
                             si.append(p)
+                            if not encontr and len(p.listavar)<= M:
+                                encontr = p.checkdetermi(var)
+                                if encontr:
+                                    keyp = p
+                                    print("variable determinada ", p.listavar)
+                                    sleep(0.5)
                     else:
                             res.listap.append(p.copia())
         
-                if si:
+                if (si and not encontr) or len(si)<=2:
+                        if encontr:
+                            print("solo 2")
                         si.sort(key = lambda h: - len(h.listavar) )
                         
                         p = nodoTabla([])
@@ -931,7 +972,29 @@ class PotencialTabla:
                         res.listap.append(r)
                         
                         
+                if encontr:
 
+                    while si:
+
+                            q = si.pop()
+                            if q == keyp:
+                                r = q.borra([var], inplace=False)
+                                res.listap.append(r)
+                            else:
+                                if  len(set(keyp.listavar).union(set(q.listavar)))<=L:     
+                                    r = q.combina(keyp,inplace = False, des=False)
+                                else:
+                                    r = q.copia()
+                                    print("aproximo")
+
+                                r.borra([var],inplace = True)
+                                res.listap.append(r)
+                            
+
+                            
+        
+                        
+                    
                         
 
                 return res

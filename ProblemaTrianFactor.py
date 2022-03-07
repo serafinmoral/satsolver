@@ -60,7 +60,7 @@ class problemaTrianFactor:
 
 
 
-    def previo(self, Q = 3):
+    def previo(self, Q = 2):
         for x in self.pinicial.unit:
             self.varpar.append(abs(x))
             pot = PotencialTabla()
@@ -91,7 +91,7 @@ class problemaTrianFactor:
                     print("var ", v ,"encontrada una vez")
 
                 
-                    sleep(3)
+                    sleep(0.2)
                     print("borrando esta variable")
                     self.varpar.append(v)
                     self.potpar.append(p)
@@ -102,28 +102,53 @@ class problemaTrianFactor:
 
 
 
-        sleep(3)
+        sleep(0.1)
         total = 0
         for K in range(2,Q+1):
             varb = []
             potb = []
-            i = 0
-            while i < len(self.pinicial.listap):
-                p = self.pinicial.listap[i]
-                if len(p.listavar) == K:
-                    for v in p.listavar:
-                            deter = p.checkdetermi(v)
-                            if deter:
-                                varb.append(v)
-                                potb.append(p)
-                                print("variable ", v, " determinada ", p.listavar)
-                                print(p.tabla)
-                                
-                                total += 1
-                                break
-                i+= 1
-            print(total)
-            sleep(10)
+        
+            total = 1
+            while total >0:
+                total = 0
+                i=0
+                while i < len(self.pinicial.listap):
+                    p = self.pinicial.listap[i]
+                    if len(p.listavar) == K:
+                        for v in p.listavar:
+                                deter = p.checkdetermi(v)
+                                if deter:
+                                    varb.append(v)
+                                    potb.append(p)
+                                    # print("variable ", v, " determinada ", p.listavar)
+                                    # print(p.tabla)
+                                    self.borrad(v,p)
+                                    total += 1
+                                    break
+                    i+= 1
+                print(total)
+
+    def borrad(self,v,p):
+        bor = []
+        tota = set()
+        for i in range(len(self.pinicial.listap)):
+            q = self.pinicial.listap[i]
+            if v in q.listavar:
+                # print("var pot", q.listavar)
+                if q == p:
+                    h = q.borra([v],inplace = False)
+                    if h.trivial():
+                        bor.append(h)
+                    
+                else:
+                    h = q.combina(p,inplace = False, des= False)
+                    h.borra([v], inplace = True)
+                self.pinicial.listap[i] = h
+                
+        for q in bor:
+            self.pinicial.listap.remove(q)
+
+
 
     def anula(self):
 
@@ -156,7 +181,7 @@ class problemaTrianFactor:
             else:
                 pos = len(self.orden)
             pot = self.lqueue[pos]
-            pot.insertatablacombinasi(p, self.M)
+            pot.listap.append(p)
             
 
 
@@ -360,6 +385,7 @@ class problemaTrianFactor:
                 self.insertaunit(x)
 
         for p in pot.listap:
+                
                 self.insertacolapot(p)
        
 

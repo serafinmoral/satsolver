@@ -68,7 +68,7 @@ def triangulacond(pot):
 
 
 
-def calculaglobal(pot, conf = [], L=31, M=25):
+def calculaglobal(pot, conf = [], L=25, M=10):
 
         result = arbol()
         vars = pot.getvars()
@@ -90,15 +90,13 @@ def calculaglobal(pot, conf = [], L=31, M=25):
         if maxp <= L:
             result.value = pot
         else:
-            pot.borrafacil(orden,M=15)
+            pot.borrafacil(orden,M)
             l0 = []
             l1 = []
             p0 = pot.reducenv(cnodo, l0, inplace = False)
             p1 = pot.reducenv(-cnodo, l1, inplace = False)
 
-            if p0.contradict:
-                p0.imprime()
-                pot.imprime()
+            
 
             p0.simplifica(l0,M)
             p1.simplifica(l1,M)
