@@ -68,7 +68,7 @@ def triangulacond(pot):
 
 
 
-def calculaglobal(pot, conf = [], L=25, M=10):
+def calculaglobal(pot, conf = [], L=25, M=30):
 
         result = arbol()
         vars = pot.getvars()
@@ -83,7 +83,9 @@ def calculaglobal(pot, conf = [], L=25, M=10):
         pot.unit = set()
 
 
-        (orden,cnodo,maxp) = triangulacond(pot)
+        vars = pot.getvars()
+        if len(vars) <= L:
+            
         
         cnodo = pot.calculavarcond()
 
