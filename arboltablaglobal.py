@@ -68,70 +68,93 @@ def triangulacond(pot):
 
 
 
-def calculaglobal(pot, conf = [], L=25, M=30):
-
-        result = arbol()
-        vars = pot.getvars()
-        if len(vars)<= L:
-            result.value = pot
-            return result
+def calculaglobal(pot, conf = [], L=32, M=15):
         print(conf) 
 
-
+        result = arbol()
         result.value =  PotencialTabla()
         result.value.unit = pot.unit.copy()
         pot.unit = set()
+        vars = pot.getvarsp()
+        if len(vars)<= L:
+            result.value.listap = pot
+            # if pot.listap:
+            #     t = pot.listap.pop()
+            #     while pot.listap:
+            #         q = pot.listap.pop()
+            #         t.combina(q,inplace=True,des=True)
+            #     if t.contradict():
+            #         result.anula()
+            #     else:
+            #         result.value.listap = [t]
+            #         print("conseguida solucion ")
+            #         sleep(20)
+            return result
 
 
-        vars = pot.getvars()
-        if len(vars) <= L:
-            
+        
+
+
+        
         
         cnodo = pot.calculavarcond()
 
-        if maxp <= L:
-            result.value = pot
-        else:
-            pot.borrafacil(orden,M)
-            l0 = []
-            l1 = []
-            p0 = pot.reducenv(cnodo, l0, inplace = False)
-            p1 = pot.reducenv(-cnodo, l1, inplace = False)
+        
+        l0 = []
+        l1 = []
+        p0 = pot.reducenv(cnodo, l0, inplace = False)
+        p1 = pot.reducenv(-cnodo, l1, inplace = False)
 
             
 
-            p0.simplifica(l0,M)
-            p1.simplifica(l1,M)
+        p0.simplifica(l0,M)
+        p1.simplifica(l1,M)
+        
 
-            if p0.contradict and p1.contradict:
+        p0.borrafacil2(M)
+        p1.borrafacil2(M)
+
+        if p0.contradict and p1.contradict:
                 result.anula()
                 return result
 
-            if p0.trivial() and p1.trivial():
+        if p0.trivial() and p1.trivial():
                 return result
 
-            conf.append(-cnodo)
-            h0 = calculaglobal(p0,conf,L)
-            conf.pop()
+        # (x0,x1) = pot.logcuenta(cnodo)
 
-            conf.append(cnodo)
+        # if x0>x1:
+        conf.append(-cnodo)
+        h0 = calculaglobal(p0,conf,L)
+        conf.pop()
 
-            h1 = calculaglobal(p1,conf,L)
-            conf.pop()
+
+        conf.append(cnodo)
+
+        h1 = calculaglobal(p1,conf,L)
+        conf.pop()
+        # else:
+        #     conf.append(cnodo)
+
+        #     h1 = calculaglobal(p1,conf,L)
+        #     conf.pop()
+
+            # conf.append(-cnodo)
+            # h0 = calculaglobal(p0,conf,L)
+            # conf.pop()
             
             
-            
 
 
-            if h0.value.contradict and h1.value.contradict:
+        if h0.value.contradict and h1.value.contradict:
                 result.anula()
 
                 return result
 
-            if h0.trivial() and h1.trivial():
+        if h0.trivial() and h1.trivial():
                 return result
             
-            result.asignavarhijos(cnodo,h0,h1)
+        result.asignavarhijos(cnodo,h0,h1)
 
             
 

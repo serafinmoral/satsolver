@@ -9,7 +9,7 @@ from SimpleClausulas import *
 from ProblemaTrianFactor import *
 from time import *
 
-from arboltabla import *
+from arboltablaglobal import *
 
 def leeArchivoGlobal(Archivo):
     reader=open(Archivo,"r") 
@@ -262,7 +262,7 @@ def main(prob):
 
         # prob.pinicial.combinaincluidos(M=6)
 
-        # arbolcom = calculaglobal(prob.pinicial.copia())
+        arbolcom = calculaglobal(prob.pinicial.copia())
 
         # arbolcom.imprime()
 
@@ -273,8 +273,8 @@ def main(prob):
         #     print("v : " , prob.pinicial.entropia(v))
         #     sleep(1)
 
-        grafo = prob.pinicial.cgrafo()
-        (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
+        # grafo = prob.pinicial.cgrafo()
+        # (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
        
 
         # prob.borraapro(M=4,T=3)
@@ -290,8 +290,8 @@ def main(prob):
         # # prob.randomsol()
         # prob.reinicia()
 
-        prob.inicia1()
-        prob.borrapro()
+        # prob.inicia1()
+        # prob.borrapro()
         # prob.borraproi()
         # prob.limpia()
         # prob.combinaincluidos()
