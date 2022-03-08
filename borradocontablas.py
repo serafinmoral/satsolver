@@ -260,7 +260,13 @@ def main(prob):
 
         prob.previo()                  
 
-        # prob.pinicial.combinaincluidos(M=6)
+
+
+        prob.pinicial.precalculo()
+
+        sleep(5)
+
+        prob.pinicial.precalculo()
 
         arbolcom = calculaglobal(prob.pinicial.copia())
 

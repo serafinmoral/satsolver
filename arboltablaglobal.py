@@ -90,6 +90,12 @@ def calculaglobal(pot, conf = [], L=32, M=15):
             #         print("conseguida solucion ")
             #         sleep(20)
             return result
+        elif len(vars) <= 50:
+            (orden,cnodo,mh) = triangulacond(pot)
+
+            if mh <= L:
+                result.value.listap = pot
+                return result
 
 
         
@@ -106,11 +112,12 @@ def calculaglobal(pot, conf = [], L=32, M=15):
         p1 = pot.reducenv(-cnodo, l1, inplace = False)
 
             
-
+        
         p0.simplifica(l0,M)
         p1.simplifica(l1,M)
         
-
+        
+        
         p0.borrafacil2(M)
         p1.borrafacil2(M)
 

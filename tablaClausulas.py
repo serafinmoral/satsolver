@@ -381,8 +381,14 @@ class PotencialTabla:
             for x in vars:
                 cont[x] = 0.0
             for p in self.listap:
+                h = np.sum(p.tabla)
+
                 for x in p.listavar:
-                    cont[x] += 1/2**(len(p.listavar))
+                    if h == 0:
+                        
+                        cont[x] += 100.0
+                    else:
+                        cont[x] += 1/h
 
             return max(cont, key = cont.get)
 
@@ -592,9 +598,44 @@ class PotencialTabla:
                      res.listap.append(p.copia())
             return res
 
+        def precalculo(self,M=32):
+            varsl = self.getvarsp()
+            for v in varsl:
+                print("var ", v)
+                if v in self.getvarsp():
+                    self.preagrupa(v,M)
+
+        def preagrupa(self,v,M):
+            lista = []
+            varst = set()
+            actual = []
+            for p in self.listap:
+                if v in p.listavar:
+                    if len(varst.union(set(p.listavar))) <= M:
+                        actual.append(p)
+                        varst.update(set(p.listavar))
+                    else:
+                        lista.append(actual)
+                        actual = [p]
+                        varst = set(p.listavar)
+                    
+            if actual:
+                lista.append(actual)
+
+            for l in lista:
+                total = nodoTabla([])
+                for p in l:
+                    self.listap.remove(p)
+                    total.combina(p,inplace= True)
+                for p in l:
+                    npr = total.borra( set(total.listavar)- set(p.listavar)  , inplace=False)
+                    self.listap.append(npr)
+                    print(np.sum(p.tabla))
+                    print(np.sum( npr.tabla))
+ 
         
 
-        def simplifica(self,l,M=8):
+        def simplifica(self,l,M=15):
             bor = []
             uni = set()
             for p in l:
@@ -652,11 +693,12 @@ class PotencialTabla:
             l2 = []
             lvars = self.getvars()
             for var in lvars:
-                (su,pot) = self.marginalizacond2(var,M)
-                if su:
-                    l1.append(var)
-                    l2.append(pot)
-                    print("borrada ", var)
+                if var in self.getvars():
+                    (su,pot) = self.marginalizacond2(var,M)
+                    if su:
+                        l1.append(var)
+                        l2.append(pot)
+                        print("borrada ", var)
             return (l1,l2)
 
         def combinafacil(self,orden,M):
@@ -832,6 +874,7 @@ class PotencialTabla:
                     if not dele:
                         return (False,None)
                     else:
+                        su = set()
                         while si:
                             q = si.pop()
                             self.listap.remove(q) 
@@ -842,6 +885,14 @@ class PotencialTabla:
                                 r.borra([var],inplace = True)
                             if not r.trivial():
                                 self.listap.append(r)
+                                su.update(r.calculaunit())
+                        if su:
+                                    if 0 in su:
+                                        self.anula()
+                                        return (True,keyp)
+                                    self.propagaunits(su)
+                                    # print("nuevas unidades ", su)
+                                    # sleep(3)
                         return (True,keyp)
 
 
