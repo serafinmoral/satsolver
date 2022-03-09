@@ -1152,7 +1152,7 @@ class PotencialTabla:
                                     print("variable determinada ", p.listavar)
                                     # sleep(0.5)
                     else:
-                            res.listap.append(p.copia())
+                            res.listap.append(p)
         
                 if si and (not encontr or len(si)<=2):
                         if encontr:
@@ -1174,7 +1174,7 @@ class PotencialTabla:
                                     res.listap.append(r)
                                 else:
                                     print(p.listavar, " trivial")
-                                    sleep(2)
+                                    # sleep(2)
                                 p = q.copia()
                                 print("aproximo")
 
@@ -1184,7 +1184,7 @@ class PotencialTabla:
                                 res.listap.append(r)
                         else:
                                     print(p.listavar, " trivial")   
-                                    sleep(2)
+                                    # sleep(2)
                        
                         
                         

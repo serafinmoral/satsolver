@@ -68,7 +68,7 @@ def triangulacond(pot):
 
 
 
-def calculaglobal(pot, conf = [], L=32, M=15):
+def calculaglobal(pot, conf = [], L=32, M=14):
         print(conf) 
 
         result = arbol()

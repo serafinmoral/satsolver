@@ -258,15 +258,17 @@ def main(prob):
 
         prob.inicia0()        
 
-        prob.previo()                  
+        prob.previo()           
 
 
+        (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent) = triangulap(prob.pinicial) 
 
-        prob.pinicial.precalculo()
+        prob.inicia1()       
 
-        sleep(5)
+        prob.borrapro()
+        prob.borraproi()
 
-        prob.pinicial.precalculo()
+        
 
         arbolcom = calculaglobal(prob.pinicial.copia())
 
