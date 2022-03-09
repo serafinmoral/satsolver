@@ -49,6 +49,8 @@ class problemaTrianFactor:
     def inicia1(self):
 
         print(self.orden)
+        self.lqueue = []
+        
         for i in self.orden:
                 
                 y = PotencialTabla()
@@ -188,8 +190,30 @@ class problemaTrianFactor:
             pot.listap.append(p)
             
 
+    def mejorainicial(self):
+        res = []
+        for p in self.pinicial.listap:
+            old = np.sum(p.tabla)
+            oldl = len(p.listavar)
+            vcl = set(p.listavar)
+            if vcl:
+                pos = min(map(lambda h: self.posvar[h], vcl))
+            else:
+                pos = len(self.orden)
 
-    
+            pot = self.lqueue[pos]
+            npot = pot.marginalizas( set(pot.getvars()) - vcl)
+
+            for v in npot.unit:
+                p.reduce([v],inplace=True)
+            for q in npot.listap:
+                p.combina(q, inplace=True)
+            new = np.sum(p.tabla)
+            if new < old:
+                print("mejora ", old, new, len(p.listavar))
+                res.append(p)
+                # sleep(2)            
+        return res
 
     def borraproi(self):
         
@@ -209,7 +233,7 @@ class problemaTrianFactor:
                 print (j)
                 dif = self.clusters[i]-self.clusters[j]
                 
-                potn = pot.marginalizapros(dif,self.M,inplace=False)
+                potn = pot.marginalizapros(dif,self.M, inplace=False)
                 
             
             

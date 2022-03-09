@@ -11,6 +11,7 @@ import numpy as np
 from SimpleClausulas import * 
 from time import *
 import math
+import random
 
 class nodoTabla:
 
@@ -27,6 +28,21 @@ class nodoTabla:
         result.tabla = self.tabla.copy()
         return result
     
+    def extrae2(self,vars):
+        res = []
+        if len(vars)>=2:
+            for v in vars:
+                res.extend(self.extrae2(vars-{v}))
+                res.extend(self.extrae21(v,vars-{v}))
+        return res
+
+    def extrae21(self,v,vars):
+        res = []
+        for w in vars:
+            p = self.borra(list(set(self.listavar) - {v,w}), inplace=False)
+            if not p.trivial():
+                res.append(p)
+        return res
 
     def combina(self,op,inplace = False, des= False):
         result = self if inplace else self.copia()
@@ -424,6 +440,31 @@ class PotencialTabla:
                     
 
                     
+        def mejoralocal(self,M=25,Q=10):
+            for p in self.listap:
+                if len(p.listavar)<=Q:
+                    old = np.sum(p.tabla)
+                    vars = set(p.listavar)
+                    tvars = set(p.listavar)
+                    lista = []
+                    for q in self.listap:
+                        if not q==p:
+                            qv = set(q.listavar)
+                            if set(qv.intersection(vars)):
+                                if len(tvars.union(qv))<=M:
+                                    tvars.update(qv)
+                                    lista.append(q)
+                    r = nodoTabla([])
+                    for q in lista:
+                        r.combina(q,inplace=True)
+                    r.borra(list(tvars-set(p.listavar)),inplace=True)
+                    p.combina(r,inplace=True)
+                    ns = np.sum(p.tabla)
+
+                    if (ns < old):
+                        print("mejopra", ns, old,len(p.listavar))
+
+                    
 
 
 
@@ -431,7 +472,7 @@ class PotencialTabla:
 
 
         def insertaa(self,p,M):
-            old = self.unit.copy()
+            
             for x in p.unit:
                 self.insertaunit(x)
             for q in p.listap:
@@ -633,8 +674,16 @@ class PotencialTabla:
                     print(np.sum(p.tabla))
                     print(np.sum( npr.tabla))
  
-        
+        def extrae2(self):
+            for p in self.listap:
+                if len(p.listavar)>2:
+                    res = p.extrae2(set(p.listavar))
+                for q in res:
+                    print("nuevo de dos")
+                    sleep(0.1)
+                    self.listap.append(q)
 
+    
         def simplifica(self,l,M=15):
             bor = []
             uni = set()
@@ -1032,6 +1081,9 @@ class PotencialTabla:
 
         def marginalizas(self,vars, inplace = False):
 
+
+            
+            
             if not inplace:
                 res = PotencialTabla()
 
@@ -1060,22 +1112,21 @@ class PotencialTabla:
                 if si:
                         si.sort(key = lambda h: - len(h.listavar) )
                         
-                        p = si.pop()
-                        self.listap.remove(p)
+                        p = nodoTabla([])
+                        
  
                         
                         while si:
                             
                             q = si.pop()
-                            self.listap.remove(q)
-                            p.combina(q,inplace = True, des =True)
+                            p.combina(q,inplace = True)
                     
                         if vars:   
-                            r = p.borra(vars, inplace=False)
+                            p.borra(vars, inplace=True)
+                            r = p
                         else:
                             r = p.copia()
                         
-                        self.listap.append(p)
                         res.listap.append(r)
                         
                 
@@ -1118,7 +1169,7 @@ class PotencialTabla:
             
 
         
-        def marginalizapro(self,var, L,inplace = False, M=5):
+        def marginalizapro(self,var, L,inplace = False, M=7):
 
             if not inplace:
                 res = PotencialTabla()
@@ -1157,7 +1208,8 @@ class PotencialTabla:
                 if si and (not encontr or len(si)<=2):
                         if encontr:
                             print("solo 2")
-                        si.sort(key = lambda h: - len(h.listavar) )
+                        random.shuffle(si)
+
                         
                         p = nodoTabla([])
                         
@@ -1168,7 +1220,8 @@ class PotencialTabla:
                             if len(set(p.listavar).union(set(q.listavar)))<=L:                    
                                 p.combina(q,inplace = True, des=False)
                             else:
-                                r = p.borra([var], inplace=False)
+                                p.borra([var], inplace=True)
+                                r = p
                                 if not r.trivial():
                                 
                                     res.listap.append(r)
@@ -1178,7 +1231,8 @@ class PotencialTabla:
                                 p = q.copia()
                                 print("aproximo")
 
-                        r = p.borra([var], inplace=False)
+                        p.borra([var], inplace=True)
+                        r = p
 
                         if not r.trivial():
                                 res.listap.append(r)
@@ -1188,7 +1242,6 @@ class PotencialTabla:
                        
                         
                         
-                        res.listap.append(r)
                         
                         
                 if encontr:
@@ -1225,73 +1278,16 @@ class PotencialTabla:
                 return res
 
 
-        def marginalizapros(self,vars, L,inplace = False):
+        def marginalizapros(self,vars,M,inplace = False):
 
-            if not inplace:
-                res = PotencialTabla()
-
-                if self.contradict:
-                    res.anula()
-                    return res
-                uv = self.unit.intersection(vars)
-                nvars = set(map(lambda x: -x, vars))
-                nuv = self.unit.intersection(nvars)
-
-            
-
-                if uv:
-                    print("unitaria ", uv)
-                    sleep(2)
-                    res.unit = self.unit - uv
-                    vars = vars - uv
-                else:
-                    res.unit = self.unit.copy()
-                if nuv:
-                    print("unitaria ", nuv)
-                    sleep(2)
-                    res.unit = res.unit - nuv
-                    puv = set(map(lambda x: -x, nuv)) 
-                    vars = vars - puv
-
-                si = []
-                for p in self.listap:
-            
-                
-                    if set(p.listavar).intersection(vars):
-                            si.append(p)
-                    else:
-                            res.listap.append(p.copia())
+            res = PotencialTabla()
         
-                if si:
-                        si.sort(key = lambda h: - len(h.listavar) )
-                        
-                        p = nodoTabla([])
-                        
-
-                        
-                        while si:
-
-                            q = si.pop()
-                            if len(set(p.listavar).union(set(q.listavar)))<=L:                    
-                                p.combina(q,inplace = True, des=False)
-                            else:
-                                vp = list(set(p.listavar).intersection(vars))
-                                r = p.borra(vp, inplace=False)
-                                res.listap.append(r)
-                                p = q.copia()
-                                print("aproximo")
-
-                            
-                        vp = list(set(p.listavar).intersection(vars))
-                        r = p.borra(vp, inplace=False)
-                        
-                        
-                        res.listap.append(r)
-                        
-
-                        
-
-                return res
+            res.unit = self.unit.copy()
+            res.listap = self.listap.copy()
+            while vars:
+                x = vars.pop()
+                res = res.marginalizapro(x,M)
+            return res
 
             
 

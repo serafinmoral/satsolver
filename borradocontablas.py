@@ -260,15 +260,27 @@ def main(prob):
 
         prob.previo()           
 
+        
+        prob.pinicial.mejoralocal()
+
+        print("otra vez!")
+        sleep(3)
+        prob.pinicial.mejoralocal()
+
+        print("otra vez!")
+        sleep(3)
+
 
         (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent) = triangulap(prob.pinicial) 
 
-        prob.inicia1()       
 
-        prob.borrapro()
-        prob.borraproi()
-
+        prob.previo()
         
+
+
+        (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent) = triangulap(prob.pinicial) 
+
+       
 
         arbolcom = calculaglobal(prob.pinicial.copia())
 
