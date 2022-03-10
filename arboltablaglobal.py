@@ -68,7 +68,7 @@ def triangulacond(pot):
 
 
 
-def calculaglobal(pot, conf = [], L=32, M=20):
+def calculaglobal(pot, conf = [], L=32, M=15):
         print(conf) 
 
         result = arbol()
@@ -118,8 +118,11 @@ def calculaglobal(pot, conf = [], L=32, M=20):
         
         
         
-        p0.borrafacil2(M)
-        p1.borrafacil2(M)
+        l0 = p0.borrafacil2(M)
+        l1 = p1.borrafacil2(M)
+
+        p0.simplifican(l0)
+        p1.simplifican(l1)
 
         if p0.contradict and p1.contradict:
                 result.anula()

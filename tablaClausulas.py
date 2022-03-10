@@ -907,17 +907,13 @@ class PotencialTabla:
 
         def borrafacil2(self,M):
             
-            l1 = []
-            l2 = []
+            l = []
             lvars = self.getvars()
             for var in lvars:
                 if var in self.getvars():
-                    (su,pot) = self.marginalizacond2(var,M)
-                    if su:
-                        l1.append(var)
-                        l2.append(pot)
-                        print("borrada ", var)
-            return (l1,l2)
+                    l1 = self.marginalizacond2(var,M)
+                    l.extend(l1)
+            return l
 
         def combinafacil(self,orden,M):
             
@@ -1055,21 +1051,22 @@ class PotencialTabla:
 
         def marginalizacond2(self,var,M, inplace=True):
             
+            lista = []
             if inplace:
                 if self.contradict:
-                        return (True,None)
+                        return lista
                 if var in  self.unit:
                         self.unit.discard(var)
-                        return (True,None)
+                        return lista
                 elif -var in self.unit:
                         self.unit.discard(-var) 
 
-                        return (True,None)
+                        return lista
                 
                 si = []    
-                vars =set()
+
                 deter = False
-            
+                vars = set()
                 for p in self.listap:
             
                 
@@ -1082,7 +1079,7 @@ class PotencialTabla:
                                     keyp = p
         
                 if not si:
-                    return (True,None)
+                    return []
 
                 if deter:
                     dele = True
@@ -1090,9 +1087,9 @@ class PotencialTabla:
                         if len(set(q.listavar).union(keyp.listavar)) >M+1:
                             dele = False
                     if not dele:
-                        return (False,None)
+                        return lista
                     else:
-                        su = set()
+                        print("borrada " , var, "metodo 1")
                         while si:
                             q = si.pop()
                             self.listap.remove(q) 
@@ -1101,17 +1098,15 @@ class PotencialTabla:
                             else:
                                 r = q.combina(keyp,inplace = False, des = False)
                                 r.borra([var],inplace = True)
+
+                            if r.contradict():
+                                self.anula()
+                                return lista
                             if not r.trivial():
                                 self.listap.append(r)
-                                su.update(r.calculaunit())
-                        if su:
-                                    if 0 in su:
-                                        self.anula()
-                                        return (True,keyp)
-                                    self.propagaunits(su)
-                                    # print("nuevas unidades ", su)
-                                    # sleep(3)
-                        return (True,keyp)
+                                lista.append(r)
+                                
+                        return lista
 
 
 
@@ -1119,7 +1114,7 @@ class PotencialTabla:
         
                 elif len(vars) <= M+1:
                         si.sort(key = lambda h: - len(h.listavar) )
-                        
+                        print("borrada " , var, "metodo 2")
                         p = nodoTabla([])
 
  
@@ -1133,19 +1128,17 @@ class PotencialTabla:
                         r = p.borra([var], inplace = False)
                         if r.contradict():
                             self.anula()
-                            return (True,p)
+                            return lista
                         
                         if r.trivial():
-                            return (True,p)
+                            return lista
 
                         self.listap.append(r)
-                        su = r.calculaunit()
-                        if su:
-                            self.propagaunits(su)
                         
-                        return (True,p)
+                        
+                        return lista
                 else:
-                        return (False,None)
+                        return lista
 
         def combinacond(self,var,M, inplace=True):
             
