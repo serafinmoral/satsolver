@@ -101,7 +101,44 @@ class nodoTabla:
             return False
 
 
+    def extraesimple(self):
+        
+        vars = set(self.listavar)
+        if not vars:
+            return nodoTabla([])
+        v = vars.pop()
 
+        pv = self.borra(list(vars))
+        if not pv.trivial():
+            return pv
+        else:
+            pr = self.borra([v])
+
+            if not pr.trivial():
+                sr = pr.extrasimple()
+                if not sr.trivial():
+                    return sr
+                else:
+                    h2 = self.extrasimple2(v,vars)
+                    return h2
+
+    def extrasimple2(self,v1,vars):
+        if not vars:
+            return nodoTabla([])
+        v2 = vars.pop()
+
+        pv12 = self.borra(list(vars))
+
+        if pv12.checkdetermi(v2) or pv12.checkdetermi(v1):
+            return pv12
+        else:
+            pr = self.borra([v2])
+
+            return pr.extrasimple2(v1,vars)
+
+
+
+    
 
 
     def suma(self,op,inplace = False, des= False):
@@ -173,8 +210,8 @@ class nodoTabla:
 
         phi.tabla= phi.tabla[tuple(slice_)]
 
-        if not inplace:
-            return phi
+        
+        return phi
 
     
     def introducelista(self,lista):
@@ -390,21 +427,28 @@ class PotencialTabla:
         def inserta(self,p):
             self.listap.append(p)
 
-        def calculavarcond(self):
+        def calculavarcond(self,m=0):
             cont = dict()
 
             vars = self.getvars()
             for x in vars:
                 cont[x] = 0.0
+            
             for p in self.listap:
-                h = np.sum(p.tabla)
+                if m==0:
+                    h = np.sum(p.tabla)
 
-                for x in p.listavar:
-                    if h == 0:
+                    for x in p.listavar:
+                        if h == 0:
+                            
+                            cont[x] += 100.0
+                        else:
+                            cont[x] += 1/h
+                else:
+                    for x in p.listavar:
                         
-                        cont[x] += 100.0
-                    else:
-                        cont[x] += 1/h
+                            
+                            cont[x]+=1
 
             return max(cont, key = cont.get)
 
@@ -437,7 +481,88 @@ class PotencialTabla:
             if not insertado:
                 self.listap.append(p)
 
+        def previo(self,Q=2):
+            total = 0
+            for K in range(2,Q+1):
+                varb = []
+                potb = []
+            
+                total = 1
+                while total >0:
+                    total = 0
+                    i=0
+                    while i < len(self.listap):
+                        p = self.listap[i]
+                        if len(p.listavar) == K:
+                            for v in p.listavar:
+                                    deter = p.checkdetermi(v)
+                                    if deter:
+                                        varb.append(v)
+                                        potb.append(p)
+                                        # print("variable ", v, " determinada ", p.listavar)
+                                        # print(p.tabla)
+                                        self.borrad(v,p)
+                                        total += 1
+                                        break
+                        i+= 1
+                    print(total)             
+
+        def borrad(self,v,p, l= []):
+            bor = []
+            tota = set()
+            for i in range(len(self.listap)):
+                q = self.listap[i]
+                if v in q.listavar:
+                    # print("var pot", q.listavar)
+                    if q == p:
+                        h = q.borra([v],inplace = False)
+                        if h.trivial():
+                            bor.append(h)
+                        else:
+                            l.append(h)
+                        
+                    else:
+                        h = q.combina(p,inplace = False, des= False)
+                        h.borra([v], inplace = True)
+                        if h.trivial():
+                            bor.append(h)
+                            print("trivial 2")
                     
+                    self.listap[i] = h
+                    
+            for q in bor:
+                self.listap.remove(q)
+
+        def borrad2(self,v2,v1,p, l):
+            bor = []
+            for i in range(len(self.listap)):
+                q = self.listap[i]
+                if v2 in q.listavar:
+                    # print("var pot", q.listavar)
+                    if q == p:
+                        h = q.borra([v2],inplace = False)
+                        if h.trivial():
+                            bor.append(h)
+                        else:
+                            l.append(h)
+                        
+                    else:
+                        h = q.combina(p,inplace = False, des= False)
+                        if v1 in p.listavar:
+                            an = True
+                        else:
+                            an = False
+                        h.borra([v2], inplace = True)
+                        if h.trivial():
+                            bor.append(h)
+                            print("trivial 2")
+                        elif an:
+                            l.append(h)
+                    
+                    self.listap[i] = h
+                    
+            for q in bor:
+                self.listap.remove(q)
 
                     
         def mejoralocal(self,M=25,Q=10):
@@ -632,11 +757,13 @@ class PotencialTabla:
             res.unit = self.unit-{val}
             for p in self.listap:
                 if abs(val) in p.listavar:
-                    q = p.reduce([val],inplace = False)
+                    q = p.reduce([val],inplace)
                     res.listap.append(q)
                     l.append(q)
-                else:
+                elif not inplace:
                      res.listap.append(p.copia())
+                else:
+                    res.listap.append(p)
             return res
 
         def precalculo(self,M=32):
@@ -705,6 +832,48 @@ class PotencialTabla:
             if uni:
                 self.propagaunits(uni)
             return
+
+
+        def simplifican(self,l):
+            
+            while l:
+
+                p= l.pop()
+
+                if not l in self.listap:
+                    break
+
+                sp = p.extraesimple()
+                if not sp.trivial():
+                    if len(sp.listavar) == 1:
+                        var = sp.listavar[0]
+                        if not sp.tabla[0]:
+                            val = var
+                        else:
+                            val = -var
+                        nl = []
+                        self.reducenv(val,nl, inplace=True)
+                        for q in nl:
+                            if not q in l:
+                                l.append(q)
+                    elif len(sp.listavar) == 2:
+                        v1 = sp.listavar[0]
+                        v2 = sp.listavar[1]
+                        
+                        det1 = sp.checkdetermi(v2)
+                        if not det1:
+                            det2 = sp.checkdetermi(v1)
+                        if not det1 and not det2:
+                            break
+                        if not det1 and det2:
+                            v1,v2 = v2,v1
+                        nl = []
+                        self.borrad2(v2,v1,nl)
+                        for q in nl:
+                            if not q in l:
+                                l.append(q)
+
+        
 
         def extraeunits(self):
             bor = []
