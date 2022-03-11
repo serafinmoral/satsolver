@@ -263,9 +263,9 @@ def main(prob):
         
         prob.pinicial.mejoralocal()
 
-        print("otra vez!")
-        sleep(3)
-        prob.pinicial.mejoralocal()
+        # print("otra vez!")
+        # sleep(3)
+        # prob.pinicial.mejoralocal()
 
         print("otra vez!")
         sleep(3)
@@ -274,13 +274,18 @@ def main(prob):
         # (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent) = triangulap(prob.pinicial) 
 
 
-        
+        grafo = prob.pinicial.cgrafo()
+        (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
 
-
+        print("enmtro en borrabacil")
+        sleep(2)
+        prob.pinicial.borrafacil2(prob.M,prob.orden)
+        print("salgo de borrabacil")
+        sleep(2)
 
        
 
-        arbolcom = calculaglobal(prob.pinicial.copia())
+        arbolcom = calculaglobal(prob.pinicial.copia(),L=32,M=prob.M)
 
         # arbolcom.imprime()
 

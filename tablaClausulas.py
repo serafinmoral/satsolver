@@ -100,6 +100,24 @@ class nodoTabla:
         else:
             return False
 
+    def minimizadep(self,v, seg = set()):
+        vars = set(self.listavar) - seg
+        vars.remove(v)
+
+        if not vars:
+            return self
+        nv = vars.pop()
+
+        np = self.borra([nv])
+
+
+
+        if not np.trivial and np.checkdetermi(v):
+            return np.minimizadep(v, seg.copy())
+        else:
+            seg.add(nv)
+            return self.minimizadep(v,seg)
+
 
     def extraesimple(self):
         
@@ -905,11 +923,12 @@ class PotencialTabla:
                 else:
                     print("borrada ", var)
 
-        def borrafacil2(self,M):
+        def borrafacil2(self,M,orden):
             
             l = []
-            lvars = self.getvars()
-            for var in lvars:
+
+
+            for var in orden:
                 if var in self.getvars():
                     l1 = self.marginalizacond2(var,M)
                     l.extend(l1)
@@ -1076,7 +1095,13 @@ class PotencialTabla:
                             if not deter:
                                 deter = p.checkdetermi(var)
                                 if deter: 
-                                    keyp = p
+                                    nv = set()
+                                    keyp = p.minimizadep(var,nv)
+                                    if len(keyp.listavar) < len(p.listavar):
+                                        print("minimizo ",len(keyp.listavar) ,  len(p.listavar))
+                                        # sleep(1)
+
+                                    
         
                 if not si:
                     return []

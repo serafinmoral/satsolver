@@ -68,7 +68,7 @@ def triangulacond(pot):
 
 
 
-def calculaglobal(pot, conf = [], L=32, M=15):
+def calculaglobal(pot, conf = [], L=32, M=20):
         print(conf) 
 
         result = arbol()
@@ -76,6 +76,7 @@ def calculaglobal(pot, conf = [], L=32, M=15):
         result.value.unit = pot.unit.copy()
         pot.unit = set()
         vars = pot.getvarsp()
+        print(len(vars))
         if len(vars)<= L:
             result.value.listap = pot
             # if pot.listap:
@@ -91,7 +92,7 @@ def calculaglobal(pot, conf = [], L=32, M=15):
             #         sleep(20)
             return result
         elif len(vars) <= 50:
-            (orden,cnodo,mh) = triangulacond(pot)
+            (orden,cnodo2,mh) = triangulacond(pot)
 
             if mh <= L:
                 result.value.listap = pot
@@ -111,15 +112,18 @@ def calculaglobal(pot, conf = [], L=32, M=15):
         p0 = pot.reducenv(cnodo, l0, inplace = False)
         p1 = pot.reducenv(-cnodo, l1, inplace = False)
 
-            
+        print(p0.unit)
+        print(p1.unit)
         
         p0.simplifican(l0)
         p1.simplifican(l1)
         
+        (orden,cnodo2,mh) = triangulacond(p0)
         
-        
-        l0 = p0.borrafacil2(M)
-        l1 = p1.borrafacil2(M)
+        l0 = p0.borrafacil2(M,orden)
+        (orden,cnodo2,mh) = triangulacond(p1)
+
+        l1 = p1.borrafacil2(M,orden)
 
         p0.simplifican(l0)
         p1.simplifican(l1)
