@@ -1144,8 +1144,8 @@ class PotencialTabla:
                             dele = False
                     if not dele:
                         print( "no borrada ", var)
-                        sleep(22)
-                        return lista
+                        
+                        return False
                     else:
                         print("borrada " , var, "metodo 1")
                         while si:
@@ -1202,7 +1202,7 @@ class PotencialTabla:
                 else:
                         print( "no borrada ", var)
                         sleep(22)
-                        return lista
+                        return False
 
         def combinacond(self,var,M, inplace=True):
             

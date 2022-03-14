@@ -355,9 +355,8 @@ class problemaTrianFactor:
             pot.listap = lista
 
             nuevas = pot.marginalizacond2(var,M=30)
-            print("insertando nuevas ")
+        
             for p in nuevas:
-                print(p.listavar)
                 rela.insertar(p)
             i+= 1
                         
