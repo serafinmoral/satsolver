@@ -14,6 +14,37 @@ from vartablas import *
 from SimpleClausulas import *
 from arboltabla import calculadesdePotencial
 from tablaClausulas import *
+
+
+def ordenaycombinaincluidas(lista,rela):
+    
+    lista.sort(key = lambda x : - len(x.listavar) )
+
+    
+    i=0
+    while i <len(lista)-1:
+        j = i+1
+        while j < len(lista):
+            if set(lista[j].listavar) <= set(lista[i].listavar):
+                print("incluidas " )
+                p = lista[i]
+                q = lista[j]
+                print(p.listavar)
+                print(q.listavar)
+                rela.borrarpot(p)
+                rela.borrarpot(q)
+                p.combina(q,inplace= True)
+                rela.insertar(p)
+                lista.remove(q)
+            else:
+                j+=1
+        
+        i+=1
+    lista.reverse()
+
+
+
+
 class problemaTrianFactor:
     def __init__(self,info,M=25):
          self.M = M
@@ -345,6 +376,9 @@ class problemaTrianFactor:
             var = rela.siguiente()
             print("i= ", i, "de " , t, "var = ", var)
             lista = rela.get(var)
+
+            ordenaycombinaincluidas(lista,rela)
+
             
             rela.borrarv(var)
 

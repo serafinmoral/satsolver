@@ -1117,6 +1117,7 @@ class PotencialTabla:
 
                 deter = False
                 vars = set()
+
                 for p in self.listap:
             
                 
@@ -1149,7 +1150,6 @@ class PotencialTabla:
                     else:
                         print("borrada " , var, "metodo 1")
                         while si:
-                            print(q.listavar)
                             q = si.pop()
                             self.listap.remove(q) 
                             if q == keyp:
