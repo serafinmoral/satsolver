@@ -13,6 +13,36 @@ from time import *
 import math
 import random
 
+
+def calculaclusters(lista):
+    
+    l = [set(p.listavar) for p in lista]
+
+    i=0
+    while i<len(lista)-1:
+        j = i+1
+        while j < len(lista):
+            x = lista[i]
+            y = lista[j]
+            if x<=y:
+                y.update(x)
+                lista.remove(x)
+                j = i+1
+            elif y<=x:
+                x.update(y)
+                lista.remove(y)
+            else:
+                j+=1
+
+        i+= 1
+
+    return l
+
+
+
+
+
+
 class nodoTabla:
 
     
@@ -1069,6 +1099,7 @@ class PotencialTabla:
                         return False
 
         def marginalizacond2(self,var,M, inplace=True):
+
             
             lista = []
             if inplace:
@@ -1112,10 +1143,13 @@ class PotencialTabla:
                         if len(set(q.listavar).union(keyp.listavar)) >M+1:
                             dele = False
                     if not dele:
+                        print( "no borrada ", var)
+                        sleep(22)
                         return lista
                     else:
                         print("borrada " , var, "metodo 1")
                         while si:
+                            print(q.listavar)
                             q = si.pop()
                             self.listap.remove(q) 
                             if q == keyp:
@@ -1128,8 +1162,10 @@ class PotencialTabla:
                                 self.anula()
                                 return lista
                             if not r.trivial():
+
                                 self.listap.append(r)
                                 lista.append(r)
+                            
                                 
                         return lista
 
@@ -1142,7 +1178,6 @@ class PotencialTabla:
                         print("borrada " , var, "metodo 2")
                         p = nodoTabla([])
 
- 
                         
                         while si:
                             
@@ -1157,12 +1192,16 @@ class PotencialTabla:
                         
                         if r.trivial():
                             return lista
+                        else:
+                            lista = [r]
 
                         self.listap.append(r)
                         
                         
                         return lista
                 else:
+                        print( "no borrada ", var)
+                        sleep(22)
                         return lista
 
         def combinacond(self,var,M, inplace=True):

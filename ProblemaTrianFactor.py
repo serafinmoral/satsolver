@@ -9,6 +9,7 @@ from operator import index
 import time
 
 from numpy import False_
+from vartablas import *
 
 from SimpleClausulas import *
 from arboltabla import calculadesdePotencial
@@ -89,14 +90,14 @@ class problemaTrianFactor:
             print ("var ", v, "num ", count[v])
             if count[v] == 1:
                     pot = pots[v]
-                    pos = self.pinicial.listap.index(p)
+                    pos = self.pinicial.listap.index(pot)
                     print("var ", v ,"encontrada una vez")
 
                 
                     sleep(0.2)
                     print("borrando esta variable")
                     self.varpar.append(v)
-                    self.potpar.append(p)
+                    self.potpar.append(pot)
 
                     r = p.borra([v],inplace = False)
                     self.pinicial.listap[pos] = r
@@ -331,8 +332,36 @@ class problemaTrianFactor:
 
         
 
+    def borradin(self):
+    
+        rela = varpot()
+        rela.createfrompot(self.pinicial)
+        t = len(self.pinicial.getvars())
+        if self.inicial.contradict:
+            self.anula()
+            return
+        i = 0
+        while rela.tabla:
+            var = rela.siguiente()
+            print("i= ", i, "de " , t, "var = ", var)
+            lista = rela.get(var)
+            for p in lista:
+                print(p.listavar)
+            rela.borrarv(var)
 
+            for p in lista:
+                print(p.listavar)
+            pot = PotencialTabla()
+            pot.listap = lista
 
+            nuevas = pot.marginalizacond2(var,M=30)
+            print("insertando nuevas ")
+            for p in nuevas:
+                print(p.listavar)
+                rela.insertar(p)
+            i+= 1
+                        
+            
     def borra(self):
         print(len(self.orden))
 
