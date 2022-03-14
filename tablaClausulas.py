@@ -1173,36 +1173,39 @@ class PotencialTabla:
 
 
         
-                elif len(vars) <= M+1:
+                else:
                         si.sort(key = lambda h: - len(h.listavar) )
-                        print("borrada " , var, "metodo 2")
-                        p = nodoTabla([])
-
-                        
+                        print("borrada " , var, "metodo 2, n potenciales", len(si))
+                    
+                        si2 = si.copia()
+                        lista = []
                         while si:
                             
                             q = si.pop()
                             self.listap.remove(q)
-                            p.combina(q,inplace = True, des = True)
-
-                        r = p.borra([var], inplace = False)
-                        if r.contradict():
-                            self.anula()
-                            return lista
+                            for p in si2:
+                                if len(set(q.listavar).union(set(p.listavar))) >M+1:
+                                    print( "no borrada ", var)
                         
-                        if r.trivial():
-                            return lista
-                        else:
-                            lista = [r]
+                                    return False
+                                else:
+                                    r = p.combina(q)
+                                    r.borra([var], inplace = True)
 
-                        self.listap.append(r)
+
+                                if r.contradict():
+                                    self.anula()
+                                    return lista
+                            
+                                if not r.trivial():
+                        
+                                    lista.append(r)
+
+                                    self.listap.append(r)
                         
                         
                         return lista
-                else:
-                        print( "no borrada ", var)
-                        sleep(22)
-                        return False
+                
 
         def combinacond(self,var,M, inplace=True):
             

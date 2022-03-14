@@ -26,7 +26,6 @@ def ordenaycombinaincluidas(lista,rela):
         j = i+1
         while j < len(lista):
             if set(lista[j].listavar) <= set(lista[i].listavar):
-                print("incluidas " )
                 p = lista[i]
                 q = lista[j]
                 
