@@ -29,8 +29,7 @@ def ordenaycombinaincluidas(lista,rela):
                 print("incluidas " )
                 p = lista[i]
                 q = lista[j]
-                print(p.listavar)
-                print(q.listavar)
+                
                 rela.borrarpot(p)
                 rela.borrarpot(q)
                 p.combina(q,inplace= True)
@@ -389,13 +388,12 @@ class problemaTrianFactor:
             nuevas = pot.marginalizacond2(var,M=30)
         
 
-
+            if pot.contradict:
+                print ("contradictorio ")
+                break
 
             for p in nuevas:
-                if p.contradict():
-                    print("contradictorio ")
-                    sleep(10)
-                    break
+                
                 rela.insertar(p)
 
 
