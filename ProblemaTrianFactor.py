@@ -345,12 +345,10 @@ class problemaTrianFactor:
             var = rela.siguiente()
             print("i= ", i, "de " , t, "var = ", var)
             lista = rela.get(var)
-            for p in lista:
-                print(p.listavar)
+            
             rela.borrarv(var)
 
-            for p in lista:
-                print(p.listavar)
+            
             pot = PotencialTabla()
             pot.listap = lista
 
