@@ -388,8 +388,18 @@ class problemaTrianFactor:
 
             nuevas = pot.marginalizacond2(var,M=30)
         
+
+
+
             for p in nuevas:
+                if p.contradict():
+                    print("contradictorio ")
+                    sleep(10)
+                    break
                 rela.insertar(p)
+
+
+            ordenaycombinaincluidas(nuevas,rela)
             i+= 1
                         
             

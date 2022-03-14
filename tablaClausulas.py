@@ -142,7 +142,7 @@ class nodoTabla:
 
 
 
-        if not np.trivial and np.checkdetermi(v):
+        if not np.trivial() and np.checkdetermi(v):
             return np.minimizadep(v, seg.copy())
         else:
             seg.add(nv)
