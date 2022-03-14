@@ -1177,7 +1177,7 @@ class PotencialTabla:
                         si.sort(key = lambda h: - len(h.listavar) )
                         print("borrada " , var, "metodo 2, n potenciales", len(si))
                     
-                        si2 = si.copia()
+                        si2 = si.copy()
                         lista = []
                         while si:
                             
