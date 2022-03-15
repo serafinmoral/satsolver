@@ -376,6 +376,7 @@ class problemaTrianFactor:
         # i = x[0]
         while rela.tabla:
             var = rela.siguiente()
+            tama = tam(rela.tabla.get(var))
             print("i= ", i, "de " , t, "var = ", var)
             lista = rela.get(var)
 
@@ -389,8 +390,8 @@ class problemaTrianFactor:
             pot.listap = lista
 
             pos = set(rela.tabla.keys())
-
-            while pos:
+            dif = 0
+            while pos and dif <=2:
 
                 met = pot.calculamethod(var)
                 if met == 1:
@@ -400,6 +401,7 @@ class problemaTrianFactor:
                     if pos:
                         var = rela.siguientep(pos)
                         lista = rela.get(var)
+                        dif = tam(rela.tabla.get(var))- tama
                         pot = PotencialTabla()
                         pot.listap = lista
 
