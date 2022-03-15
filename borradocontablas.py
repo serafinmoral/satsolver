@@ -264,8 +264,8 @@ def main(prob):
         prob.pinicial.mejoralocal()
 
         # print("otra vez!")
-        # sleep(3)
-        # prob.pinicial.mejoralocal()
+        prob.previo()
+        prob.pinicial.mejoralocal()
 
         print("otra vez!")
         sleep(3)

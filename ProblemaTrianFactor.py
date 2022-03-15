@@ -370,6 +370,10 @@ class problemaTrianFactor:
             self.anula()
             return
         i = 0
+        x = [i]
+        nuevas = self.pinicial.listap.copy()
+        self.borra12(x,nuevas,rela,M=20)
+        i = x[0]
         while rela.tabla:
             var = rela.siguiente()
             print("i= ", i, "de " , t, "var = ", var)
@@ -398,9 +402,9 @@ class problemaTrianFactor:
 
             ordenaycombinaincluidas(nuevas,rela)
             i+= 1
-            # x = [i]
-            # self.borra12(x,nuevas,rela,M=20)
-            # i = x[0]
+            # # x = [i]
+            # # self.borra12(x,nuevas,rela,M=20)
+            # # i = x[0]
 
     def borra12(self,x,l,rela, M= 20):
             print("total ", len(l))
