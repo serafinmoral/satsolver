@@ -1109,7 +1109,7 @@ class PotencialTabla:
                 else:
                         return False
 
-        def marginalizacond2(self,var,M, inplace=True, Q=25):
+        def marginalizacond2(self,var,M, inplace=True, Q=28):
 
             
             lista = []
