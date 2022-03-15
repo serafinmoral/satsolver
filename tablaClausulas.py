@@ -163,12 +163,14 @@ class nodoTabla:
             pr = self.borra([v])
 
             if not pr.trivial():
-                sr = pr.extrasimple()
+                sr = pr.extraesimple()
                 if not sr.trivial():
                     return sr
                 else:
                     h2 = self.extrasimple2(v,vars)
                     return h2
+            else:
+                return nodoTabla([])
 
     def extrasimple2(self,v1,vars):
         if not vars:
@@ -889,7 +891,7 @@ class PotencialTabla:
                 p= l.pop()
 
                 if not l in self.listap:
-                    break
+                    continue
 
                 sp = p.extraesimple()
                 if not sp.trivial():
@@ -912,7 +914,7 @@ class PotencialTabla:
                         if not det1:
                             det2 = sp.checkdetermi(v1)
                         if not det1 and not det2:
-                            break
+                            continue
                         if not det1 and det2:
                             v1,v2 = v2,v1
                         nl = []
@@ -1182,6 +1184,7 @@ class PotencialTabla:
                         while si:
                             
                             q = si.pop()
+                            print(q.listavar)
                             self.listap.remove(q)
                             for p in si2:
                                 if len(set(q.listavar).union(set(p.listavar))) >M+1:

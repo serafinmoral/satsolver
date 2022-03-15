@@ -398,6 +398,77 @@ class problemaTrianFactor:
 
             ordenaycombinaincluidas(nuevas,rela)
             i+= 1
+            x = [i]
+            self.borra12(x,nuevas,rela,M=20)
+            i = x[0]
+
+    def borra12(self,x,l,rela, M= 20):
+            print("total ", len(l))
+            i = x[0]
+            while l:
+
+                p= l.pop()
+                sp = p.extraesimple()
+                if not sp.trivial():
+
+                    if len(sp.listavar) == 1:
+                        var = sp.listavar[0]
+                        areducir = rela.get(var)
+                        print(" i " , i , "var ", var, "reduccion unitaria ")
+                        i +=1
+                        sleep(1)
+                        rela.borrarv(var)
+                        for q in areducir:
+                            
+                            if q in l:
+                                l.remove(q)
+                            r = q.combina(sp)
+                            r.borra([var],inplace=True)
+                            if r.contradict():
+                                rela.anula()
+                                print("contradiction ")
+                                return
+                            elif not r.trivial():
+                                l.append(r)
+                                rela.insertar(r)
+
+
+                    elif len(sp.listavar) == 2:
+                        v1 = sp.listavar[0]
+                        v2 = sp.listavar[1]
+                        
+                        det1 = sp.checkdetermi(v2)
+                        if not det1:
+                            det2 = sp.checkdetermi(v1)
+                        if not det1 and not det2:
+                            continue
+                        if not det1 and det2:
+                            v1,v2 = v2,v1
+                        var = v2
+                        print(" i " , i, "var ", var, "doble ")
+                        sleep(1)
+                        i+=1
+                        areducir = rela.get(var)
+                        rela.borrarv(var)
+                        for q in areducir:
+                            if q in l:
+                                l.remove(q)
+                            r = q.combina(sp)
+                            r.borra([var],inplace=True)
+                            if r.contradict():
+                                rela.anula()
+                                print("contradiction ")
+                                return
+                            elif not r.trivial():
+                                l.append(r)
+                                rela.insertar(r)
+                else:
+                    print("extraigo trivial ")
+
+            x[0] = i
+        
+
+
                         
             
     def borra(self):

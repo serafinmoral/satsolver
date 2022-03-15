@@ -19,6 +19,9 @@ class varpot:
 
             self.tabla = dict()
 
+        def anula(self):
+            self.tabla = dict()
+
 
         def insertar(self,p):
             for v in p.listavar:
