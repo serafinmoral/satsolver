@@ -370,16 +370,15 @@ class problemaTrianFactor:
             self.anula()
             return
         i = 0
-        x = [i]
-        nuevas = self.pinicial.listap.copy()
-        self.borra12(x,nuevas,rela,M=20)
-        i = x[0]
+        # x = [i]
+        # nuevas = self.pinicial.listap.copy()
+        # self.borra12(x,nuevas,rela,M=20)
+        # i = x[0]
         while rela.tabla:
             var = rela.siguiente()
             print("i= ", i, "de " , t, "var = ", var)
             lista = rela.get(var)
 
-            ordenaycombinaincluidas(lista,rela)
 
             
             
@@ -400,16 +399,24 @@ class problemaTrianFactor:
                     pos.discard(var)
                     if pos:
                         var = rela.siguientep(pos)
+                        lista = rela.get(var)
+                        pot = PotencialTabla()
+                        pot.listap = lista
 
             if met==2:
                 var = rela.siguiente()
+                lista = rela.get(var)
 
+                pot = PotencialTabla()
+                pot.listap = lista
+
+            ordenaycombinaincluidas(lista,rela)
 
 
             rela.borrarv(var)
 
             nuevas = pot.marginalizacond2(var,M=30)
-            sleep(2)
+            sleep(0.1)
 
 
             if pot.contradict:
