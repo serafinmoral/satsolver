@@ -51,6 +51,12 @@ class varpot:
             print (tam(self.tabla.get(miv)),tam(self.tabla.get(mav)))
             return miv
 
+        def siguientep(self,pos):
+            miv = min(pos,key = lambda x: tam(self.tabla.get(x)))
+            mav = max(pos,key = lambda x: tam(self.tabla.get(x)))
+            print (tam(self.tabla.get(miv)),tam(self.tabla.get(mav)))
+            return miv
+
         def get(self,i):
             return self.tabla.get(i,[]).copy()
 

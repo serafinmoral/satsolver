@@ -1109,6 +1109,36 @@ class PotencialTabla:
                 else:
                         return False
 
+
+
+        def calculamethod(self,var):
+
+            
+            
+                
+                si = []    
+
+                deter = False
+                vars = set()
+
+                if len(self.listap)<=2:
+                    return 1
+
+                for p in self.listap:
+            
+                
+                    if var in p.listavar:
+                            vars.update(p.listavar)
+                            si.append(p)
+                            if not deter:
+                                deter = p.checkdetermi(var)
+                                if deter: 
+                                    return 1
+                return 2
+
+
+                                    
+
         def marginalizacond2(self,var,M, inplace=True, Q=20):
 
             

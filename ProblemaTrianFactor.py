@@ -382,14 +382,35 @@ class problemaTrianFactor:
             ordenaycombinaincluidas(lista,rela)
 
             
-            rela.borrarv(var)
+            
+
 
             
             pot = PotencialTabla()
             pot.listap = lista
 
+            pos = set(rela.tabla.keys())
+
+            while pos:
+
+                met = pot.calculamethod(var)
+                if met == 1:
+                    break
+                else:
+                    pos.discard(var)
+                    if pos:
+                        var = rela.siguientep(pos)
+
+            if met==2:
+                var = rela.siguiente()
+
+
+
+            rela.borrarv(var)
+
             nuevas = pot.marginalizacond2(var,M=30)
-        
+            sleep(2)
+
 
             if pot.contradict:
                 print ("contradictorio ")
