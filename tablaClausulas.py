@@ -14,29 +14,38 @@ import math
 import random
 
 
-def calculaclusters(lista):
-    
-    l = [set(p.listavar) for p in lista]
+def calculaclusters1(lista,p,var):
+    li = [set(q.listavar).union(p.listavar) - {var} for q in lista]
+    borraincluidos(li)
+    return li
 
+def calculaclusters2(lista,var):
+    li = []
+    for p in lista:
+        s = set(p.listavar)
+        for q in lista:
+            li.append(s.union(q.listavar)- {var})
+    borraincluidos(li)
+    return li
+
+def borraincluidos(lista):
+    
+    lista.sort(key = lambda x : - len(x) )
+
+    
     i=0
-    while i<len(lista)-1:
+    while i <len(lista)-1:
         j = i+1
         while j < len(lista):
-            x = lista[i]
-            y = lista[j]
-            if x<=y:
-                y.update(x)
-                lista.remove(x)
-                j = i+1
-            elif y<=x:
-                x.update(y)
-                lista.remove(y)
+            con1 = lista[i]
+            con2 = lista[j]
+            if con2 <= con1:
+                lista.remove(con2)
             else:
                 j+=1
-
-        i+= 1
-
-    return l
+        i += 1
+        
+       
 
 
 
@@ -1100,7 +1109,7 @@ class PotencialTabla:
                 else:
                         return False
 
-        def marginalizacond2(self,var,M, inplace=True):
+        def marginalizacond2(self,var,M, inplace=True, Q=25):
 
             
             lista = []
@@ -1151,24 +1160,48 @@ class PotencialTabla:
                         return False
                     else:
                         print("borrada " , var, "metodo 1")
-                        while si:
-                            q = si.pop()
-                            self.listap.remove(q) 
-                            if q == keyp:
-                                r = q.borra([var],inplace = False)
-                            else:
-                                r = q.combina(keyp,inplace = False, des = False)
-                                r.borra([var],inplace = True)
-
+                        vars.discard(var)
+                        if len(vars) <= Q:
+                            print("global ")
+                            r = nodoTabla([])
+                            lc = calculaclusters1(si,keyp,var)
+                            while si:
+                                q = si.pop()
+                                r.combina(q,inplace=True)
+                                self.listap.remove(q) 
+                            r.borra([var],inplace=True)
                             if r.contradict():
                                 self.anula()
                                 return lista
-                            if not r.trivial():
-
-                                self.listap.append(r)
-                                lista.append(r)
                             
+
+                            for h in lc:
+                                rh = r.borra(list(vars-h)) 
                                 
+                                if not rh.trivial():
+
+                                    self.listap.append(rh)
+                                    lista.append(rh)
+                        else:
+                            print("local ")
+                            while si:
+                                q = si.pop()
+                                self.listap.remove(q) 
+                                if q == keyp:
+                                    r = q.borra([var],inplace = False)
+                                else:
+                                    r = q.combina(keyp,inplace = False, des = False)
+                                    r.borra([var],inplace = True)
+
+                                if r.contradict():
+                                    self.anula()
+                                    return lista
+                                if not r.trivial():
+
+                                    self.listap.append(r)
+                                    lista.append(r)
+                                
+                                    
                         return lista
 
 
@@ -1181,30 +1214,54 @@ class PotencialTabla:
                     
                         si2 = si.copy()
                         lista = []
-                        while si:
+                        if len(vars)<= Q:
+                            print("global ")
+                            vars.discard(var)
+
+                            r = nodoTabla([])
+                            lc = calculaclusters2(si,var)
+                            while si:
+                                q = si.pop()
+                                r.combina(q,inplace=True)
+                                self.listap.remove(q) 
+                            r.borra([var],inplace=True)
+                            if r.contradict():
+                                self.anula()
+                                return lista
                             
-                            q = si.pop()
-                            print(q.listavar)
-                            self.listap.remove(q)
-                            for p in si2:
-                                if len(set(q.listavar).union(set(p.listavar))) >M+1:
-                                    print( "no borrada ", var)
-                        
-                                    return False
-                                else:
-                                    r = p.combina(q)
-                                    r.borra([var], inplace = True)
 
+                            for h in lc:
+                                rh = r.borra(list(vars-h)) 
+                                
+                                if not rh.trivial():
 
-                                if r.contradict():
-                                    self.anula()
-                                    return lista
+                                    self.listap.append(rh)
+                                    lista.append(rh)
+                        else:
+                            while si:
+                                
+                                q = si.pop()
+                                print(q.listavar)
+                                self.listap.remove(q)
+                                for p in si2:
+                                    if len(set(q.listavar).union(set(p.listavar))) >M+1:
+                                        print( "no borrada ", var)
                             
-                                if not r.trivial():
-                        
-                                    lista.append(r)
+                                        return False
+                                    else:
+                                        r = p.combina(q)
+                                        r.borra([var], inplace = True)
 
-                                    self.listap.append(r)
+
+                                    if r.contradict():
+                                        self.anula()
+                                        return lista
+                                
+                                    if not r.trivial():
+                            
+                                        lista.append(r)
+
+                                        self.listap.append(r)
                         
                         
                         return lista
