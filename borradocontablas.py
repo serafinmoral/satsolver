@@ -265,13 +265,16 @@ def main(prob):
 
         
 
-        # print("otra vez!")
+        print("otra vez!")
         
 
         
 
         prob.pinicial.mejoralocal()
         print("otra vez!")
+
+        prob.previo()           
+
 
 
         # (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent) = triangulap(prob.pinicial) 

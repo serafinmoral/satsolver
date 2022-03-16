@@ -638,6 +638,14 @@ class PotencialTabla:
                                 if len(tvars.union(qv))<=M:
                                     tvars.update(qv)
                                     lista.append(q)
+                    vars = tvars.copy()
+                    for q in self.listap:
+                        if not q==p:
+                            qv = set(q.listavar)
+                            if set(qv.intersection(vars)):
+                                if len(tvars.union(qv))<=M:
+                                    tvars.update(qv)
+                                    lista.append(q)
                     r = nodoTabla([])
                     for q in lista:
                         r.combina(q,inplace=True)
