@@ -49,7 +49,7 @@ class varpot:
             miv = min(self.tabla,key = lambda x: tam(self.tabla.get(x)))
             mav = max(self.tabla,key = lambda x: tam(self.tabla.get(x)))
             print (tam(self.tabla.get(miv)),tam(self.tabla.get(mav)))
-            return mivs
+            return miv
 
         def siguientep(self,pos):
             miv = min(pos,key = lambda x: tam(self.tabla.get(x)))

@@ -258,17 +258,20 @@ def main(prob):
 
         prob.inicia0()        
 
+        prob.pinicial.mejoralocal()
+
+
         prob.previo()           
 
         
-        prob.pinicial.mejoralocal()
 
         # print("otra vez!")
-        prob.previo()
-        prob.pinicial.mejoralocal()
+        
 
         print("otra vez!")
-        sleep(3)
+        prob.previo(Q=3)
+
+        prob.pinicial.mejoralocal()
 
 
         # (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent) = triangulap(prob.pinicial) 
