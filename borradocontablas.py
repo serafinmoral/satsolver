@@ -95,7 +95,7 @@ def triangulap(pot):
         value[x] = 2**(len(totvar[x])-1) - sum([2**len(y) for y in dvar[x]])
         
         
-
+    i = 0
     while total:
         nnodo = min(value, key = value.get )
         orden.append(nnodo)
@@ -105,7 +105,7 @@ def triangulap(pot):
             clus.update(x)
         clusters.append(clus)
         posvar[nnodo] = i
-        print( i, clus) 
+        print( i, clus)
 
         i+=1
         clustersin = clus-{nnodo}

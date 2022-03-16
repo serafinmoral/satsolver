@@ -4,13 +4,7 @@ Created on 31 Enero 2022
 
 @author: Serafin
 """
-
-def tam(l):
-    tot = set()
-    for h in l:
-        tot.update(set(h.listavar))
-    return len(tot)
-    
+from utils import *
 
 
 class varpot:
@@ -46,6 +40,17 @@ class varpot:
                 del self.tabla[v]
 
         def siguiente(self):
+            miv = min(self.tabla,key = lambda x: len(self.tabla.get(x)))
+            mav = max(self.tabla,key = lambda x: len(self.tabla.get(x)))
+
+            print(len(self.tabla.get(miv)),len(self.tabla.get(mav)))
+
+            if len(self.tabla.get(miv)) == 1:
+                print("un solo potencial !!!!!!!!!!!!!!!!")
+                return (miv)
+                
+
+
             miv = min(self.tabla,key = lambda x: tam(self.tabla.get(x)))
             mav = max(self.tabla,key = lambda x: tam(self.tabla.get(x)))
             print (tam(self.tabla.get(miv)),tam(self.tabla.get(mav)))

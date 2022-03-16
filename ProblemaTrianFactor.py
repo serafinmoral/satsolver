@@ -128,7 +128,7 @@ class problemaTrianFactor:
                     self.varpar.append(v)
                     self.potpar.append(pot)
 
-                    r = p.borra([v],inplace = False)
+                    r = pot.borra([v],inplace = False)
                     self.pinicial.listap[pos] = r
 
 

@@ -8,6 +8,13 @@ Created on Mon May 13 10:55:15 2019
 import networkx as nx
 
 
+
+
+
+
+
+
+
 def numerotodasfalsas(lclau,n):
     varincl = set()
     for x in lclau:
