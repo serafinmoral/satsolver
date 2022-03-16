@@ -270,10 +270,8 @@ def main(prob):
 
         
 
-        prob.pinicial.mejoralocal()
         print("otra vez!")
 
-        prob.previo()           
 
 
 
