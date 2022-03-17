@@ -19,6 +19,25 @@ def tam(l):
     return len(tot)
     
 
+def varlord(p):
+    if not p.listarvar==1:
+        print("llamada impropia")
+    else:
+        v = p.listavar[0]
+        if not p.tabla[0]:
+            return v
+        else:
+            return -v
+
+def potdev(v):
+    res = nodoTabla([abs(v)])
+    if v>0:
+        res.tabla[0] = False
+    else:
+        res.tabla[1] = False
+    return res
+
+
 def calculaclusters1(lista,p,var):
     li = [set(q.listavar).union(p.listavar) - {var} for q in lista]
     borraincluidos(li)

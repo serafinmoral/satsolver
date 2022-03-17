@@ -20,8 +20,19 @@ class varpot:
             self.unit = dict()
             self.contradict = True
 
+        def insertaru(self,v):
+            self.reduce(u, inplace=True)
+            self.unit.add(u)
 
         def insertar(self,p):
+            if len(p.listavar) ==1:
+                if p.contradict():
+                    self.anula()
+                    return
+                if not p.contradict():
+                    u = valord(p)
+                    self.insertaru(u)
+                    return
             if self.unit:
                 varsu = set(map(abs,self.unit))
                 if varsu.intersection(set(p.listavar)):
@@ -42,9 +53,11 @@ class varpot:
             elif -v in self.unit:
                 self.unit.anula()
             elif v in self.tabla:
-                
+                lista = res.get(v)
                 res.borrarv(v)
-
+                for p in lista:
+                    q = p.reduce(v,inplace = False)
+                    self.insertar(q)
 
 
         def copia(self):
