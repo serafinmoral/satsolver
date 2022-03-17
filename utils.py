@@ -10,6 +10,8 @@ Created on Mon May 13 10:55:15 2019
 Calculates the size of the union of the variables of all the tables in a list
 """
 
+from tablaClausulas import *
+
 def tam(l):
     tot = set()
     for h in l:
@@ -17,5 +19,214 @@ def tam(l):
     return len(tot)
     
 
+def calculaclusters1(lista,p,var):
+    li = [set(q.listavar).union(p.listavar) - {var} for q in lista]
+    borraincluidos(li)
+    return li
+
+def calculaclusters2(lista,var):
+    li = []
+    for p in lista:
+        s = set(p.listavar)
+        for q in lista:
+            li.append(s.union(q.listavar)- {var})
+    borraincluidos(li)
+    return li
+
+def borraincluidos(lista):
+    
+    lista.sort(key = lambda x : - len(x) )
+
+    
+    i=0
+    while i <len(lista)-1:
+        j = i+1
+        while j < len(lista):
+            con1 = lista[i]
+            con2 = lista[j]
+            if con2 <= con1:
+                lista.remove(con2)
+            else:
+                j+=1
+        i += 1
+
+def createclusters (lista):
+    listasets = []
+    for cl in lista:
+        va = set(map(abs,cl))
+        encontrado = False
+        for x in listasets:
+            if va <= x:
+                encontrado = True
+                break
+            
+        if not encontrado:
+            listasets.append(va)
+
+    i = 0
+    j = 1
+    while (i<len(listasets)-1):
+        if listasets[i] <= listasets[j]:
+            del listasets[i]
+            j = i+1
+        elif listasets[j] <= listasets[i]:
+            del listasets[j]
+            if j >= len(listasets):
+                i += 1
+                j = i+1
+        else:
+            j += 1
+            if j >= len(listasets):
+                i += 1
+                j = i+1
+    listaclaus = []
+    for i in range(len(listasets)):
+        listaclaus.append([])
 
 
+    for cl in lista:
+        va = set(map(abs,cl))
+        for i in range(len(listasets)):
+            if va <= listasets[i]:
+                listaclaus[i].append(cl)
+                break
+
+    return(listasets,listaclaus)
+
+
+
+def marginaliza(lista,var, M=30, Q=20):
+
+    if not lista:
+        return (True,[])
+    res = []
+    si = []
+    vars = set()
+    deter = False
+    for p in lista:
+        if var in p.listavar:
+
+            vars.update(p.listavar)
+            si.append(p)
+            if not deter:
+                deter = p.checkdetermi(var)
+                if deter: 
+                    nv = set()
+                    keyp = p.minimizadep(var,nv)
+                    setkey = set(keyp.listavar)
+                    if len(keyp.listavar) < len(p.listavar):
+                        print("minimizo ",len(keyp.listavar) ,  len(p.listavar))
+        else:
+            print("warning: variable no en tabla")
+            res.append(p)
+
+                                    
+        
+    if not si:
+        return (True,res)
+    
+    exact = True
+
+    if deter:
+        vars.discard(var)
+
+        
+        if len(vars) <= Q:
+            print("global ")
+            r = nodoTabla([])
+            lc = calculaclusters1(si,keyp,var)
+            while si:
+                q = si.pop()
+                r.combina(q,inplace=True)
+            r.borra([var],inplace=True)
+            if r.contradict():
+                con = nodoTabla()
+                con.anula()
+                return (True,[con])
+                    
+
+            for h in lc:
+                rh = r.borra(list(vars-h)) 
+                        
+                if not rh.trivial():
+                    res.append(rh)
+                        
+        else:
+            while si:
+                q = si.pop() 
+                if q == keyp:
+                    r = q.borra([var],inplace = False)
+                else:
+                    if len(setkey.union(set(q.listavar))) < M+1:
+                        r = q.combina(keyp,inplace = False, des = False)
+                        r.borra([var],inplace = True)
+
+                        if r.contradict():
+                            con = nodoTabla()
+                            con.anula()
+                            return (True,[con])
+                        if not r.trivial():
+                            res.append(r)
+                    else:
+                        exact = False
+
+    else:
+            si.sort(key = lambda h: - len(h.listavar) )
+            print("borrada " , var, "metodo 2, n potenciales", len(si))
+        
+            si2 = si.copy()
+            lista = []
+            if len(vars)<= Q:
+                print("global ")
+                vars.discard(var)
+
+                r = nodoTabla([])
+                lc = calculaclusters2(si,var)
+                while si:
+                    q = si.pop()
+                    r.combina(q,inplace=True)
+                
+                r.borra([var],inplace=True)
+                if r.contradict():
+                    con = nodoTabla([])
+                    con.anula()
+                    return (True,[con])
+                
+
+                for h in lc:
+                    rh = r.borra(list(vars-h)) 
+                    
+                    if not rh.trivial():
+                        res.append(rh)
+            else:
+                si2 = si.copy()
+                while si:
+                    
+                    q = si.pop()
+                    
+                    for p in si2:
+                        if len(set(q.listavar).union(set(p.listavar))) >M+1:
+                            print( "no exacto")
+                            exact = False
+                        else:
+                            r = p.combina(q)
+                            r.borra([var], inplace = True)
+
+
+                            if r.contradict():
+                                con = nodoTabla([])
+                                con.anula()
+                                return (True, [con])
+                    
+                            if not r.trivial():
+                
+                                res.append(r)
+
+                        
+            
+            
+    return (exact,res)
+                
+                    
+                        
+        

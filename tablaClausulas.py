@@ -6,6 +6,8 @@ Created on 31 Enero 2022
 """
 
 from xmlrpc.client import boolean
+import utils as u
+
 import networkx as nx
 import numpy as np
 from SimpleClausulas import * 
@@ -13,37 +15,6 @@ from time import *
 import math
 import random
 
-
-def calculaclusters1(lista,p,var):
-    li = [set(q.listavar).union(p.listavar) - {var} for q in lista]
-    borraincluidos(li)
-    return li
-
-def calculaclusters2(lista,var):
-    li = []
-    for p in lista:
-        s = set(p.listavar)
-        for q in lista:
-            li.append(s.union(q.listavar)- {var})
-    borraincluidos(li)
-    return li
-
-def borraincluidos(lista):
-    
-    lista.sort(key = lambda x : - len(x) )
-
-    
-    i=0
-    while i <len(lista)-1:
-        j = i+1
-        while j < len(lista):
-            con1 = lista[i]
-            con2 = lista[j]
-            if con2 <= con1:
-                lista.remove(con2)
-            else:
-                j+=1
-        i += 1
         
        
 
@@ -329,7 +300,9 @@ class nodoTabla:
         x1 = np.sum(t1.tabla)
         return (x0,x1)
 
-
+    def anula(self):
+        self = nodoTabla([])
+        self.tabla = False
 
     def trivial(self):
         return  np.amin(self.tabla)
@@ -354,49 +327,6 @@ class nodoTabla:
         return result
           
     
-
-def createclusters (lista):
-    listasets = []
-    for cl in lista:
-        va = set(map(abs,cl))
-        encontrado = False
-        for x in listasets:
-            if va <= x:
-                encontrado = True
-                break
-            
-        if not encontrado:
-            listasets.append(va)
-
-    i = 0
-    j = 1
-    while (i<len(listasets)-1):
-        if listasets[i] <= listasets[j]:
-            del listasets[i]
-            j = i+1
-        elif listasets[j] <= listasets[i]:
-            del listasets[j]
-            if j >= len(listasets):
-                i += 1
-                j = i+1
-        else:
-            j += 1
-            if j >= len(listasets):
-                i += 1
-                j = i+1
-    listaclaus = []
-    for i in range(len(listasets)):
-        listaclaus.append([])
-
-
-    for cl in lista:
-        va = set(map(abs,cl))
-        for i in range(len(listasets)):
-            if va <= listasets[i]:
-                listaclaus[i].append(cl)
-                break
-
-    return(listasets,listaclaus)
 
 
 
@@ -477,7 +407,7 @@ class PotencialTabla:
 
         def computefromsimple(self,simple):
             self.unit = simple.unit.copy()
-            (sets,clusters) = createclusters(simple.listaclaus)
+            (sets,clusters) = u.createclusters(simple.listaclaus)
             for i in range(len(sets)):
                 x = nodoTabla(list(sets[i]))
                 x.introducelista(clusters[i])
@@ -1147,162 +1077,44 @@ class PotencialTabla:
 
                                     
 
-        def marginalizacond2(self,var,M, inplace=True, Q=20):
+        def marginalizacond2(self,var,M = 30, Q=20):
 
             
             lista = []
-            if inplace:
-                if self.contradict:
-                        return lista
-                if var in  self.unit:
-                        self.unit.discard(var)
-                        return lista
-                elif -var in self.unit:
-                        self.unit.discard(-var) 
-
-                        return lista
-                
-                si = []    
-
-                deter = False
-                vars = set()
-
-                for p in self.listap:
             
-                
-                    if var in p.listavar:
-                            vars.update(p.listavar)
-                            si.append(p)
-                            if not deter:
-                                deter = p.checkdetermi(var)
-                                if deter: 
-                                    nv = set()
-                                    keyp = p.minimizadep(var,nv)
-                                    if len(keyp.listavar) < len(p.listavar):
-                                        print("minimizo ",len(keyp.listavar) ,  len(p.listavar))
-                                        # sleep(1)
+            if self.contradict:
+                    return (True,lista)
+            if var in  self.unit:
+                    self.unit.discard(var)
+                    return (True,lista)
+            elif -var in self.unit:
+                    self.unit.discard(-var) 
 
-                                    
-        
-                if not si:
-                    return []
+                    return (True,lista)
+            
+            si = []    
 
-                if deter:
-                    dele = True
-                    for q in si:
-                        if len(set(q.listavar).union(keyp.listavar)) >M+1:
-                            dele = False
-                    if not dele:
-                        print( "no borrada ", var)
+               
+
+            for p in self.listap:
+                if var in p.listavar:
+                    si.append(p)
+            
+            for p in si:
+                self.listap.remove(p)
+
+            (exact,lista) = u.marginaliza(si,var,M,Q)
+
+            
+            if exact and lista and not lista[0].listavar:
+                if lista[0].contradict():
+                    self.anula()    
+                    return(True,lista)
+            for p in lista:
+                self.listap.append(p)     
+
                         
-                        return False
-                    else:
-                        print("borrada " , var, "metodo 1")
-                        vars.discard(var)
-                        if len(vars) <= Q:
-                            print("global ")
-                            r = nodoTabla([])
-                            lc = calculaclusters1(si,keyp,var)
-                            while si:
-                                q = si.pop()
-                                r.combina(q,inplace=True)
-                                self.listap.remove(q) 
-                            r.borra([var],inplace=True)
-                            if r.contradict():
-                                self.anula()
-                                return lista
-                            
-
-                            for h in lc:
-                                rh = r.borra(list(vars-h)) 
-                                
-                                if not rh.trivial():
-
-                                    self.listap.append(rh)
-                                    lista.append(rh)
-                        else:
-                            print("local ")
-                            while si:
-                                q = si.pop()
-                                self.listap.remove(q) 
-                                if q == keyp:
-                                    r = q.borra([var],inplace = False)
-                                else:
-                                    r = q.combina(keyp,inplace = False, des = False)
-                                    r.borra([var],inplace = True)
-
-                                if r.contradict():
-                                    self.anula()
-                                    return lista
-                                if not r.trivial():
-
-                                    self.listap.append(r)
-                                    lista.append(r)
-                                
-                                    
-                        return lista
-
-
-
-
-        
-                else:
-                        si.sort(key = lambda h: - len(h.listavar) )
-                        print("borrada " , var, "metodo 2, n potenciales", len(si))
-                    
-                        si2 = si.copy()
-                        lista = []
-                        if len(vars)<= Q:
-                            print("global ")
-                            vars.discard(var)
-
-                            r = nodoTabla([])
-                            lc = calculaclusters2(si,var)
-                            while si:
-                                q = si.pop()
-                                r.combina(q,inplace=True)
-                                self.listap.remove(q) 
-                            r.borra([var],inplace=True)
-                            if r.contradict():
-                                self.anula()
-                                return lista
-                            
-
-                            for h in lc:
-                                rh = r.borra(list(vars-h)) 
-                                
-                                if not rh.trivial():
-
-                                    self.listap.append(rh)
-                                    lista.append(rh)
-                        else:
-                            while si:
-                                
-                                q = si.pop()
-                                print(q.listavar)
-                                self.listap.remove(q)
-                                for p in si2:
-                                    if len(set(q.listavar).union(set(p.listavar))) >M+1:
-                                        print( "no borrada ", var)
-                            
-                                        return False
-                                    else:
-                                        r = p.combina(q)
-                                        r.borra([var], inplace = True)
-
-
-                                    if r.contradict():
-                                        self.anula()
-                                        return lista
-                                
-                                    if not r.trivial():
-                            
-                                        lista.append(r)
-
-                                        self.listap.append(r)
-                        
-                        
-                        return lista
+            return (exact,lista)
                 
 
         def combinacond(self,var,M, inplace=True):

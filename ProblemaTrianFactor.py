@@ -417,12 +417,16 @@ class problemaTrianFactor:
 
             rela.borrarv(var)
 
-            nuevas = pot.marginalizacond2(var,M=30)
-            sleep(0.1)
+            (exac,nuevas) = pot.marginalizacond2(var,M=30)
+            
 
+
+            if not exac:
+                print ("borrado no exacto ")
+                break
 
             if pot.contradict:
-                print ("contradictorio ")
+                print("Contradictorio")
                 break
 
             for p in nuevas:

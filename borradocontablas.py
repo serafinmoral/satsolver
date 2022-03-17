@@ -8,6 +8,7 @@ import networkx as nx
 from SimpleClausulas import *
 from ProblemaTrianFactor import *
 from time import *
+from utils import *
 
 from arboltablaglobal import *
 
@@ -257,6 +258,8 @@ def main(prob):
         print("entro en main")
 
         prob.inicia0()        
+
+        prob.previo()
 
         prob.pinicial.mejoralocal()
 
