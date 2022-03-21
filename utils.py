@@ -11,6 +11,7 @@ Calculates the size of the union of the variables of all the tables in a list
 """
 
 from tablaClausulas import *
+from vartablas import *
 
 def tam(l):
     tot = set()
@@ -19,7 +20,7 @@ def tam(l):
     return len(tot)
     
 
-def varlord(p):
+def valord(p):
     if not p.listarvar==1:
         print("llamada impropia")
     else:
@@ -28,6 +29,21 @@ def varlord(p):
             return v
         else:
             return -v
+
+def contenida(nodo, listanodos):
+    if (len(listanodos)>0):
+        nodoaux = nodoTabla([])
+        for x in range(len(listanodos)):
+            nodoaux.combina(listanodos[x], inplace=True)
+        listaBorra = list(set(nodoaux.listavar)-set(nodo.listavar))
+        nodoaux.borra(listaBorra, inplace=True)
+        nodoaux.tabla = np.logical_not(nodoaux.tabla)
+        nodoaux=nodoaux.suma(nodo)
+        return nodoaux.trivial()
+    else:
+        return False
+
+    
 
 def potdev(v):
     res = nodoTabla([abs(v)])
@@ -68,6 +84,33 @@ def borraincluidos(lista):
             else:
                 j+=1
         i += 1
+
+
+def ordenaycombinaincluidas(lista,rela):
+    
+    lista.sort(key = lambda x : - len(x.listavar) )
+
+    
+    i=0
+    while i <len(lista)-1:
+        j = i+1
+        while j < len(lista):
+            if set(lista[j].listavar) <= set(lista[i].listavar):
+                p = lista[i]
+                q = lista[j]
+                
+                rela.borrarpot(p)
+                rela.borrarpot(q)
+                p.combina(q,inplace= True)
+                rela.insertar(p)
+                lista.remove(q)
+            else:
+                j+=1
+        
+        i+=1
+    lista.reverse()
+
+
 
 def createclusters (lista):
     listasets = []
@@ -117,7 +160,7 @@ def createclusters (lista):
 def marginaliza(lista,var, M=30, Q=20):
 
     if not lista:
-        return (True,[])
+        return (True,[],[])
     res = []
     si = []
     vars = set()
@@ -133,8 +176,8 @@ def marginaliza(lista,var, M=30, Q=20):
                     nv = set()
                     keyp = p.minimizadep(var,nv)
                     setkey = set(keyp.listavar)
-                    if len(keyp.listavar) < len(p.listavar):
-                        print("minimizo ",len(keyp.listavar) ,  len(p.listavar))
+                    # if len(keyp.listavar) < len(p.listavar):
+                        # print("minimizo ",len(keyp.listavar) ,  len(p.listavar))
         else:
             print("warning: variable no en tabla")
             res.append(p)
@@ -142,16 +185,16 @@ def marginaliza(lista,var, M=30, Q=20):
                                     
         
     if not si:
-        return (True,res)
+        return (True,res,[nodoTabla([var])])
     
     exact = True
 
     if deter:
         vars.discard(var)
 
-        
+        listp = [keyp]
         if len(vars) <= Q:
-            print("global ")
+            # print("global ")
             r = nodoTabla([])
             lc = calculaclusters1(si,keyp,var)
             while si:
@@ -161,7 +204,7 @@ def marginaliza(lista,var, M=30, Q=20):
             if r.contradict():
                 con = nodoTabla()
                 con.anula()
-                return (True,[con])
+                return (True,[con],[keyp])
                     
 
             for h in lc:
@@ -191,12 +234,11 @@ def marginaliza(lista,var, M=30, Q=20):
 
     else:
             si.sort(key = lambda h: - len(h.listavar) )
-            print("borrada " , var, "metodo 2, n potenciales", len(si))
+            # print("borrada " , var, "metodo 2, n potenciales", len(si))
         
-            si2 = si.copy()
             lista = []
             if len(vars)<= Q:
-                print("global ")
+                # print("global ")
                 vars.discard(var)
 
                 r = nodoTabla([])
@@ -204,12 +246,13 @@ def marginaliza(lista,var, M=30, Q=20):
                 while si:
                     q = si.pop()
                     r.combina(q,inplace=True)
+                listp = [r.copia()]
                 
                 r.borra([var],inplace=True)
                 if r.contradict():
                     con = nodoTabla([])
                     con.anula()
-                    return (True,[con])
+                    return (True,[con],[])
                 
 
                 for h in lc:
@@ -219,6 +262,7 @@ def marginaliza(lista,var, M=30, Q=20):
                         res.append(rh)
             else:
                 si2 = si.copy()
+                listp = si2
                 while si:
                     
                     q = si.pop()
@@ -235,7 +279,10 @@ def marginaliza(lista,var, M=30, Q=20):
                             if r.contradict():
                                 con = nodoTabla([])
                                 con.anula()
-                                return (True, [con])
+                                r = nodoTabla([var])
+                                r.tabla[0] = False
+                                r.tabla[1] = False
+                                return (True, [con],listp)
                     
                             if not r.trivial():
                 
@@ -244,8 +291,31 @@ def marginaliza(lista,var, M=30, Q=20):
                         
             
             
-    return (exact,res)
+    return (exact,res,listp)
                 
-                    
-                        
+def calculamethod(lista,var):
+
         
+        
+            
+            si = []    
+
+            deter = False
+            vars = set()
+
+            if len(lista)<=2:
+                return 1
+
+            for p in lista:
+        
+            
+                if var in p.listavar:
+                        vars.update(p.listavar)
+                        si.append(p)
+                        if not deter:
+                            deter = p.checkdetermi(var)
+                            if deter: 
+                                return 1
+            return 2              
+                    
+    

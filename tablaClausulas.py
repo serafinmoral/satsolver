@@ -110,6 +110,9 @@ class nodoTabla:
         else:
             return False
 
+    def contenida(self,listanodos):
+        return u.contenida(self,listanodos) 
+
     def minimizadep(self,v, seg = set()):
         vars = set(self.listavar) - seg
         vars.remove(v)
@@ -1049,30 +1052,7 @@ class PotencialTabla:
 
 
 
-        def calculamethod(self,var):
-
-            
-            
-                
-                si = []    
-
-                deter = False
-                vars = set()
-
-                if len(self.listap)<=2:
-                    return 1
-
-                for p in self.listap:
-            
-                
-                    if var in p.listavar:
-                            vars.update(p.listavar)
-                            si.append(p)
-                            if not deter:
-                                deter = p.checkdetermi(var)
-                                if deter: 
-                                    return 1
-                return 2
+        
 
 
                                     
@@ -1083,14 +1063,14 @@ class PotencialTabla:
             lista = []
             
             if self.contradict:
-                    return (True,lista)
+                    return (True,lista,[])
             if var in  self.unit:
                     self.unit.discard(var)
-                    return (True,lista)
+                    return (True,lista,[u.potdev(var)])
             elif -var in self.unit:
                     self.unit.discard(-var) 
 
-                    return (True,lista)
+                    return (True,lista,[u.potdev(-var)])
             
             si = []    
 
@@ -1103,7 +1083,7 @@ class PotencialTabla:
             for p in si:
                 self.listap.remove(p)
 
-            (exact,lista) = u.marginaliza(si,var,M,Q)
+            (exact,lista,listaconvar) = u.marginaliza(si,var,M,Q)
 
             
             if exact and lista and not lista[0].listavar:
@@ -1114,7 +1094,7 @@ class PotencialTabla:
                 self.listap.append(p)     
 
                         
-            return (exact,lista)
+            return (exact,lista,listaconvar)
                 
 
         def combinacond(self,var,M, inplace=True):

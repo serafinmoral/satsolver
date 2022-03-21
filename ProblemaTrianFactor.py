@@ -16,30 +16,6 @@ from arboltabla import calculadesdePotencial
 from tablaClausulas import *
 
 
-def ordenaycombinaincluidas(lista,rela):
-    
-    lista.sort(key = lambda x : - len(x.listavar) )
-
-    
-    i=0
-    while i <len(lista)-1:
-        j = i+1
-        while j < len(lista):
-            if set(lista[j].listavar) <= set(lista[i].listavar):
-                p = lista[i]
-                q = lista[j]
-                
-                rela.borrarpot(p)
-                rela.borrarpot(q)
-                p.combina(q,inplace= True)
-                rela.insertar(p)
-                lista.remove(q)
-            else:
-                j+=1
-        
-        i+=1
-    lista.reverse()
-
 
 
 
@@ -48,6 +24,7 @@ class problemaTrianFactor:
          self.M = M
          self.inicial = info
          self.pinicial = PotencialTabla()
+         self.rela = varpot()
          self.orden = []
          self.clusters = []
          self.lpot = []
@@ -363,82 +340,82 @@ class problemaTrianFactor:
 
     def borradin(self):
     
-        rela = varpot()
-        rela.createfrompot(self.pinicial)
-        t = len(self.pinicial.getvars())
-        if self.inicial.contradict:
-            self.anula()
-            return
-        i = 0
-        # x = [i]
-        # nuevas = self.pinicial.listap.copy()
-        # self.borra12(x,nuevas,rela,M=20)
-        # i = x[0]
-        while rela.tabla:
-            var = rela.siguiente()
-            tama = tam(rela.tabla.get(var))
-            print("i= ", i, "de " , t, "var = ", var)
-            lista = rela.get(var)
+        if self.rela.contradict:
+                print("contradictorio")
+                self.anula()
+                return
+
+        self.rela.marginalizaset(self.pinicial.getvars())
+        
+            # x = [i]
+            # nuevas = self.pinicial.listap.copy()
+            # self.borra12(x,nuevas,rela,M=20)
+            # i = x[0]
+            # while rela.tabla:
+            #     var = rela.siguiente()
+            #     tama = tam(rela.tabla.get(var))
+            #     print("i= ", i, "de " , t, "var = ", var)
+            #     lista = rela.get(var)
 
 
-            
-            
-
-
-            
-            pot = PotencialTabla()
-            pot.listap = lista
-
-            pos = set(rela.tabla.keys())
-            dif = 0
-            while pos and dif <=2:
-
-                met = pot.calculamethod(var)
-                if met == 1:
-                    break
-                else:
-                    pos.discard(var)
-                    if pos:
-                        var = rela.siguientep(pos)
-                        lista = rela.get(var)
-                        dif = tam(rela.tabla.get(var))- tama
-                        pot = PotencialTabla()
-                        pot.listap = lista
-
-            if met==2:
-                var = rela.siguiente()
-                lista = rela.get(var)
-
-                pot = PotencialTabla()
-                pot.listap = lista
-
-            ordenaycombinaincluidas(lista,rela)
-
-
-            rela.borrarv(var)
-
-            (exac,nuevas) = pot.marginalizacond2(var,M=30)
-            
-
-
-            if not exac:
-                print ("borrado no exacto ")
-                break
-
-            if pot.contradict:
-                print("Contradictorio")
-                break
-
-            for p in nuevas:
                 
-                rela.insertar(p)
+                
 
 
-            ordenaycombinaincluidas(nuevas,rela)
-            i+= 1
-            # # x = [i]
-            # # self.borra12(x,nuevas,rela,M=20)
-            # # i = x[0]
+                
+                # pot = PotencialTabla()
+                # pot.listap = lista
+
+                # pos = set(rela.tabla.keys())
+                # dif = 0
+                # while pos and dif <=2:
+
+                #     met = calculamethod(lista,var)
+                #     if met == 1:
+                #         break
+                #     else:
+                #         pos.discard(var)
+                #         if pos:
+                #             var = rela.siguientep(pos)
+                #             lista = rela.get(var)
+                #             dif = tam(rela.tabla.get(var))- tama
+                #             pot = PotencialTabla()
+                #             pot.listap = lista
+
+                # if met==2:
+                #     var = rela.siguiente()
+                #     lista = rela.get(var)
+
+                #     pot = PotencialTabla()
+                #     pot.listap = lista
+
+                # ordenaycombinaincluidas(lista,rela)
+
+
+                # rela.borrarv(var)
+
+                # (exac,nuevas,antiguas) = pot.marginalizacond2(var,M=30)
+                
+
+
+                # if not exac:
+                #     print ("borrado no exacto ")
+                #     break
+
+                # if pot.contradict:
+                #     print("Contradictorio")
+                #     break
+
+                # for p in nuevas:
+                    
+                #     rela.insertar(p)
+
+
+                # ordenaycombinaincluidas(nuevas,rela)
+                # i+= 1
+                # # x = [i]
+                # # self.borra12(x,nuevas,rela,M=20)
+                # # i = x[0]
 
     def borra12(self,x,l,rela, M= 20):
             print("total ", len(l))

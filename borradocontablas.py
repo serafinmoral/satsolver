@@ -261,17 +261,15 @@ def main(prob):
 
         prob.previo()
 
-        prob.pinicial.mejoralocal()
+        t = varpot()
+        t.createfrompot(prob.pinicial)
+        prob.rela = t
+
+        prob.rela.mejoralocal()           
 
 
-        prob.previo()           
+               
 
-        
-
-        print("otra vez!")
-        
-
-        
 
         print("otra vez!")
 
