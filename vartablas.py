@@ -208,7 +208,7 @@ class varpot:
                         lista.append(p)
             return lista
 
-        def mejoralocal(self,M=25,Q=20,N=6):
+        def mejoralocal(self,M=25,Q=20,N=10):
 
             
             listap = self.extraelista()        
