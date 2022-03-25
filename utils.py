@@ -49,7 +49,10 @@ def partev(lista,v):
     bor = []
     nl = []
     for p in lista:
-        
+        if p.trivial():
+            bor.append(p)
+            print("trivial antes ")
+            break 
         if v in p.listavar:
             l = p.descomponev(v)
             if len(l)>1:
@@ -67,7 +70,7 @@ def partev(lista,v):
         lista.remove(p)
     lista.extend(nl)
 
-    lista.sort(key = lambda x : - len(x.listavar) )
+    lista.sort(key = lambda x : len(x.listavar) )
 
 
 def potdev(v):
