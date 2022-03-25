@@ -10,6 +10,7 @@ import math
 from pickle import FALSE
 from tablaClausulas  import *
 from time import * 
+from vartablas import *
 
 
 def triangulacond(pot):
@@ -68,84 +69,57 @@ def triangulacond(pot):
 
 
 
-def calculaglobal(pot, conf = [], L=32, M=20):
+def calculaglobal(rela, conf = [], L=32, M=30):
+        if rela.trivial():
+            return arbol()
+        if rela.contradict:
+            t = arbol()
+            t.anula()
+            return t
         print(conf) 
 
         result = arbol()
-        result.value =  PotencialTabla()
-        result.value.unit = pot.unit.copy()
-        pot.unit = set()
-        vars = pot.getvarsp()
+        result.value =  varpot()
+        result.value.unit = rela.unit.copy()
+        rela.unit = set()
+        vars = set(rela.tabla.keys())
         print(len(vars))
-        if len(vars)<= L:
-            result.value.listap = pot
-            # if pot.listap:
-            #     t = pot.listap.pop()
-            #     while pot.listap:
-            #         q = pot.listap.pop()
-            #         t.combina(q,inplace=True,des=True)
-            #     if t.contradict():
-            #         result.anula()
-            #     else:
-            #         result.value.listap = [t]
-            #         print("conseguida solucion ")
-            #         sleep(20)
-            return result
-        elif len(vars) <= 50:
-            (orden,cnodo2,mh) = triangulacond(pot)
-
-            if mh <= L:
-                result.value.listap = pot
-                return result
-
-
         
+        cnodo = rela.getmax()
 
+        p0 = rela.reduce(cnodo, inplace = False)
+        p1 = rela.reduce(-cnodo, inplace = False)
 
+    
         
+    
         
-        cnodo = pot.calculavarcond(m=1)
+        p0.borrafacil(p0.getvars(),M)
+    
 
-        
-        l0 = []
-        l1 = []
-        p0 = pot.reducenv(cnodo, l0, inplace = False)
-        p1 = pot.reducenv(-cnodo, l1, inplace = False)
-
-        print(p0.unit)
-        print(p1.unit)
-        
-        p0.simplifican(l0)
-        p1.simplifican(l1)
-        
-        (orden,cnodo2,mh) = triangulacond(p0)
-        
-        l0 = p0.borrafacil2(M,orden)
-        (orden,cnodo2,mh) = triangulacond(p1)
-
-        l1 = p1.borrafacil2(M,orden)
-
-        p0.simplifican(l0)
-        p1.simplifican(l1)
+        p1.borrafacil(p1.getvars(),M)
 
         if p0.contradict and p1.contradict:
+                print("contradictorios ")
                 result.anula()
                 return result
 
         if p0.trivial() and p1.trivial():
+                print("triviales ")
                 return result
 
         # (x0,x1) = pot.logcuenta(cnodo)
 
         # if x0>x1:
+
         conf.append(-cnodo)
-        h0 = calculaglobal(p0,conf,L)
+        h0 = calculaglobal(p0,conf,L,M)
         conf.pop()
 
 
         conf.append(cnodo)
 
-        h1 = calculaglobal(p1,conf,L)
+        h1 = calculaglobal(p1,conf,L,M)
         conf.pop()
         # else:
         #     conf.append(cnodo)
@@ -160,13 +134,15 @@ def calculaglobal(pot, conf = [], L=32, M=20):
             
 
 
-        if h0.value.contradict and h1.value.contradict:
-                result.anula()
+        # if h0.value.contradict and h1.value.contradict:
+        #         result.anula()
 
-                return result
+        #         return result
 
-        if h0.trivial() and h1.trivial():
-                return result
+        # if h0.trivial() and h1.trivial():
+        #         return result
+
+        
             
         result.asignavarhijos(cnodo,h0,h1)
 

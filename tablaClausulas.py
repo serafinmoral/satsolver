@@ -54,6 +54,69 @@ class nodoTabla:
                 res.append(p)
         return res
 
+
+    def descomponev(self,v):
+        res = []
+        h = self.borra([v], inplace = False)
+
+        
+
+        t = self.minimiza(h, pro = {v})
+
+        if len(t.listavar) ==len(self.listavar):
+            res.append(self)
+        else:
+            res.append(t)
+            res.append(h)
+
+
+        return res
+
+    def neg(self,inplace=False):
+        
+        nuevatabla = np.logical_not(self.tabla)
+        if inplace:
+            self.tabla = nuevatabla
+            res = self
+        else:
+            res = nodoTabla(self.listavar.copy())
+            res.tabla = nuevatabla
+
+        return res
+
+
+    def equivalente(self,p):
+       
+       
+        if self.suma(p.neg()).trivial() and p.suma(self.neg()).trivial():
+            return True
+        else:
+            return False
+
+
+    def implicadopor(self,p):
+        if self.suma(p.neg()).trivial():
+            return True
+        else:
+            return False
+
+    def minimiza(self, con  , pro = set()):
+        rest =  set(self.listavar)-pro
+        if not rest:
+            return self
+        else:
+            v = rest.pop()
+            h = self.borra([v], inplace=False)
+            if self.implicadopor(h.combina(con)):
+                return h.minimiza(con,pro)
+            else:
+                pro.add(v)
+                return self.minimiza(con,pro)
+
+
+
+
+
     def combina(self,op,inplace = False, des= False):
         result = self if inplace else self.copia()
         if isinstance(op,boolean):

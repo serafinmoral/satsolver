@@ -259,19 +259,32 @@ def main(prob):
 
         prob.inicia0()        
 
-        prob.previo()
+        # prob.previo()
 
         t = varpot()
         t.createfrompot(prob.pinicial)
         prob.rela = t
 
+
         prob.rela.mejoralocal()           
 
+        print("otra vez!")
 
+
+        lista = prob.rela.extraelista()
+        prob.pinicial.listap = lista
+
+
+        prob.previo()
+
+        t = varpot()
+        t.createfrompot(prob.pinicial)
+        prob.rela = t
                
 
+        prob.rela.mejoralocal()           
 
-        print("otra vez!")
+        # arbol = calculaglobal(prob.rela)
 
 
 
@@ -281,23 +294,7 @@ def main(prob):
 
         prob.borradin()
 
-
-        # arbolcom.imprime()
-
-        # encontrado = arbolcom.findsol(sol)
-
-        # tvars = prob.pinicial.getvars()
-        # for v in tvars:
-        #     print("v : " , prob.pinicial.entropia(v))
-        #     sleep(1)
-
-        # grafo = prob.pinicial.cgrafo()
-        # (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent)  = triangula(grafo)
-       
-
-        # prob.borraapro(M=4,T=3)
-        # prob.reinicia()
-        # prob.borraaproi(M=4,T=3)
+        
         
 
         

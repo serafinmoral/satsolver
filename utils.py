@@ -15,13 +15,15 @@ from vartablas import *
 
 def tam(l):
     tot = set()
-    for h in l:
-        tot.update(set(h.listavar))
-    return len(tot)
-    
+    if l:
+        for h in l:
+            tot.update(set(h.listavar))
+        return len(tot)
+    else:
+        return 0    
 
 def valord(p):
-    if not p.listarvar==1:
+    if not len(p.listavar)==1:
         print("llamada impropia")
     else:
         v = p.listavar[0]
@@ -43,7 +45,25 @@ def contenida(nodo, listanodos):
     else:
         return False
 
-    
+def partev(lista,v):
+    bor = []
+    nl = []
+    for p in lista:
+        
+        if v in p.listavar:
+            l = p.descomponev(v)
+            if len(l)>1:
+                nl = nl +l 
+                bor.append(p)
+                print("descomposicion ", len(p.listavar))
+                print([len(q.listavar) for q in l])
+                # sleep(1)
+            
+    for p in bor:
+        lista.remove(p)
+    lista = lista.extend(nl)
+
+
 
 def potdev(v):
     res = nodoTabla([abs(v)])
@@ -159,8 +179,15 @@ def createclusters (lista):
 
 def marginaliza(lista,var, M=30, Q=20):
 
+    
+
     if not lista:
+        
         return (True,[],[])
+
+    partev(lista,var)
+
+   
     res = []
     si = []
     vars = set()
@@ -202,7 +229,7 @@ def marginaliza(lista,var, M=30, Q=20):
                 r.combina(q,inplace=True)
             r.borra([var],inplace=True)
             if r.contradict():
-                con = nodoTabla()
+                con = nodoTabla([])
                 con.anula()
                 return (True,[con],[keyp])
                     
@@ -224,9 +251,9 @@ def marginaliza(lista,var, M=30, Q=20):
                         r.borra([var],inplace = True)
 
                         if r.contradict():
-                            con = nodoTabla()
+                            con = nodoTabla([])
                             con.anula()
-                            return (True,[con])
+                            return (True,[con],[])
                         if not r.trivial():
                             res.append(r)
                     else:
@@ -318,4 +345,74 @@ def calculamethod(lista,var):
                                 return 1
             return 2              
                     
+def triangulaconorden(pot,orden):
+
+    n = len(orden)
+    clusters = []
     
+    child = []
+    posvar = dict()
+    parent = [-1]*(n+1)
+
+    indexvar = dict()
+    for v in orden:
+        indexvar[v] = []
+
+    for i in range(n+1):
+        child.append(set())
+    
+
+    for p in pot.listap:
+        con = set(p.listavar)
+        for v in con:
+            indexvar[v].append(con)
+    for v in pot.unit:
+        indexvar[v].append({abs(v)})
+
+    i=0
+    for nnodo in orden:
+        lista = indexvar[nnodo]
+        cluster = set()
+        for y in lista:
+            cluster.update(y)
+        clusters.append(cluster)
+        posvar[nnodo] = i
+        print( i, cluster)
+        i+=1
+        clustersin = cluster-{nnodo}
+
+        for y in clustersin:
+            indexvar[y] = list(filter( lambda h: nnodo not in h  ,indexvar[y] ))
+            indexvar[y].append(clustersin)
+           
+        
+
+
+
+
+    clusters.append(set())
+
+
+    for i in range(n):
+            con = clusters[i]
+            cons = con - {orden[i]}
+            if not cons:
+                parent[i] = n
+                child[n].add(i)
+            else:
+                pos = min(map(lambda h: posvar[h], cons))
+                parent[i] = pos
+                child[pos].add(i)
+
+
+
+        
+            
+
+        
+       
+
+            
+
+    # print(orden)
+    return (clusters,posvar,child,parent)     

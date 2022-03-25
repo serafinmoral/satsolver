@@ -22,8 +22,28 @@ class varpot:
             self.contradict = True
 
         def insertaru(self,v):
-            self.reduce(u, inplace=True)
-            self.unit.add(u)
+            self.reduce(v, inplace=True)
+            self.unit.add(v)
+
+        def getvars(self):
+            res = set(map(abs,self.unit))
+            for v in self.tabla:
+                if self.tabla[v]:
+                    res.add(v)
+
+            return res
+
+
+        def trivial(self):
+            if self.unit:
+                return False
+            if self.tabla:
+                for v in self.tabla:
+                    if self.tabla[v]:
+                        return False
+            return True
+
+
 
         def insertar(self,p):
             if len(p.listavar) ==1:
@@ -50,24 +70,31 @@ class varpot:
 
         def reduce(self,v,inplace=True):
             res = self if inplace else  self.copia()
-
             if v in self.unit:
-                self.unit.discard(v)
+                res.unit.discard(v)
             elif -v in self.unit:
-                self.unit.anula()
+                res.anula()
             elif v in self.tabla:
                 lista = res.get(v)
                 res.borrarv(v)
                 for p in lista:
-                    q = p.reduce(v,inplace = False)
-                    self.insertar(q)
+                    q = p.reduce([v],inplace = False)
+                    res.insertar(q)
+            elif -v in self.tabla:
+                lista = res.get(-v)
+                res.borrarv(-v)
+                for p in lista:
+                    q = p.reduce([v],inplace = False)
+                    res.insertar(q)
+
+            return res
 
 
         def copia(self):
             res = varpot()
-            res.unit = self.copy()
+            res.unit = self.unit.copy()
             res.contradict = self.contradict
-            for x in self.keys():
+            for x in self.tabla.keys():
                 res.tabla[x] = self.tabla[x].copy()
             return res
 
@@ -118,7 +145,19 @@ class varpot:
             # print (miv,mav,tam(self.tabla.get(miv)),tam(self.tabla.get(mav)))
             return miv
 
-        def marginalizaset(self,vars,M = 30, Q=20, ver = True):
+
+
+        def getmax(self):
+            if not self.tabla and self.unit:
+                x = self.unit.pop()
+                self.unit.add(x)
+                return abs(x)
+            else:
+                mav = max(self.tabla,key = lambda x: len(self.tabla.get(x)))
+                return mav
+
+
+        def borrafacil(self,vars,M=25,Q=20,ver = True):
             orden = []
             listan = []
             listaq = []
@@ -126,7 +165,7 @@ class varpot:
             while vars:
              
                 var = self.siguientep(vars)
-                tama = tam(self.tabla.get(var))
+                tama = u.tam(self.tabla.get(var))
                 lista = self.get(var)
                 pos = vars.copy()
                 dif = 0
@@ -153,21 +192,71 @@ class varpot:
 
 
                 vars.discard(var)
-                (exac,nuevas,antiguas) = self.marginaliza(var,M,Q)
+                (exac,nuevas,antiguas) = self.marginalizae(var,M,Q)
                 if not exac:
                     print("borrado no exacto " )
                     e = False
-                orden.append(var)
-                listan.append(nuevas)
-                listaq.append(antiguas)
+                    return (e,orden,nuevas,antiguas)
+                else:
+
+                    orden.append(var)
+                    listan.append(nuevas)
+                    listaq.append(antiguas)
                 
-                u.ordenaycombinaincluidas(nuevas,self)
+                    u.ordenaycombinaincluidas(nuevas,self)
 
 
             return(e,orden,nuevas,antiguas)
 
 
+        
+        def combina(self,rela, inplace=True):
+            res = self if inplace else  self.copia()
+            for u in rela.unit:
+                res.insertaru(u)
+            for v in rela.tabla:
+                for p in rela.tabla[v]:
+                    if min(p.listavar) ==v:
+                        res.insertar(p)
+
+            return res
+
+
         def marginaliza(self,var,M = 30, Q=20):
+            lista = []
+            
+            if self.contradict:
+
+                    return (True,lista,[])
+            if var in  self.unit:
+                    self.unit.discard(var)
+                    return (True,lista,[u.potdev(var)])
+            elif -var in self.unit:
+                    self.unit.discard(-var) 
+
+                    return (True,lista,[u.potdev(-var)])
+
+               
+            
+           
+
+            (exact,lista,listaconvar) = u.marginaliza(self.get(var).copy(),var,M,Q)
+
+            
+            if exact and lista and not lista[0].listavar:
+                if lista[0].contradict():
+                    self.anula()    
+                    return(True,lista,listaconvar)
+            for p in lista:
+                self.insertar(p)     
+
+            self.borrarv(var)
+
+                        
+            return (exact,lista,listaconvar)
+
+
+        def marginalizae(self,var,M = 30, Q=20):
             lista = []
             
             if self.contradict:
@@ -192,14 +281,73 @@ class varpot:
                 if lista[0].contradict():
                     self.anula()    
                     return(True,lista,listaconvar)
-            for p in lista:
-                self.insertar(p)     
+            if exact:
+                for p in lista:
+                    self.insertar(p)     
 
-            self.borrarv(var)
+                self.borrarv(var)
 
                         
             return (exact,lista,listaconvar)
 
+        def marginalizaset(self,vars,M = 30, Q=20, ver = True, inplace = True):
+            vars.intersection_update(self.getvars())
+            if inplace:
+                orden = []
+                listan = []
+                listaq = []
+                nuevas = []
+                e = True
+                while vars:
+                
+                    var = self.siguientep(vars)
+                    tama = tam(self.tabla.get(var))
+                    lista = self.get(var)
+                    pos = vars.copy()
+                    dif = 0
+                    while pos and dif <=2:
+
+                        met = calculamethod(lista,var)
+                        if met == 1:
+                            break
+                        else:
+                            pos.discard(var)
+                            if pos:
+                                var = self.siguientep(pos)
+                                lista =self.get(var)
+                                dif = tam(self.tabla.get(var))- tama
+
+                    if met==2:
+                        var = self.siguientep(vars)
+                        lista = self.get(var)
+
+
+                    u.ordenaycombinaincluidas(lista,self)
+                    if ver:
+                        print("var", var, "quedan ", len(vars))
+
+
+                    vars.discard(var)
+                    (exac,nuevas,antiguas) = self.marginaliza(var,M,Q)
+                    if not exac:
+                        print("borrado no exacto " )
+                        e = False
+                    orden.append(var)
+                    listan.append(nuevas)
+                    listaq.append(antiguas)
+                    
+                    u.ordenaycombinaincluidas(nuevas,self)
+
+
+                return(e,orden,nuevas,listaq)
+            else:
+                res = self.copia()
+                res.marginalizaset(vars,M , Q, ver , inplace = True)
+
+                return res
+
+
+        
         def extraelista(self):
             lista = []
             for v in self.tabla:
@@ -208,7 +356,17 @@ class varpot:
                         lista.append(p)
             return lista
 
-        def mejoralocal(self,M=25,Q=20,N=10):
+        def atabla(self):
+            res = nodoTabla([])
+            for v in self.unit:
+                res.combina(potdev(v), inplace=True)
+            for v in self.tabla:
+                for p in self.tabla[v]:
+                    if min(p.listavar) == v:
+                        res.combina(p, inplace=True)
+            return res
+
+        def mejoralocal(self,M=25,Q=20,N=3):
 
             
             listap = self.extraelista()        

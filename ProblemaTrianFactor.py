@@ -14,6 +14,7 @@ from vartablas import *
 from SimpleClausulas import *
 from arboltabla import calculadesdePotencial
 from tablaClausulas import *
+from utils import *
 
 
 
@@ -82,36 +83,9 @@ class problemaTrianFactor:
 
         
 
-        count = dict()
-        pots = dict()
-
-        for v in vars:
-            count[v] = 0
         
-        for p in self.pinicial.listap:
-            for v in p.listavar:
-                count[v] +=1
-                pots[v] = p
-        for v in vars:
-            print ("var ", v, "num ", count[v])
-            if count[v] == 1:
-                    pot = pots[v]
-                    pos = self.pinicial.listap.index(pot)
-                    print("var ", v ,"encontrada una vez")
-
-                
-                    sleep(0.2)
-                    print("borrando esta variable")
-                    self.varpar.append(v)
-                    self.potpar.append(pot)
-
-                    r = pot.borra([v],inplace = False)
-                    self.pinicial.listap[pos] = r
 
 
-
-
-        sleep(0.1)
         total = 0
         for K in range(2,Q+1):
             varb = []
@@ -253,8 +227,18 @@ class problemaTrianFactor:
 
                 self.lqueue[j].insertaa(potn,self.M)
 
-                
-
+    def mejoradespues(self):
+        for p in self.pinicial.listap:
+            old = np.sum(p.tabla)
+            pos = min(map(lambda h: self.posvar[h],p.listavar))
+            pot = self.lqueue[pos]
+            potn = pot.marginalizaset(pot.getvars() - set(p.listavar), ver=False, inplace=False)
+            tablan = potn.atabla()
+            p.combina(tablan, inplace=True)    
+            nu =  np.sum(p.tabla)
+            print(nu,old)
+            if nu<old:
+                print("mejoro", old,nu)
         
     def borrai(self):
         
@@ -262,7 +246,7 @@ class problemaTrianFactor:
         for i in reversed(range(len(self.orden))):
             if self.inicial.contradict:
                 break
-            # print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
+            print("i= ", i, "var = ", self.orden[i], "cluster ", self.clusters[i])
             pot = self.lqueue[i]
             
             if pot.contradict:
@@ -279,18 +263,8 @@ class problemaTrianFactor:
                 # print("salgo de copia") 
 
                 
-                potn = pot.marginalizas(dif,inplace=False)
-                
-            
-            
-
-                       
-
-                    
-
-                    
-
-                self.lqueue[j].insertap(potn)
+                potn = pot.marginalizaset(dif,ver = False,inplace=False)
+                self.lqueue[j].combina(potn)
 
     def pasaarbol(self):
         for i in range(len(self.lqueue)):
@@ -333,7 +307,7 @@ class problemaTrianFactor:
             for p in bor:
                 pot.listap.remove(p)
 
-        return nu
+        return 
 
 
         
@@ -345,77 +319,27 @@ class problemaTrianFactor:
                 self.anula()
                 return
 
-        self.rela.marginalizaset(self.pinicial.getvars())
+        (e,orden,nuevas,antiguas)= self.rela.marginalizaset(self.pinicial.getvars())
+        self.orden = orden
+        i=0
+        for x in antiguas:
+            print(i, x)
+            i+=1
+            y = varpot()
+            y.createfromlista(x)
+            self.lqueue.append(y)
+
+        (self.clusters,self.posvar,self.child,self.parent) = triangulaconorden(self.pinicial,orden) 
+
+
         
-            # x = [i]
-            # nuevas = self.pinicial.listap.copy()
-            # self.borra12(x,nuevas,rela,M=20)
-            # i = x[0]
-            # while rela.tabla:
-            #     var = rela.siguiente()
-            #     tama = tam(rela.tabla.get(var))
-            #     print("i= ", i, "de " , t, "var = ", var)
-            #     lista = rela.get(var)
+        
 
 
-                
-                
 
-
-                
-                # pot = PotencialTabla()
-                # pot.listap = lista
-
-                # pos = set(rela.tabla.keys())
-                # dif = 0
-                # while pos and dif <=2:
-
-                #     met = calculamethod(lista,var)
-                #     if met == 1:
-                #         break
-                #     else:
-                #         pos.discard(var)
-                #         if pos:
-                #             var = rela.siguientep(pos)
-                #             lista = rela.get(var)
-                #             dif = tam(rela.tabla.get(var))- tama
-                #             pot = PotencialTabla()
-                #             pot.listap = lista
-
-                # if met==2:
-                #     var = rela.siguiente()
-                #     lista = rela.get(var)
-
-                #     pot = PotencialTabla()
-                #     pot.listap = lista
-
-                # ordenaycombinaincluidas(lista,rela)
-
-
-                # rela.borrarv(var)
-
-                # (exac,nuevas,antiguas) = pot.marginalizacond2(var,M=30)
-                
-
-
-                # if not exac:
-                #     print ("borrado no exacto ")
-                #     break
-
-                # if pot.contradict:
-                #     print("Contradictorio")
-                #     break
-
-                # for p in nuevas:
-                    
-                #     rela.insertar(p)
-
-
-                # ordenaycombinaincluidas(nuevas,rela)
-                # i+= 1
-                # # x = [i]
-                # # self.borra12(x,nuevas,rela,M=20)
-                # # i = x[0]
+        return e
+        
+           
 
     def borra12(self,x,l,rela, M= 20):
             print("total ", len(l))
