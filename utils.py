@@ -53,7 +53,11 @@ def partev(lista,v):
         if v in p.listavar:
             l = p.descomponev(v)
             if len(l)>1:
-                nl = nl +l 
+                for q in l:
+                    if not q.trivial():
+                        nl.append(q)
+                    else:
+                        print("trivial ", q.listavar)
                 bor.append(p)
                 print("descomposicion ", len(p.listavar))
                 print([len(q.listavar) for q in l])
@@ -61,8 +65,9 @@ def partev(lista,v):
             
     for p in bor:
         lista.remove(p)
-    lista = lista.extend(nl)
+    lista.extend(nl)
 
+    lista.sort(key = lambda x : - len(x.listavar) )
 
 
 def potdev(v):
@@ -206,7 +211,7 @@ def marginaliza(lista,var, M=30, Q=20):
                     # if len(keyp.listavar) < len(p.listavar):
                         # print("minimizo ",len(keyp.listavar) ,  len(p.listavar))
         else:
-            print("warning: variable no en tabla")
+            # print("warning: variable no en tabla")
             res.append(p)
 
                                     
