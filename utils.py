@@ -51,7 +51,7 @@ def partev(lista,v):
     for p in lista:
         if p.trivial():
             bor.append(p)
-            print("trivial antes ")
+            # print("trivial antes ")
             break 
         if v in p.listavar:
             l = p.descomponev(v)
@@ -59,11 +59,11 @@ def partev(lista,v):
                 for q in l:
                     if not q.trivial():
                         nl.append(q)
-                    else:
-                        print("trivial ", q.listavar)
+                    # else:
+                        # print("trivial ", q.listavar)
                 bor.append(p)
-                print("descomposicion ", len(p.listavar))
-                print([len(q.listavar) for q in l])
+                # print("descomposicion ", len(p.listavar))
+                # print([len(q.listavar) for q in l])
                 # sleep(1)
             
     for p in bor:
@@ -114,7 +114,7 @@ def borraincluidos(lista):
         i += 1
 
 
-def ordenaycombinaincluidas(lista,rela):
+def ordenaycombinaincluidas(lista,rela, borrar = True):
     
     lista.sort(key = lambda x : - len(x.listavar) )
 
@@ -128,10 +128,14 @@ def ordenaycombinaincluidas(lista,rela):
                 q = lista[j]
                 
                 rela.borrarpot(p)
-                rela.borrarpot(q)
+                if borrar:
+                    rela.borrarpot(q)
                 p.combina(q,inplace= True)
                 rela.insertar(p)
-                lista.remove(q)
+                if borrar:
+                    lista.remove(q)
+                else:
+                    j +=1
             else:
                 j+=1
         

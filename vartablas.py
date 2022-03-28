@@ -322,7 +322,7 @@ class varpot:
                         lista = self.get(var)
 
 
-                    u.ordenaycombinaincluidas(lista,self)
+                    u.ordenaycombinaincluidas(lista,self, borrar = False)
                     if ver:
                         print("var", var, "quedan ", len(vars))
 
@@ -366,7 +366,7 @@ class varpot:
                         res.combina(p, inplace=True)
             return res
 
-        def mejoralocal(self,M=25,Q=20,N=3):
+        def mejoralocal(self,M=25,Q=20,N=2):
 
             
             listap = self.extraelista()        
