@@ -323,7 +323,7 @@ class varpot:
                         lista = self.get(var)
 
 
-                    u.ordenaycombinaincluidas(lista,self, borrar = False)
+                    u.ordenaycombinaincluidas(lista,self, borrar = False, inter=True)
                     if ver:
                         print("var", var, "quedan ", len(vars))
 

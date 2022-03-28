@@ -114,7 +114,7 @@ def borraincluidos(lista):
         i += 1
 
 
-def ordenaycombinaincluidas(lista,rela, borrar = True):
+def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
     
     lista.sort(key = lambda x : - len(x.listavar) )
 
@@ -130,18 +130,31 @@ def ordenaycombinaincluidas(lista,rela, borrar = True):
                 rela.borrarpot(p)
                 if borrar:
                     rela.borrarpot(q)
-                p.combina(q,inplace= True)
-                rela.insertar(p)
+                t = p.combina(q)
+                rela.insertar(t)
+                lista[i] = t
                 if borrar:
                     lista.remove(q)
                 else:
                     j +=1
             else:
+                if inter:
+                    p = lista[i]
+                    q = lista[j]
+                    tp = p.mejora(q)
+                    tq = q.mejora(p)
+                    rela.borrarpot(p)
+                    rela.borrarpot(q)
+                    lista[i] = tp
+                    lista[j] = tq
+                    rela.insertar(tp)
+                    rela.insertar(tq)
+                
+
                 j+=1
         
         i+=1
     lista.reverse()
-
 
 
 def createclusters (lista):

@@ -218,6 +218,11 @@ class nodoTabla:
             else:
                 return nodoTabla([])
 
+    def mejora(self,q):
+            vars = list(set(q.listavar) - set(self.listavar))
+            res = self.combina(q.borra(vars))
+            return res
+
     def extrasimple2(self,v1,vars):
         if not vars:
             return nodoTabla([])
@@ -1211,7 +1216,9 @@ class PotencialTabla:
                 else:
                          
                     return False
-                        
+
+        
+
                         
         def marginaliza(self,var, inplace = False):
 
