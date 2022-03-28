@@ -248,6 +248,7 @@ class varpot:
                     self.anula()    
                     return(True,lista,listaconvar)
             for p in lista:
+                # print("insertando ", p.listavar, np.sum(p.tabla) )
                 self.insertar(p)     
 
             self.borrarv(var)
@@ -336,7 +337,7 @@ class varpot:
                     listan.append(nuevas)
                     listaq.append(antiguas)
                     
-                    u.ordenaycombinaincluidas(nuevas,self)
+                    u.ordenaycombinaincluidas(nuevas,self, borrar=False)
 
 
                 return(e,orden,nuevas,listaq)
