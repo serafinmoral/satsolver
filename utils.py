@@ -131,6 +131,10 @@ def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
                 if borrar:
                     rela.borrarpot(q)
                 t = p.combina(q)
+                if t.contradict():
+                    rela.anula()
+                    print("contradicion ")
+                    return 
                 rela.insertar(t)
                 lista[i] = t
                 if borrar:
@@ -344,6 +348,23 @@ def marginaliza(lista,var, M=30, Q=20):
             
             
     return (exact,res,listp)
+
+def topologico(lista):
+    orden = []
+    padres = dict()
+    elegidos = set()
+    for x in lista:
+        nl = x.copy()
+        hijo = nl.pop()
+        padres[hijo] = set(nl)
+    while padres:
+        for x in padres:
+            if len(padres[x]- elegidos) == 0:
+                break
+        orden.append(x)
+        del padres[x]
+            
+                
                 
 def calculamethod(lista,var):
 
@@ -441,3 +462,4 @@ def triangulaconorden(pot,orden):
 
     # print(orden)
     return (clusters,posvar,child,parent)     
+

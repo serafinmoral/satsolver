@@ -248,11 +248,16 @@ class varpot:
             
             if exact and lista and not lista[0].listavar:
                 if lista[0].contradict():
+                    print ("contradict")
                     self.anula()    
                     return(True,lista,listaconvar)
             for p in lista:
-                # print("insertando ", p.listavar, np.sum(p.tabla) )
-                self.insertar(p)     
+                if p.contradict():
+                    print ("contradict")
+
+                    self.anula()
+                else:
+                    self.insertar(p)     
 
             self.borrarv(var)
 
@@ -305,7 +310,7 @@ class varpot:
                     nvars = [x for x in self.orden if x in vars]
                     nvars.reverse()
                 e = True
-                while vars:
+                while vars and not self.contradict:
                     if pre:
                         var = nvars.pop()
                     else:

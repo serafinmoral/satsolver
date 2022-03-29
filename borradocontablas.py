@@ -319,10 +319,13 @@ def main(prob):
         # print("empiezo a borrar")
 
         # prob.borra()
-        
-        prob.sol= prob.findsol()
+        if not prob.contradict:
+            prob.sol = prob.findsol()
 
-        prob.compruebaSol()
+            prob.compruebaSol()
+        else:
+            print(" problema contradictorio ")
+
 
         # print("salgo de inicio")
        

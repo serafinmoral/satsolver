@@ -37,6 +37,8 @@ class problemaTrianFactor:
          self.child = []
          self.parent = []
          self.contradict = False
+         self.evid = set()
+         self.toriginalfl = []
 
          
 
@@ -131,6 +133,9 @@ class problemaTrianFactor:
                         bor.append(h)
                         print("trivial 2")
                         sleep(1)
+                    if h.contradict():
+                        self.anula()
+                        print("contradictorio")
                 self.pinicial.listap[i] = h
                 
         for q in bor:
@@ -323,19 +328,22 @@ class problemaTrianFactor:
 
 
         (e,orden,nuevas,antiguas)= self.rela.marginalizaset(self.pinicial.getvars(),pre = False)
+        self.contradict =  self.rela.contradict
         if not pre:
             self.orden = self.orden +  orden
         i=0
-        for x in antiguas:
-            print(i, x)
-            i+=1
-            y = nodoTabla([])
-            for t in x:
-                y.combina(t,inplace= True)
-            self.lqueue.append(y)
-        
+        if not self.contradict:
+            for x in antiguas:
+                print(i, x)
+                i+=1
+                y = nodoTabla([])
+                for t in x:
+                    y.combina(t,inplace= True)
+                self.lqueue.append(y)
+            
 
-        (self.clusters,self.posvar,self.child,self.parent) = triangulaconorden(self.pinicial,self.orden) 
+
+            (self.clusters,self.posvar,self.child,self.parent) = triangulaconorden(self.pinicial,self.orden) 
 
 
         
@@ -542,6 +550,50 @@ class problemaTrianFactor:
             
         self.sol = sol
         return sol
+
+
+
+
+    def findallsol(self):
+        soll = [set()]
+        for i in reversed(range(len(self.orden))):
+            tabla = self.lqueue[i]
+            
+
+            
+            
+            var = self.orden[i]
+            print(var)
+            # print(tabla.listavar,tabla.tabla)
+            nsol = []
+            for sol in soll:
+                t = tabla.reduce(list(sol))
+            # print(t.listavar, t.tabla)
+                if t.contradict():
+                    print("contradiccion buscando solucion" , sol )
+                    sol = []
+                    break
+
+                elif t.trivial():
+                    sol.add(var)
+                    sol2 = sol.copy()
+                    sol2.add(-var)
+                    nsol.append(sol2)
+                    print("elijo ", var)
+                    print("elijo ", -var)
+
+        
+                elif t.tabla[0]:
+                    sol.add(-var)
+                    print(-var)
+                else:
+                    sol.add(var)
+                    print(var) 
+            soll.extend(nsol)
+            
+            
+        self.sol = sol
+        return soll
     
     def randomsol(self,T=40000):
         sol = []
