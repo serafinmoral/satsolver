@@ -259,7 +259,6 @@ def main(prob):
 
         prob.inicia0()        
 
-        prob.previo()
 
         t = varpot()
         t.createfrompot(prob.pinicial)
