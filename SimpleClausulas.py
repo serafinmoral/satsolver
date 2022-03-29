@@ -134,6 +134,27 @@ class simpleClausulas:
                 self.eliminars(cl)
             for cl in y:
                 self.insertar(cl)
+
+    def compruebasol2(self,config):
+        conf = set(config)
+        if not self.unit <= conf:
+            print("Solucion no valida")
+            print(config)
+            print("unitarias", self.unit)
+            return False
+
+
+
+        for y in self.listaclaus:
+            inte = conf.intersection(y)
+            if not inte:
+                print("solucion no valida ")
+                print(config)
+                print("clausula ",y)
+                return False
+        print ("correcto")
+        return True  
+                        
                 
     def combina(self,simple):
         if self.contradict:

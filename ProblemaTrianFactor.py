@@ -14,6 +14,7 @@ from vartablas import *
 from SimpleClausulas import *
 from arboltabla import calculadesdePotencial
 from tablaClausulas import *
+from arbolbooleano import *
 from utils import *
 
 
@@ -28,21 +29,16 @@ class problemaTrianFactor:
          self.rela = varpot()
          self.orden = []
          self.clusters = []
-         self.lpot = []
          self.lqueue  = []
-         self.lqp = []
-         self.lqn = []
-         self.cortas = []
+         self.lfloat = []
          self.posvar = dict()
          self.sol = set()
          self.borr = []
-         self.maximal = []
          self.child = []
          self.parent = []
          self.contradict = False
 
-         self.varpar = []
-         self.potpar = []
+         
 
 
 
@@ -70,12 +66,14 @@ class problemaTrianFactor:
 
 
 
-    def previo(self, Q = 2):
+    def previo(self, Q = 2, pre = False):
+        if pre:
+            return
+
         for x in self.pinicial.unit:
-            self.varpar.append(abs(x))
-            pot = PotencialTabla()
-            pot.unit.add(x)
-            self.potpar.append(pot)
+            self.orden.append(abs(x))
+            t = potdev(x)
+            self.lqueue.append(t)
         self.pinicial.unit = set()
 
 
@@ -103,6 +101,8 @@ class problemaTrianFactor:
                                 if deter:
                                     varb.append(v)
                                     potb.append(p)
+                                    self.orden.append(v)
+                                    self.lqueue.append(p)
                                     # print("variable ", v, " determinada ", p.listavar)
                                     # print(p.tabla)
                                     self.borrad(v,p)
@@ -110,6 +110,7 @@ class problemaTrianFactor:
                                     break
                     i+= 1
                 print(total)
+        return (varb,potb)
 
     def borrad(self,v,p):
         bor = []
@@ -312,24 +313,29 @@ class problemaTrianFactor:
 
         
 
-    def borradin(self):
+    def borradin(self, pre = False):
     
         if self.rela.contradict:
                 print("contradictorio")
                 self.anula()
                 return
 
-        (e,orden,nuevas,antiguas)= self.rela.marginalizaset(self.pinicial.getvars())
-        self.orden = orden
+
+
+        (e,orden,nuevas,antiguas)= self.rela.marginalizaset(self.pinicial.getvars(),pre = False)
+        if not pre:
+            self.orden = self.orden +  orden
         i=0
         for x in antiguas:
             print(i, x)
             i+=1
-            y = varpot()
-            y.createfromlista(x)
+            y = nodoTabla([])
+            for t in x:
+                y.combina(t,inplace= True)
             self.lqueue.append(y)
+        
 
-        (self.clusters,self.posvar,self.child,self.parent) = triangulaconorden(self.pinicial,orden) 
+        (self.clusters,self.posvar,self.child,self.parent) = triangulaconorden(self.pinicial,self.orden) 
 
 
         
@@ -506,32 +512,26 @@ class problemaTrianFactor:
     def findsol(self):
         sol = set()
         for i in reversed(range(len(self.orden))):
-            pot = self.lqueue[i]
+            tabla = self.lqueue[i]
             
 
-            r = pot.reduceycombina(sol)
             
             
             var = self.orden[i]
             print(var)
-            
-            if r.contradict:
+            # print(tabla.listavar,tabla.tabla)
+
+            t = tabla.reduce(list(sol))
+            # print(t.listavar, t.tabla)
+            if t.contradict():
                 print("contradiccion buscando solucion" , sol )
                 break
 
-            if var in r.unit:
+            elif t.trivial():
                 sol.add(var)
-                print(var)
-            elif -var in r.unit:
-                sol.add(-var)
-                print(-var)
-            elif not r.listap:
-                sol.add(var)
-                print(var)
-            elif not r.listap[0].tabla[0] and  not r.listap[0].tabla[1]:
-                print("contradiccion buscando solucion" , sol )
-                break
-            elif  r.listap[0].tabla[0]:
+                print("elijo ", var)
+        
+            elif t.tabla[0]:
                 sol.add(-var)
                 print(-var)
             else:

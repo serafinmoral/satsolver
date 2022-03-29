@@ -259,14 +259,14 @@ def main(prob):
 
         prob.inicia0()        
 
-        # prob.previo()
+        prob.previo()
 
         t = varpot()
         t.createfrompot(prob.pinicial)
         prob.rela = t
 
 
-        prob.rela.mejoralocal()           
+        # prob.rela.mejoralocal()           
 
         print("otra vez!")
 
@@ -282,7 +282,7 @@ def main(prob):
         prob.rela = t
                
 
-        prob.rela.mejoralocal()           
+        # prob.rela.mejoralocal()           
 
         # arbol = calculaglobal(prob.rela)
 
@@ -321,7 +321,9 @@ def main(prob):
 
         # prob.borra()
         
-        # prob.findsol()
+        prob.sol= prob.findsol()
+
+        prob.compruebaSol()
 
         # print("salgo de inicio")
        

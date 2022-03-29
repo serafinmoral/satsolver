@@ -72,6 +72,23 @@ class nodoTabla:
 
         return res
 
+
+
+    def entropia(self,v):
+            (x0,x1) = self.cuenta(v)
+            if x0==0 or x1==0:
+                return 0.0
+            else:
+                z0 = x0/(x0+x1)
+                z1  = x1/(x0+x1)
+                x = (-z0*math.log(z0) - z1*math.log(z1))
+            return x
+
+    def minentropia(self):
+            
+            return min(self.listavar,key = lambda v: self.entropia(v))
+
+
     def neg(self,inplace=False):
         
         nuevatabla = np.logical_not(self.tabla)
@@ -732,6 +749,11 @@ class PotencialTabla:
             vars = self.getvars()
             return min(vars,key = lambda v: self.entropia(v))
 
+        def prop(self):
+            y = np.sum(self.tabla)
+            return y/2**(len(self.listavar))
+
+            
 
 
         def propagaunits(self,su):

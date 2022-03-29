@@ -107,6 +107,9 @@ class varpot:
             for p in pot.listap:
                 self.insertar(p)
 
+
+        
+
         def createfromlista(self,l):
             for p in l:
                 self.insertar(p)
@@ -291,17 +294,23 @@ class varpot:
                         
             return (exact,lista,listaconvar)
 
-        def marginalizaset(self,vars,M = 30, Q=20, ver = True, inplace = True):
+        def marginalizaset(self,vars,M = 30, Q=20, ver = True, inplace = True, pre = False):
             vars.intersection_update(self.getvars())
             if inplace:
                 orden = []
                 listan = []
                 listaq = []
                 nuevas = []
+                if pre:
+                    nvars = [x for x in self.orden if x in vars]
+                    nvars.reverse()
                 e = True
                 while vars:
-                
-                    var = self.siguientep(vars)
+                    if pre:
+                        var = nvars.pop()
+                    else:
+                        var = self.siguientep(vars)
+                    
                     tama = tam(self.tabla.get(var))
                     lista = self.get(var)
                     pos = vars.copy()
@@ -323,7 +332,7 @@ class varpot:
                         lista = self.get(var)
 
 
-                    u.ordenaycombinaincluidas(lista,self, borrar = False, inter=True)
+                    u.ordenaycombinaincluidas(lista,self, borrar = True, inter=False)
                     if ver:
                         print("var", var, "quedan ", len(vars))
 
@@ -333,11 +342,12 @@ class varpot:
                     if not exac:
                         print("borrado no exacto " )
                         e = False
-                    orden.append(var)
+                    if not pre:
+                        orden.append(var)
                     listan.append(nuevas)
                     listaq.append(antiguas)
                     
-                    u.ordenaycombinaincluidas(nuevas,self, borrar=False)
+                    u.ordenaycombinaincluidas(nuevas,self, borrar=True)
 
 
                 return(e,orden,nuevas,listaq)

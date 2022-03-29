@@ -392,7 +392,7 @@ def triangulaconorden(pot,orden):
         for v in con:
             indexvar[v].append(con)
     for v in pot.unit:
-        indexvar[v].append({abs(v)})
+        indexvar[abs(v)].append({abs(v)})
 
     i=0
     for nnodo in orden:
