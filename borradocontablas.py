@@ -301,24 +301,7 @@ def main(prob):
         
 
 
-        # # prob.randomsol()
-        # prob.reinicia()
-
-        # prob.inicia1()
-        # prob.borrapro()
-        # prob.borraproi()
-        # prob.limpia()
-        # prob.combinaincluidos()
-
-        # nu = prob.calculanu()
-        # print("nuevas unidades ", nu)
-        # sleep(4)
-
-        # prob.pasaarbol()
-
-        # print("empiezo a borrar")
-
-        # prob.borra()
+      
         if not prob.contradict:
             prob.sol = prob.findsol()
 

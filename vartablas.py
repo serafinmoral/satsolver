@@ -18,7 +18,7 @@ class varpot:
 
         def anula(self):
             self.tabla = dict()
-            self.unit = dict()
+            self.unit = set()
             self.contradict = True
 
         def insertaru(self,v):
@@ -59,9 +59,9 @@ class varpot:
             if self.unit:
                 varsu = set(map(abs,self.unit))
                 if varsu.intersection(set(p.listavar)):
-                    varr = filter(self.unit, key = lambda x: abs(x) in varsu)
-                    for x in varr:
-                        p = p.reduce(x,inplace=False)
+                    varr = filter(lambda x: abs(x) in varsu, self.unit)
+                    
+                    p = p.reduce(varr,inplace=False)
             for v in p.listavar:
                 if v in self.tabla:
                     self.tabla[v].append(p)
@@ -116,8 +116,19 @@ class varpot:
 
 
         def borrarpot(self,p):
+            if len(p.listavar) == 1:
+                v = p.listavar[0]
+                if not p.tabla[0]:
+                    self.unit.discard(-v)
+                elif not p.tabla[1]:
+                    self.unit.discard(v)
+                return 
             for v in p.listavar:
-                self.tabla[v].remove(p)
+                if v in self.tabla:
+                    try:
+                        self.tabla[v].remove(p)
+                    except ValueError:
+                        pass # or scream: thing not in some_list!self.tabla[v].remove(p)
 
         def borrarv(self,v):
             self.unit.discard(v)
@@ -168,7 +179,7 @@ class varpot:
             while vars:
              
                 var = self.siguientep(vars)
-                tama = u.tam(self.tabla.get(var))
+                tama = tam(self.tabla.get(var))
                 lista = self.get(var)
                 pos = vars.copy()
                 dif = 0
@@ -189,7 +200,7 @@ class varpot:
                     lista = self.get(var)
 
 
-                u.ordenaycombinaincluidas(lista,self)
+                ordenaycombinaincluidas(lista,self)
                 if ver:
                     print("var", var, "quedan ", len(vars))
 
@@ -229,6 +240,7 @@ class varpot:
             lista = []
             
             if self.contradict:
+                    print("contradiction ")
 
                     return (True,lista,[])
             if var in  self.unit:
@@ -352,7 +364,8 @@ class varpot:
                     listan.append(nuevas)
                     listaq.append(antiguas)
                     
-                    u.ordenaycombinaincluidas(nuevas,self, borrar=True)
+                    if not self.contradict:
+                        u.ordenaycombinaincluidas(nuevas,self, borrar=True)
 
 
                 return(e,orden,nuevas,listaq)

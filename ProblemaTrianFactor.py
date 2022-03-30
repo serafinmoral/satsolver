@@ -16,6 +16,8 @@ from arboltabla import calculadesdePotencial
 from tablaClausulas import *
 from arbolbooleano import *
 from utils import *
+import random as ra
+
 
 
 
@@ -315,8 +317,80 @@ class problemaTrianFactor:
 
         return 
 
+    def likelihoodw(self, N=1000, method = 0):
+        
+        lista = []
+
+        for x in self.toriginalfl:
+            lista.append(x.listavar.copy())
+        
+        toporden = topologico(lista)
+        self.orden = toporden[::-1]
+
+        self.lfloat = self.crealistatop()
+
+        pesos = 0.0
+        pesos2 = 0.0
+        ceros = 0
+
+        vare = dict()
+        for x in self.evid:
+            vare[abs(x)] = x
+
+        if method == 1:
+            self.calculalogico()
+            self.borradin(pre=True)
+
+
+        K = len(toporden)
+        
+        for j in range(N):
+            sol = []
+            pe = 1.0
+            for i in range(K):
+                v = toporden[i]
+                pot = self.lfloat[i]
+                potr = pot.reduce(sol)
+                if v in vare:
+                    va = vare[v]
+                    sol.append(va)
+                    if va>0:
+                        pe *= potr.tabla[1]
+                    else:
+                        pe *= potr.tabla[0]
+
+                elif method == 0:
+                        x = ra.random()
+                        p0 = potr.tabla[0]
+                        p1 = potr.tabla[1]
+                        sum = p0+p1
+                        p0 = p0/sum
+                        p1 = p1/sum
+                        pe*=sum
+                        va = v if x>p0 else -v
+                        sol.append(va)
+                        if pe==0:
+                            break
+                elif method == 1:
+                        pot = self.lfloat[i]
+                        potr = pot.reduce(sol)
+
+
+
+
 
         
+    def calculalogico(self):
+        self.rela = varpot()
+        for x in self.evid:
+            self.rela.insertaru(x)
+        for p in self.toriginalfl():
+            q = p [x>0]
+            self.rela.insertar(q)
+
+
+
+
 
     def borradin(self, pre = False):
     
@@ -343,7 +417,7 @@ class problemaTrianFactor:
             
 
 
-            (self.clusters,self.posvar,self.child,self.parent) = triangulaconorden(self.pinicial,self.orden) 
+            # (self.clusters,self.posvar,self.child,self.parent) = triangulaconorden(self.pinicial,self.orden) 
 
 
         

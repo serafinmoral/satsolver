@@ -361,8 +361,12 @@ def topologico(lista):
         for x in padres:
             if len(padres[x]- elegidos) == 0:
                 break
+        elegidos.add(x)
         orden.append(x)
         del padres[x]
+    return orden
+
+
             
                 
                 
