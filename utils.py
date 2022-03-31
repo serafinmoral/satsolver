@@ -12,6 +12,7 @@ Calculates the size of the union of the variables of all the tables in a list
 
 from tablaClausulas import *
 from vartablas import *
+import  ProblemaTrianFactor as pt
 
 def tam(l):
     tot = set()
@@ -467,3 +468,51 @@ def triangulaconorden(pot,orden):
     # print(orden)
     return (clusters,posvar,child,parent)     
 
+def leeficheroUAI(Archivo):
+    lista = list()
+    listadatos = list()
+    setevid = set()
+    archivo=""
+    contarClaus=0
+    reader=open(Archivo,"r") 
+    reader.readline()
+    reader.readline()
+    reader.readline()
+    numFactor = int(reader.readline())
+    for i in range(numFactor):
+        cadena = reader.readline()
+        nodoAdd = nodoTabla([int(i)+1 for i in cadena.split()[1:]])
+        lista.append(nodoAdd)
+    
+    for l in lista:
+        reader.readline()
+        lee=int(int(reader.readline())/2)
+        lvars=l.listavar
+        datos = np.array([])
+        for x in range(lee):
+            datos=np.append(datos,list(map(float,reader.readline().split())))
+        l.tabla=(datos!=0.).reshape((2,)*len(l.listavar))
+        npdatos = datos.reshape((2,)*len(l.listavar))
+        
+        l.tabla = npdatos
+      
+    
+    setevid = leeArchivoEvid(Archivo+".evid")
+    return (lista, setevid)
+
+
+def leeArchivoEvid(Archivo):
+    conjEvid=set()
+    reader=open(Archivo,"r")
+    lunitario=list(map(int,reader.readline().split()))
+    for x in range(1,len(lunitario),2):
+        conjEvid.add((lunitario[x]+1)*(-1 if lunitario[x+1]==0 else 1))
+    return conjEvid
+
+
+def construyeredbay(listap,evi):
+    res = pt.problemaTrianFactor()
+    res.toriginalfl= listap
+    
+    res.evid = evi
+    return res

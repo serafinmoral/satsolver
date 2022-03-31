@@ -311,50 +311,58 @@ class varpot:
                         
             return (exact,lista,listaconvar)
 
-        def marginalizaset(self,vars,M = 30, Q=20, ver = True, inplace = True, pre = False):
-            vars.intersection_update(self.getvars())
+        def marginalizaset(self,vars,M = 30, Q=20, ver = True, inplace = True, pre = False, orden = []):
+            if not pre:
+                vars.intersection_update(self.getvars())
+            
             if inplace:
-                orden = []
+                if not pre:
+                    orden = []
                 listan = []
                 listaq = []
                 nuevas = []
                 if pre:
-                    nvars = [x for x in self.orden if x in vars]
+                    nvars = [x for x in orden if x in vars]
                     nvars.reverse()
+                    vars = nvars
                 e = True
                 while vars and not self.contradict:
                     if pre:
-                        var = nvars.pop()
+                        var = vars.pop()
                     else:
                         var = self.siguientep(vars)
                     
                     tama = tam(self.tabla.get(var))
                     lista = self.get(var)
-                    pos = vars.copy()
-                    dif = 0
-                    while pos and dif <=2:
+                    
+                    if not pre:
+                        pos = vars.copy()
+                        dif = 0
+                        while pos and dif <=2:
 
-                        met = calculamethod(lista,var)
-                        if met == 1:
-                            break
-                        else:
-                            pos.discard(var)
-                            if pos:
-                                var = self.siguientep(pos)
-                                lista =self.get(var)
-                                dif = tam(self.tabla.get(var))- tama
+                            met = calculamethod(lista,var)
+                            if met == 1:
+                                break
+                            else:
+                                if not pre:
+                                    pos.discard(var)
+                                
+                                if pos:
+                                    var = self.siguientep(pos)
+                                    lista =self.get(var)
+                                    dif = tam(self.tabla.get(var))- tama
 
-                    if met==2:
-                        var = self.siguientep(vars)
-                        lista = self.get(var)
+                        if met==2:
+                            var = self.siguientep(vars)
+                            lista = self.get(var)
 
 
                     u.ordenaycombinaincluidas(lista,self, borrar = True, inter=False)
                     if ver:
                         print("var", var, "quedan ", len(vars))
 
-
-                    vars.discard(var)
+                    if not pre:
+                        vars.discard(var)
                     (exac,nuevas,antiguas) = self.marginaliza(var,M,Q)
                     if not exac:
                         print("borrado no exacto " )

@@ -6,7 +6,7 @@ Created on Wed Mar  6 13:30:14 2019
 """ 
 import networkx as nx    
 from SimpleClausulas import *
-from ProblemaTrianFactor import *
+from  ProblemaTrianFactor import *
 from time import *
 from utils import *
 
@@ -316,23 +316,25 @@ def main(prob):
 # ********** Control de Aplicación ****************
 #
 
-reader=open('entrada',"r")
-writer=open('salida',"w")
+reader=open('entradaUIA',"r")
+writer=open('salidaUIA',"w")
 ttotal = 0
 
 while reader:
     linea = reader.readline().rstrip()  
     param = linea.split()
     nombre = param[0]
-    N1 = int(param[1])
+    del param[0]
     print(nombre)     
     t1 = time()
-    info = leeArchivoGlobal(nombre)
+    (listap, evi) = leeficheroUAI(nombre)
+    
     t2= time()
-    prob = problemaTrianFactor(info,N1)
+    prob = construyeredbay(listap,evi)
+    prob.likelihoode()
     t4 = time()
 
-    main(prob)
+    
     # print("Conjunto solución: ",prob.sol)
     # if prob.inicial.contradict==False:
     #     prob.compruebaSol()

@@ -24,7 +24,7 @@ import random as ra
 
 
 class problemaTrianFactor:
-    def __init__(self,info,M=25):
+    def __init__(self,info=None,M=25):
          self.M = M
          self.inicial = info
          self.pinicial = PotencialTabla()
@@ -317,7 +317,16 @@ class problemaTrianFactor:
 
         return 
 
-    def likelihoodw(self, N=1000, method = 0):
+    def crealistatop(self,top):
+        lista = self.toriginalfl.copy()
+        lista.sort(key = lambda x: top.index(x.listavar.copy().pop()))
+        return lista
+
+    def likelihoode(self):
+        (ceros,me,va ) = self.likelihoodw(method = 1)
+        print(ceros,me,va)
+
+    def likelihoodw(self, N=10000, method = 0):
         
         lista = []
 
@@ -325,9 +334,13 @@ class problemaTrianFactor:
             lista.append(x.listavar.copy())
         
         toporden = topologico(lista)
+        
         self.orden = toporden[::-1]
 
-        self.lfloat = self.crealistatop()
+       
+
+       
+        self.lfloat = self.crealistatop(toporden)
 
         pesos = 0.0
         pesos2 = 0.0
@@ -341,6 +354,9 @@ class problemaTrianFactor:
             self.calculalogico()
             self.borradin(pre=True)
 
+        logicalpot = self.lqueue[::-1]
+        print(len(logicalpot))
+        sleep(3)
 
         K = len(toporden)
         
@@ -358,6 +374,8 @@ class problemaTrianFactor:
                         pe *= potr.tabla[1]
                     else:
                         pe *= potr.tabla[0]
+                    if pe == 0:
+                        break
 
                 elif method == 0:
                         x = ra.random()
@@ -366,14 +384,56 @@ class problemaTrianFactor:
                         sum = p0+p1
                         p0 = p0/sum
                         p1 = p1/sum
+                        
+                        
                         pe*=sum
                         va = v if x>p0 else -v
                         sol.append(va)
                         if pe==0:
                             break
                 elif method == 1:
-                        pot = self.lfloat[i]
-                        potr = pot.reduce(sol)
+                        lpot = logicalpot[i]
+                        lpotr = lpot.reduce(sol)
+                        if lpotr.contradict():
+                            pe = 0
+                            break
+                        elif lpotr.trivial():
+                            x = ra.random()
+                            p0 = potr.tabla[0]
+                            p1 = potr.tabla[1]
+                            sum = p0+p1
+                            p0 = p0/sum
+                            p1 = p1/sum
+                            
+                            
+                            pe*=sum
+                            va = v if x>p0 else -v
+                            sol.append(va)
+                            if pe==0:
+                                break
+                        else:
+                            
+                            va = v if lpotr.tabla[1] else -v
+                            sol.append(va)
+                            if va>0:
+                                pe *= potr.tabla[1]
+                            else:
+                                pe *= potr.tabla[0]
+                            if pe == 0:
+                                break
+            if pe == 0:
+                ceros+=1
+            else:
+                print(pe)
+                pesos += pe
+                pesos2 += pe*pe
+
+        me = pesos/N
+        va = pesos2/N - me*me
+
+
+
+        return(ceros,me, va )
 
 
 
@@ -384,9 +444,11 @@ class problemaTrianFactor:
         self.rela = varpot()
         for x in self.evid:
             self.rela.insertaru(x)
-        for p in self.toriginalfl():
-            q = p [x>0]
-            self.rela.insertar(q)
+        for p in self.toriginalfl:
+            q = nodoTabla(p.listavar)
+            q.tabla = p.tabla > 0
+            if not q.trivial():
+                self.rela.insertar(q)
 
 
 
@@ -400,8 +462,10 @@ class problemaTrianFactor:
                 return
 
 
-
-        (e,orden,nuevas,antiguas)= self.rela.marginalizaset(self.pinicial.getvars(),pre = False)
+        if pre:
+            (e,orden,nuevas,antiguas)= self.rela.marginalizaset(set(self.orden),pre = True, orden = self.orden.copy())
+        else:
+            (e,orden,nuevas,antiguas)= self.rela.marginalizaset(self.pinicial.getvars(),pre = False)
         self.contradict =  self.rela.contradict
         if not pre:
             self.orden = self.orden +  orden
