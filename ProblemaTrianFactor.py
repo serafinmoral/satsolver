@@ -38,7 +38,8 @@ class problemaTrianFactor:
          self.borr = []
          self.child = []
          self.parent = []
-         self.contradict = False
+         if info:
+            self.contradict = info.contradict
          self.evid = set()
          self.toriginalfl = []
 
@@ -75,6 +76,7 @@ class problemaTrianFactor:
             return
 
         for x in self.pinicial.unit:
+            print("unitaria ", x)
             self.orden.append(abs(x))
             t = potdev(x)
             self.lqueue.append(t)
@@ -114,6 +116,8 @@ class problemaTrianFactor:
                                     break
                     i+= 1
                 print(total)
+        if self.pinicial.contradict:
+            self.contradict = True
         return (varb,potb)
 
     def borrad(self,v,p):
@@ -326,7 +330,7 @@ class problemaTrianFactor:
         (ceros,me,va ) = self.likelihoodw(method = 1)
         print(ceros,me,va)
 
-    def likelihoodw(self, N=10000, method = 0):
+    def likelihoodw(self, N=500, method = 0):
         
         lista = []
 
@@ -353,6 +357,7 @@ class problemaTrianFactor:
         if method == 1:
             self.calculalogico()
             self.borradin(pre=True)
+            # self.findallsol()
 
         logicalpot = self.lqueue[::-1]
         print(len(logicalpot))
@@ -433,7 +438,7 @@ class problemaTrianFactor:
 
 
 
-        return(ceros,me, va )
+        return(ceros,me, va/N )
 
 
 
@@ -695,6 +700,8 @@ class problemaTrianFactor:
     def findallsol(self):
         soll = [set()]
         for i in reversed(range(len(self.orden))):
+            print(i)
+            sleep(1)
             tabla = self.lqueue[i]
             
 
@@ -729,7 +736,8 @@ class problemaTrianFactor:
                     print(var) 
             soll.extend(nsol)
             
-            
+        print(len(soll)) 
+        sleep(10)
         self.sol = sol
         return soll
     

@@ -253,7 +253,7 @@ def triangula(grafo):
 def main(prob):
         # info.contradict = False
         # info.solved = False
-        prob.inicial.contradict = False
+        
         prob.inicial.solved = False         
         print("entro en main")
 
@@ -276,9 +276,14 @@ def main(prob):
 
         prob.previo()
 
-        t = varpot()
-        t.createfrompot(prob.pinicial)
-        prob.rela = t
+        if prob.contradict:
+            print("problema contradictorio")
+
+        else:
+
+            t = varpot()
+            t.createfrompot(prob.pinicial)
+            prob.rela = t
                
 
         # prob.rela.mejoralocal()           
@@ -291,7 +296,7 @@ def main(prob):
         # (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent) = triangulap(prob.pinicial) 
 
 
-        prob.borradin()
+            prob.borradin()
 
         
         
@@ -316,8 +321,8 @@ def main(prob):
 # ********** Control de Aplicación ****************
 #
 
-reader=open('entradaUIA',"r")
-writer=open('salidaUIA',"w")
+reader=open('entrada',"r")
+writer=open('salida',"w")
 ttotal = 0
 
 while reader:
@@ -326,12 +331,21 @@ while reader:
     nombre = param[0]
     del param[0]
     print(nombre)     
-    t1 = time()
-    (listap, evi) = leeficheroUAI(nombre)
+    # t1 = time()
+    # (listap, evi) = leeficheroUAI(nombre)
     
+    # t2= time()
+    # prob = construyeredbay(listap,evi)
+    # prob.likelihoode()
+    # t4 = time()
+
+    t1 = time()
+    infor = leeArchivoGlobal(nombre)
+    
+    prob = problemaTrianFactor(infor)
     t2= time()
-    prob = construyeredbay(listap,evi)
-    prob.likelihoode()
+    main(prob)
+
     t4 = time()
 
     

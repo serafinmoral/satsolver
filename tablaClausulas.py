@@ -693,6 +693,7 @@ class PotencialTabla:
 
 
         def insertaunit(self,x):
+            print("INSERTANDO UNIDAD")
             if -x in self.unit:
                 self.anula()
                 return set()
