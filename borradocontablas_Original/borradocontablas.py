@@ -38,7 +38,7 @@ def leeArchivoGlobal(Archivo):
             infor.listaclausOriginal.append(clausula.copy())
             infor.insertar(clausula, test=False)
     
-    return infor, nvar, nclaus
+    return infor  
     
 def triangulap(pot):
     orden = []
@@ -250,12 +250,12 @@ def triangula(grafo):
     return (orden,cnodo,mh)
     
     
-def main(prob, Previo=True, Mejora=False): #EDM
+def main(prob):
         # info.contradict = False
         # info.solved = False
         
         prob.inicial.solved = False         
-        # print("entro en main")  #EDM
+        print("entro en main")
 
         prob.inicia0()        
 
@@ -266,17 +266,15 @@ def main(prob, Previo=True, Mejora=False): #EDM
 
 
         # prob.rela.mejoralocal()           
-        if Mejora:  #EDM
-            prob.rela.mejoralocal()      #EDM  
-        # print("otra vez!")      #EDM  
+
+        print("otra vez!")
 
 
         lista = prob.rela.extraelista()
         prob.pinicial.listap = lista
 
 
-        if Previo: #EDM
-            prob.previo()
+        prob.previo()
 
         if prob.contradict:
             print("problema contradictorio")
@@ -289,9 +287,7 @@ def main(prob, Previo=True, Mejora=False): #EDM
                
 
         # prob.rela.mejoralocal()           
-        # if Mejora:  #EDM
-        #     prob.rela.mejoralocal()      #EDM  
-            
+
         # arbol = calculaglobal(prob.rela)
 
 
@@ -302,59 +298,74 @@ def main(prob, Previo=True, Mejora=False): #EDM
 
             prob.borradin()
 
+        
+        
+
+        
+
+        
+
+
+      
         if not prob.contradict:
             prob.sol = prob.findsol()
+
             prob.compruebaSol()
-            return True
         else:
             print(" problema contradictorio ")
-            return False
 
 
-def borrradocontablas(archivolee, Q=[],Mejora=[False], Previo=[True], archivogenera="salida.csv"):
-    try:
-        reader=open(archivolee,"r")
-        writer=open(archivogenera,"w")
-        writer.write("Problema;Variable;Claúsulas;Q;Previo;MejoraLocal;TLectura;TBúsqueda;TTotal;SAT\n")
-        ttotal = 0
-        # i=0
-        for linea in reader:
-            # i=i+1
-            linea = linea.rstrip()
-            if len(linea)>0:
-                cadena = ""
-                param = linea.split()
-                nombre = param[0]
-                N1 = int(param[1])
-                print(nombre)     
-                t1 = time()
-                (info, nvar, nclaus) = leeArchivoGlobal(nombre)
-                t2= time()
-                for Qev in Q:
-                    for Mej in Mejora:
-                        for Pre in Previo:
-                            try:
-                                t3 = time()
-                                cadena= nombre + ";" + str(nvar) + ";" + str(nclaus) + ";" + str(Qev) + ";" + str(Pre) + ";" + str(Mej) + ";"
-                                prob = problemaTrianFactor(info,Qin=Qev) #EDM   #Último parámetro es Q
-                                # prob = problemaTrianFactor(info,N1,Qev) #EDM   #Último parámetro es Q
-                                t4 = time()
-                                # main(prob)  #EDM 
-                                bolSAT = main(prob, Qev,Mej) #EDM 
-                                t5 = time()
-                                print("tiempo lectura ",t2-t1)
-                                print("tiempo busqueda ",t5-t4)
-                                print("tiempo TOTAL ",t5-t3+t2-t1)
-                                cadena =  cadena + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + (";SAT" if bolSAT else ";UNSAT") + "\n"
-                            except ValueError:
-                                cadena = cadena + "ERROR"
-                            writer.write(cadena)
-                            # ttotal += t5-t1
-                # print(Q)
-        # if i>0:
-        #     print ("tiempo medio ", ttotal/i)
-        #     writer.write("tiempo medio " + str(ttotal/i)+"\n")
-        writer.close()
-        reader.close()    
-    except ValueError:
-        print("Error")
+        # print("salgo de inicio")
+       
+#     
+# ********** Control de Aplicación ****************
+#
+
+reader=open('entrada',"r")
+writer=open('salida',"w")
+ttotal = 0
+
+while reader:
+    linea = reader.readline().rstrip()  
+    param = linea.split()
+    nombre = param[0]
+    del param[0]
+    print(nombre)     
+    # t1 = time()
+    # (listap, evi) = leeficheroUAI(nombre)
+    
+    # t2= time()
+    # prob = construyeredbay(listap,evi)
+    # prob.likelihoode()
+    # t4 = time()
+
+    t1 = time()
+    infor = leeArchivoGlobal(nombre)
+    
+    prob = problemaTrianFactor(infor)
+    t2= time()
+    main(prob)
+
+    t4 = time()
+
+    
+    # print("Conjunto solución: ",prob.sol)
+    # if prob.inicial.contradict==False:
+    #     prob.compruebaSol()
+    # else:
+    #     print("Problema no satisfactible")
+    t5 = time()
+    print("tiempo lectura ",t2-t1)
+#    print("tiempo inicio ",t3-t2)
+#    print("tiempo borrado ",t4-t3)
+    print("tiempo busqueda ",t5-t4)
+    print("tiempo TOTAL ",t5-t1)
+    writer.write(linea+"\n")
+    writer.write("tiempo TOTAL" + str(t5-t1)+"\n")
+    ttotal += t5-t1
+
+print ("tiempo medio ", ttotal/i)
+writer.write("tiempo medio " + str(ttotal/i)+"\n")
+writer.close()
+reader.close()
+

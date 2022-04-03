@@ -1,0 +1,1 @@
+Problema;Variable;Claúsulas;Q;Previo;MejoraLocal;TLectura;TBúsqueda;TTotal;SAT

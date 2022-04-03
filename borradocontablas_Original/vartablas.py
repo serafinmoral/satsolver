@@ -10,12 +10,11 @@ from utils import *
 
 class varpot:
 
-        def __init__(self, Qin=20): #EDM
+        def __init__(self):
 
             self.tabla = dict()
             self.unit = set()
             self.contradict = False
-            self.Q = Qin #EDM            
 
         def anula(self):
             self.tabla = dict()
@@ -429,7 +428,7 @@ class varpot:
                     r = varpot()
                     r.createfromlista(lista)
                     
-                    r.marginalizaset(tvars-set(p.listavar),M,self.Q, ver=False) #EDM
+                    r.marginalizaset(tvars-set(p.listavar),M,Q, ver=False)
                     nl = r.extraelista()
                     lk = nodoTabla([])
                     for q in nl:
@@ -439,7 +438,7 @@ class varpot:
                     ns = np.sum(lk.tabla)
 
                     if (ns < old):
-                        # print("mejora", ns, old,len(p.listavar), len(lk.listavar)) #EDM
+                        print("mejora", ns, old,len(p.listavar), len(lk.listavar))
                         self.borrarpot(p)
                         self.insertar(lk)
 

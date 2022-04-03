@@ -24,11 +24,11 @@ import random as ra
 
 
 class problemaTrianFactor:
-    def __init__(self,info=None,M=25, Qin=20): #EDM
+    def __init__(self,info=None,M=25):
          self.M = M
          self.inicial = info
          self.pinicial = PotencialTabla()
-         self.rela = varpot(Qin) #EDM
+         self.rela = varpot()
          self.orden = []
          self.clusters = []
          self.lqueue  = []
@@ -42,7 +42,6 @@ class problemaTrianFactor:
             self.contradict = info.contradict
          self.evid = set()
          self.toriginalfl = []
-         self.Q=Qin  #EDM
 
          
 
@@ -245,7 +244,7 @@ class problemaTrianFactor:
             old = np.sum(p.tabla)
             pos = min(map(lambda h: self.posvar[h],p.listavar))
             pot = self.lqueue[pos]
-            potn = pot.marginalizaset(pot.getvars() - set(p.listavar), Q=self.Q, ver=False, inplace=False) #EDM
+            potn = pot.marginalizaset(pot.getvars() - set(p.listavar), ver=False, inplace=False)
             tablan = potn.atabla()
             p.combina(tablan, inplace=True)    
             nu =  np.sum(p.tabla)
@@ -276,7 +275,7 @@ class problemaTrianFactor:
                 # print("salgo de copia") 
 
                 
-                potn = pot.marginalizaset(dif, Q=self.Q,ver = False,inplace=False) #EDM
+                potn = pot.marginalizaset(dif,ver = False,inplace=False)
                 self.lqueue[j].combina(potn)
 
     def pasaarbol(self):
@@ -469,16 +468,16 @@ class problemaTrianFactor:
 
 
         if pre:
-            (e,orden,nuevas,antiguas)= self.rela.marginalizaset(set(self.orden), Q=self.Q,pre = True, orden = self.orden.copy()) #EDM
+            (e,orden,nuevas,antiguas)= self.rela.marginalizaset(set(self.orden),pre = True, orden = self.orden.copy())
         else:
-            (e,orden,nuevas,antiguas)= self.rela.marginalizaset(self.pinicial.getvars(), Q=self.Q,pre = False) #EDM
+            (e,orden,nuevas,antiguas)= self.rela.marginalizaset(self.pinicial.getvars(),pre = False)
         self.contradict =  self.rela.contradict
         if not pre:
             self.orden = self.orden +  orden
         i=0
         if not self.contradict:
             for x in antiguas:
-                # print(i, x) #EDM
+                print(i, x)
                 i+=1
                 y = nodoTabla([])
                 for t in x:
@@ -670,7 +669,7 @@ class problemaTrianFactor:
             
             
             var = self.orden[i]
-            # print(var) #EDM
+            print(var)
             # print(tabla.listavar,tabla.tabla)
 
             t = tabla.reduce(list(sol))
@@ -681,14 +680,14 @@ class problemaTrianFactor:
 
             elif t.trivial():
                 sol.add(var)
-                # print("elijo ", var) #EDM
+                print("elijo ", var)
         
             elif t.tabla[0]:
                 sol.add(-var)
-                # print(-var) #EDM
+                print(-var)
             else:
                sol.add(var)
-               # print(var)  #EDM
+               print(var) 
 
             
             

@@ -428,7 +428,7 @@ def triangulaconorden(pot,orden):
             cluster.update(y)
         clusters.append(cluster)
         posvar[nnodo] = i
-        # print( i, cluster)  #EDM
+        print( i, cluster)
         i+=1
         clustersin = cluster-{nnodo}
 
