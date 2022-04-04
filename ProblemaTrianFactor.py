@@ -77,7 +77,7 @@ class problemaTrianFactor:
             return
 
         for x in self.pinicial.unit:
-            print("unitaria ", x)
+            # print("unitaria ", x)
             self.orden.append(abs(x))
             t = potdev(x)
             self.lqueue.append(t)
@@ -122,6 +122,7 @@ class problemaTrianFactor:
         return (varb,potb)
 
     def borrad(self,v,p):
+        
         bor = []
         tota = set()
         for i in range(len(self.pinicial.listap)):
@@ -138,8 +139,8 @@ class problemaTrianFactor:
                     h.borra([v], inplace = True)
                     if h.trivial():
                         bor.append(h)
-                        print("trivial 2")
-                        sleep(1)
+                        # print("trivial 2")
+                        # sleep(1)
                     if h.contradict():
                         self.anula()
                         print("contradictorio")
@@ -664,17 +665,28 @@ class problemaTrianFactor:
     def findsol(self):
         sol = set()
         for i in reversed(range(len(self.orden))):
+            print(i)
             tabla = self.lqueue[i]
             
 
             
             
             var = self.orden[i]
-            # print(var) #EDM
+            print(var) #EDM
             # print(tabla.listavar,tabla.tabla)
 
             t = tabla.reduce(list(sol))
-            # print(t.listavar, t.tabla)
+            # print(t.listavar,t.tabla)
+
+            if len(t.listavar) > 1:
+                for x in t.listavar:
+                    if not x == var:
+                        sol.add(x) 
+                t = t.reduce(list(sol))
+
+
+            
+
             if t.contradict():
                 print("contradiccion buscando solucion" , sol )
                 break
@@ -793,6 +805,7 @@ class problemaTrianFactor:
 
     def compruebaSol(self):
         aux = 0
+        print("entro en comprueba solucion")
         for clau in self.inicial.listaclausOriginal:
             aux = aux + 1
             if len(clau.intersection(self.sol))==0:

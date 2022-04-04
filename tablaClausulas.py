@@ -389,7 +389,7 @@ class nodoTabla:
         return (x0,x1)
 
     def anula(self):
-        self = nodoTabla([])
+        self.listavar = []
         self.tabla = False
 
     def trivial(self):

@@ -148,6 +148,11 @@ def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
                     q = lista[j]
                     tp = p.mejora(q)
                     tq = q.mejora(p)
+                    if tp.contradict() or tq.contradict():
+                        rela.anula()
+                        print("contradicion ")
+                        return
+
                     rela.borrarpot(p)
                     rela.borrarpot(q)
                     lista[i] = tp
@@ -210,7 +215,7 @@ def createclusters (lista):
 def marginaliza(lista,var, M=30, Q=20):
 
     
-
+    
     if not lista:
         
         return (True,[],[])
@@ -261,6 +266,7 @@ def marginaliza(lista,var, M=30, Q=20):
             if r.contradict():
                 con = nodoTabla([])
                 con.anula()
+                print("contradiccion")
                 return (True,[con],[keyp])
                     
 

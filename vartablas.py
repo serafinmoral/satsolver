@@ -254,7 +254,8 @@ class varpot:
 
                
             
-           
+            if var ==629:
+                print("posible problema")
 
             (exact,lista,listaconvar) = u.marginaliza(self.get(var).copy(),var,M,Q)
 
@@ -333,6 +334,9 @@ class varpot:
                     else:
                         var = self.siguientep(vars)
                     
+
+                    if var == 866:
+                        print("posible problema ")
                     tama = tam(self.tabla.get(var))
                     lista = self.get(var)
                     

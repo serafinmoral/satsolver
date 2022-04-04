@@ -255,7 +255,7 @@ def main(prob, Previo=True, Mejora=False): #EDM
         # info.solved = False
         
         prob.inicial.solved = False         
-        # print("entro en main")  #EDM
+        print("entro en main")  #EDM
 
         prob.inicia0()        
 
@@ -301,6 +301,8 @@ def main(prob, Previo=True, Mejora=False): #EDM
 
 
             prob.borradin()
+
+        print("salgo de borrado")
 
         if not prob.contradict:
             prob.sol = prob.findsol()
@@ -358,3 +360,4 @@ def borrradocontablas(archivolee, Q=[],Mejora=[False], Previo=[True], archivogen
         reader.close()    
     except ValueError:
         print("Error")
+borrradocontablas("entrada",[15],[False],[False],"prueba05.txt")
