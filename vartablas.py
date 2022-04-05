@@ -10,12 +10,13 @@ from utils import *
 
 class varpot:
 
-        def __init__(self, Qin=20): #EDM
+        def __init__(self, Qin=20, partirin=True): #EDM
 
             self.tabla = dict()
             self.unit = set()
             self.contradict = False
-            self.Q = Qin #EDM            
+            self.Q = Qin #EDM
+            self.partir=partirin #EEDM          
 
         def anula(self):
             self.tabla = dict()
@@ -257,7 +258,7 @@ class varpot:
             if var ==629:
                 print("posible problema")
 
-            (exact,lista,listaconvar) = u.marginaliza(self.get(var).copy(),var,M,Q)
+            (exact,lista,listaconvar) = u.marginaliza(self.get(var).copy(),var,self.partir,M,Q) #EEDM
 
             
             if exact and lista and not lista[0].listavar:
@@ -297,7 +298,7 @@ class varpot:
 
            
 
-            (exact,lista,listaconvar) = u.marginaliza(self.get(var).copy(),var,M,Q)
+            (exact,lista,listaconvar) = u.marginaliza(self.get(var).copy(),var,self.partir,M,Q) #EEDM
 
             
             if exact and lista and not lista[0].listavar:

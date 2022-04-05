@@ -24,11 +24,11 @@ import random as ra
 
 
 class problemaTrianFactor:
-    def __init__(self,info=None,M=25, Qin=20): #EDM
+    def __init__(self,info=None,M=25, Qin=20, Partirin=True): #EDM
          self.M = M
          self.inicial = info
          self.pinicial = PotencialTabla()
-         self.rela = varpot(Qin) #EDM
+         self.rela = varpot(Qin,Partirin) #EDM
          self.orden = []
          self.clusters = []
          self.lqueue  = []
@@ -43,6 +43,7 @@ class problemaTrianFactor:
          self.evid = set()
          self.toriginalfl = []
          self.Q=Qin  #EDM
+         self.Partir=Partirin #EDM
 
          
 
@@ -448,7 +449,7 @@ class problemaTrianFactor:
 
         
     def calculalogico(self):
-        self.rela = varpot()
+        self.rela = varpot(self.Q, self.Partir)
         for x in self.evid:
             self.rela.insertaru(x)
         for p in self.toriginalfl:

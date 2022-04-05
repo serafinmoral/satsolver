@@ -212,15 +212,11 @@ def createclusters (lista):
 
 
 
-def marginaliza(lista,var, M=30, Q=20):
-
-    
-    
+def marginaliza(lista, var, partirin, M=30, Q=20):
     if not lista:
-        
         return (True,[],[])
-
-    partev(lista,var)
+    if partirin: #EEDM
+        partev(lista,var)
 
    
     res = []
