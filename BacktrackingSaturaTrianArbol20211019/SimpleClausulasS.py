@@ -207,7 +207,10 @@ class simpleClausulas:
         
     
     def insertar(self,x):
-
+        nx = set(map(lambda t: t, x))
+        if x.intersection(nx):
+            print("trivial ")
+            return
         if self.contradict:
             return []
         if not x:

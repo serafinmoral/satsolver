@@ -254,8 +254,7 @@ class varpot:
 
                
             
-            if var ==629:
-                print("posible problema")
+            
 
             (exact,lista,listaconvar) = u.marginaliza(self.get(var).copy(),var,M,Q)
 
@@ -271,6 +270,7 @@ class varpot:
 
                     self.anula()
                 else:
+                    # print(p.listavar)
                     self.insertar(p)     
 
             self.borrarv(var)
@@ -335,8 +335,7 @@ class varpot:
                         var = self.siguientep(vars)
                     
 
-                    if var == 866:
-                        print("posible problema ")
+                    
                     tama = tam(self.tabla.get(var))
                     lista = self.get(var)
                     
@@ -376,7 +375,7 @@ class varpot:
                         orden.append(var)
                     listan.append(nuevas)
                     listaq.append(antiguas)
-                    
+                    print("voy a entrar en ordena")
                     if not self.contradict:
                         u.ordenaycombinaincluidas(nuevas,self, borrar=True)
 

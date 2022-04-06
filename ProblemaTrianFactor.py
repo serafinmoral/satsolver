@@ -807,6 +807,7 @@ class problemaTrianFactor:
         aux = 0
         print("entro en comprueba solucion")
         for clau in self.inicial.listaclausOriginal:
+            print(clau)
             aux = aux + 1
             if len(clau.intersection(self.sol))==0:
                 print("Error en cláusula: ", clau)

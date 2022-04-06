@@ -18,6 +18,11 @@ class simpleClausulas:
          self.listaclausOriginal = []
          
     def insertar(self,x, test=True):
+        # nx = set(map(lambda t: -t, x))
+        # if nx.intersection(x):
+        #     print("no inserto ", x)
+        #     return
+
         if self.contradict:
             return []
         if not x:

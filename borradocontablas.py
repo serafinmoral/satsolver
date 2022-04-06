@@ -35,8 +35,16 @@ def leeArchivoGlobal(Archivo):
             listaux.pop()
             listaux = map(int,listaux)
             clausula= set(listaux)
+            nc = set( map(lambda t: -t, clausula))
+
             infor.listaclausOriginal.append(clausula.copy())
-            infor.insertar(clausula, test=False)
+            if not nc.intersection(clausula):
+                infor.insertar(clausula, test = False)
+            else:
+               print("trivial ", clausula)
+
+            if infor.contradict:
+                print("contradiccion leyendo")
     
     return infor, nvar, nclaus
     
@@ -254,23 +262,24 @@ def main(prob, Previo=True, Mejora=False): #EDM
         # info.contradict = False
         # info.solved = False
         
+
+        
         prob.inicial.solved = False         
         print("entro en main")  #EDM
 
         prob.inicia0()        
-
-
+        
         t = varpot()
         t.createfrompot(prob.pinicial)
         prob.rela = t
-
+        
 
         # prob.rela.mejoralocal()           
         if Mejora:  #EDM
             prob.rela.mejoralocal()      #EDM  
         # print("otra vez!")      #EDM  
 
-
+       
         lista = prob.rela.extraelista()
         prob.pinicial.listap = lista
 

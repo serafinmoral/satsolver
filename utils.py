@@ -122,8 +122,10 @@ def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
     
     i=0
     while i <len(lista)-1:
+        
         j = i+1
         while j < len(lista):
+            # print("lista, i, j", len(lista), i, j)
             if set(lista[j].listavar) <= set(lista[i].listavar):
                 p = lista[i]
                 q = lista[j]
@@ -227,7 +229,9 @@ def marginaliza(lista,var, M=30, Q=20):
     si = []
     vars = set()
     deter = False
+    print(len(lista))
     for p in lista:
+        print(p.listavar)
         if var in p.listavar:
 
             vars.update(p.listavar)
@@ -252,6 +256,7 @@ def marginaliza(lista,var, M=30, Q=20):
     exact = True
 
     if deter:
+        print("determinista ")
         vars.discard(var)
 
         listp = [keyp]
@@ -297,15 +302,43 @@ def marginaliza(lista,var, M=30, Q=20):
 
     else:
             si.sort(key = lambda h: - len(h.listavar) )
-            # print("borrada " , var, "metodo 2, n potenciales", len(si))
-        
+            print("borrada " , var, "metodo 2, n potenciales", len(si))
+            lc = calculaclusters2(si,var)
+            vars.discard(var)
+
+            sizes = 0.0
+            for xx in lc:
+                sizes += 2**len(xx)
+
             lista = []
-            if len(vars)<= Q:
-                # print("global ")
-                vars.discard(var)
+            if 2**(len(vars)-1) <= sizes and len(vars) <=31:
+                print ("global total ")
+                r = nodoTabla([])
+               
+                while si:
+                    q = si.pop()
+                    r.combina(q,inplace=True)
+                listp = [r.copia()]
+                
+                
+                
+                
+                r.borra([var],inplace=True)
+                
+                
+                if r.contradict():
+                    con = nodoTabla([])
+                    con.anula()
+                    return (True,[con],[])
+
+                if not r.trivial():
+                        res.append(r)
+            
+            elif len(vars)<= Q:
+                print("global ")
 
                 r = nodoTabla([])
-                lc = calculaclusters2(si,var)
+               
                 while si:
                     q = si.pop()
                     r.combina(q,inplace=True)
@@ -324,12 +357,13 @@ def marginaliza(lista,var, M=30, Q=20):
                     if not rh.trivial():
                         res.append(rh)
             else:
+                print("no global", len(vars), vars)
                 si2 = si.copy()
                 listp = si2
                 while si:
-                    
                     q = si.pop()
-                    
+                    print(q.listavar)
+
                     for p in si2:
                         if len(set(q.listavar).union(set(p.listavar))) >M+1:
                             print( "no exacto")
@@ -353,7 +387,7 @@ def marginaliza(lista,var, M=30, Q=20):
 
                         
             
-            
+    # print("termina ")        
     return (exact,res,listp)
 
 def topologico(lista):
