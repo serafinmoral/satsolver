@@ -292,7 +292,7 @@ def main(prob, Previo=True, Mejora=False): #EDM
 
         else:
 
-            t = varpot()
+            t = varpot(prob.Q, prob.Partir)
             t.createfrompot(prob.pinicial)
             prob.rela = t
                
@@ -322,11 +322,11 @@ def main(prob, Previo=True, Mejora=False): #EDM
             return False
 
 
-def borrradocontablas(archivolee, Q=[],Mejora=[False], Previo=[True], archivogenera="salida.csv"):
+def borradocontablas(archivolee, Q=[20],Mejora=[False], Previo=[True], Partir=[True], archivogenera="salida.csv"):
     try:
         reader=open(archivolee,"r")
         writer=open(archivogenera,"w")
-        writer.write("Problema;Variable;Claúsulas;Q;Previo;MejoraLocal;TLectura;TBúsqueda;TTotal;SAT\n")
+        writer.write("Problema;Variable;Claúsulas;Q;MejoraLocal;Previo;PartirVars;TLectura;TBúsqueda;TTotal;SAT\n")
         ttotal = 0
         # i=0
         for linea in reader:
@@ -344,23 +344,24 @@ def borrradocontablas(archivolee, Q=[],Mejora=[False], Previo=[True], archivogen
                 for Qev in Q:
                     for Mej in Mejora:
                         for Pre in Previo:
-                            try:
-                                t3 = time()
-                                cadena= nombre + ";" + str(nvar) + ";" + str(nclaus) + ";" + str(Qev) + ";" + str(Pre) + ";" + str(Mej) + ";"
-                                prob = problemaTrianFactor(info,Qin=Qev) #EDM   #Último parámetro es Q
-                                # prob = problemaTrianFactor(info,N1,Qev) #EDM   #Último parámetro es Q
-                                t4 = time()
-                                # main(prob)  #EDM 
-                                bolSAT = main(prob, Qev,Mej) #EDM 
-                                t5 = time()
-                                print("tiempo lectura ",t2-t1)
-                                print("tiempo busqueda ",t5-t4)
-                                print("tiempo TOTAL ",t5-t3+t2-t1)
-                                cadena =  cadena + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + (";SAT" if bolSAT else ";UNSAT") + "\n"
-                            except ValueError:
-                                cadena = cadena + "ERROR"
-                            writer.write(cadena)
-                            # ttotal += t5-t1
+                            for Part in Partir:
+                                try:
+                                    t3 = time()
+                                    cadena= nombre + ";" + str(nvar) + ";" + str(nclaus) + ";" + str(Qev) + ";" + str(Mej) + ";" + str(Pre) + ";" + str(Part) + ";"
+                                    prob = problemaTrianFactor(info,Qin=Qev) #EDM   #Último parámetro es Q
+                                    # prob = problemaTrianFactor(info,N1,Qev) #EDM   #Último parámetro es Q
+                                    t4 = time()
+                                    # main(prob)  #EDM 
+                                    bolSAT = main(prob, Qev,Mej) #EDM 
+                                    t5 = time()
+                                    print("tiempo lectura ",t2-t1)
+                                    print("tiempo busqueda ",t5-t4)
+                                    print("tiempo TOTAL ",t5-t3+t2-t1)
+                                    cadena =  cadena + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + (";SAT" if bolSAT else ";UNSAT") + "\n"
+                                except ValueError:
+                                    cadena = cadena + "ERROR"
+                                writer.write(cadena)
+                                # ttotal += t5-t1
                 # print(Q)
         # if i>0:
         #     print ("tiempo medio ", ttotal/i)
@@ -369,4 +370,4 @@ def borrradocontablas(archivolee, Q=[],Mejora=[False], Previo=[True], archivogen
         reader.close()    
     except ValueError:
         print("Error")
-borrradocontablas("entrada",[15],[False],[False],"prueba05.txt")
+borradocontablas("entrada",[15],[False],[True, False],[True,False],"prueba05.txt")
