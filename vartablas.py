@@ -376,7 +376,6 @@ class varpot:
                         orden.append(var)
                     listan.append(nuevas)
                     listaq.append(antiguas)
-                    print("voy a entrar en ordena")
                     if not self.contradict:
                         u.ordenaycombinaincluidas(nuevas,self, borrar=True)
 

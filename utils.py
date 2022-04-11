@@ -225,9 +225,8 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
     si = []
     vars = set()
     deter = False
-    print(len(lista))
     for p in lista:
-        print(p.listavar)
+        # print(p.listavar)
         if var in p.listavar:
 
             vars.update(p.listavar)
