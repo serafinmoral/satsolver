@@ -334,9 +334,10 @@ def borradocontablas(archivolee, Q=[20],Mejora=[False], Previo=[True], Partir=[T
             linea = linea.rstrip()
             if len(linea)>0:
                 cadena = ""
-                param = linea.split()
-                nombre = param[0]
-                N1 = int(param[1])
+                # param = linea.split()
+                # nombre = param[0]
+                # N1 = int(param[1])
+                nombre=linea.strip()
                 print(nombre)     
                 t1 = time()
                 (info, nvar, nclaus) = leeArchivoGlobal(nombre)
@@ -359,7 +360,13 @@ def borradocontablas(archivolee, Q=[20],Mejora=[False], Previo=[True], Partir=[T
                                     print("tiempo TOTAL ",t5-t3+t2-t1)
                                     cadena =  cadena + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + (";SAT" if bolSAT else ";UNSAT") + "\n"
                                 except ValueError:
-                                    cadena = cadena + "ERROR"
+                                    print("ERROR")
+                                    t5 = time()
+                                    cadena = cadena + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + "ERROR" + "\n"
+                                except MemoryError:
+                                    print("ERROR de Memoria")
+                                    t5 = time()
+                                    cadena = cadena + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + "ERROR de Memoria" + "\n"
                                 writer.write(cadena)
                                 # ttotal += t5-t1
                 # print(Q)
