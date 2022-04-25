@@ -322,7 +322,7 @@ def main(prob, Previo=True, Mejora=False): #EDM
             return False
 
 
-def borradocontablas(archivolee, Q=[20],Mejora=[False], Previo=[True], Partir=[True], archivogenera="salida.csv"):
+def borradocontablas(archivolee, Q=[30],Mejora=[False], Previo=[True], Partir=[True], archivogenera="salida.csv"):
     try:
         reader=open(archivolee,"r")
         writer=open(archivogenera,"w")
