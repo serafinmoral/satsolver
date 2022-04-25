@@ -377,4 +377,4 @@ def borradocontablas(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[Tr
         reader.close()    
     except ValueError:
         print("Error")
-borradocontablas("entrada",[2,3,4,5,6,7,8],[False],[True,False],[True,False],"prueba05.txt")
+borradocontablas("entrada",[2,3,4,5,6,7,8,9,10],[False],[True,False],[True,False],"prueba05.txt")
