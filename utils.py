@@ -168,6 +168,43 @@ def ordenaycombinaincluidas(lista,rela, borrar = True, inter=False):
         i+=1
     lista.reverse()
 
+def agrupatam(lista):
+    
+    lista.sort(key = lambda x : - len(x.listavar) )
+
+    
+
+    i=0
+    while i <len(lista)-1:
+        
+        j = i+1
+        while j < len(lista):
+            # print("lista, i, j", len(lista), i, j)
+            s1 = set(lista[j].listavar)
+            s2 = set(lista[i].listavar)
+            if s1 <= s2 or ((len(s1) == len(s2) and (len(s1-s2) == 1))):
+                p = lista[i]
+                q = lista[j]
+                
+            
+                
+                t = p.combina(q)
+                if t.contradict():
+                    print("contradicion ")
+                    return 
+                
+                lista[i] = t
+                del lista[j]
+                
+                
+
+            else:
+                j+=1
+        
+        i+=1
+    lista.reverse()
+
+
 
 def createclusters (lista):
     listasets = []
@@ -353,6 +390,8 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
                         res.append(rh)
             else:
                 print("no global", len(vars), vars)
+                if len(si) >= 30:
+                    agrupatam(si)
                 si2 = si.copy()
                 listp = si2
                 while si:
