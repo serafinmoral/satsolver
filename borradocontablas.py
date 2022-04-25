@@ -322,7 +322,7 @@ def main(prob, Previo=True, Mejora=False): #EDM
             return False
 
 
-def borradocontablas(archivolee, Q=[30],Mejora=[False], Previo=[True], Partir=[True], archivogenera="salida.csv"):
+def borradocontablas(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[True], Partir=[True], archivogenera="salida.csv"):
     try:
         reader=open(archivolee,"r")
         writer=open(archivogenera,"w")
@@ -377,4 +377,4 @@ def borradocontablas(archivolee, Q=[30],Mejora=[False], Previo=[True], Partir=[T
         reader.close()    
     except ValueError:
         print("Error")
-borradocontablas("entrada",[25],[False],[True],[True],"prueba05.txt")
+borradocontablas("entrada",[5,10,15,20,25,30],[False],[True],[True],"prueba05.txt")
