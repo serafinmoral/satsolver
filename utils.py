@@ -335,6 +335,11 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
     else:
             si.sort(key = lambda h: - len(h.listavar) )
             print("borrada " , var, "metodo 2, n potenciales", len(si))
+            if len(si) >= 15:
+                    print("arupando en tamaño ", len(si))
+                    agrupatam(si)
+                    print(len(si))
+                    # sleep(3)
             lc = calculaclusters2(si,var)
             vars.discard(var)
 
@@ -390,8 +395,11 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
                         res.append(rh)
             else:
                 print("no global", len(vars), vars)
-                if len(si) >= 30:
-                    agrupatam(si)
+                # if len(si) >= 30:
+                #     print("arupando en tamaño ", len(si))
+                #     agrupatam(si)
+                #     print(len(si))
+                #     sleep(3)
                 si2 = si.copy()
                 listp = si2
                 while si:
