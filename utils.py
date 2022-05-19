@@ -335,7 +335,7 @@ def marginaliza(lista, var, partirin, M=30, Q=20):
     else:
             si.sort(key = lambda h: - len(h.listavar) )
             print("borrada " , var, "metodo 2, n potenciales", len(si))
-            if len(si) >= 15:
+            if len(si) >= 30:
                     print("arupando en tamaño ", len(si))
                     agrupatam(si)
                     print(len(si))
