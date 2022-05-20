@@ -321,6 +321,42 @@ def main(prob, Previo=True, Mejora=False): #EDM
             print(" problema contradictorio ")
             return False
 
+def treeWidth(prob):
+    (orden,clusters,borr,posvar,child,parent) = triangulap(prob.pinicial)
+    sizes = map(len,clusters)
+    return(max(sizes))
+
+
+def computetreewidhts(archivolee):
+    archivogenera = "treewidths" + archivolee
+    reader=open(archivolee,"r")
+    writer=open(archivogenera,"w")
+    writer.write("Problema;TreeWidth\n")
+    for linea in reader:
+            # i=i+1
+            linea = linea.rstrip()
+            if len(linea)>0:
+                cadena = ""
+                # param = linea.split()
+                # nombre = param[0]
+                # N1 = int(param[1])
+                nombre=linea.strip()
+                print(nombre)     
+                (info, nvar, nclaus) = leeArchivoGlobal(nombre)
+                
+                cadena= nombre 
+                prob = problemaTrianFactor(info) #EDM   #Último parámetro es Q
+                                    # prob = problemaTrianFactor(info,N1,Qev) #EDM   #Último parámetro es Q
+                                    # main(prob)  #EDM 
+                prob.inicia0()
+                                    
+                tw = treeWidth(prob)
+                cadena = cadena + ";" + str(tw) + "\n"
+                writer.write(cadena)
+                                # ttotal += t5-t1
+
+    writer.close()
+    reader.close()
 
 def borradocontablas(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[True], Partir=[True], archivogenera="salida.csv"):
     try:
@@ -377,4 +413,5 @@ def borradocontablas(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[Tr
         reader.close()    
     except ValueError:
         print("Error")
+# computetreewidhts("ListaCNF_Experimento.txt")
 borradocontablas("ListaCNF_Experimento.txt",[5,10,15,20,25],[False],[False],[False,True],"prueba05.txt")
