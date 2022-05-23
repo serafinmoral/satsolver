@@ -389,7 +389,7 @@ def borradocontablas(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[Tr
                                     # prob = problemaTrianFactor(info,N1,Qev) #EDM   #Último parámetro es Q
                                     t4 = time()
                                     # main(prob)  #EDM 
-                                    bolSAT = main(prob, Qev,Mej) #EDM 
+                                    bolSAT = main(prob, Pre,Mej) #EDM 
                                     t5 = time()
                                     print("tiempo lectura ",t2-t1)
                                     print("tiempo busqueda ",t5-t4)
