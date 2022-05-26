@@ -257,6 +257,68 @@ def triangula(grafo):
     # print(orden)
     return (orden,cnodo,mh)
     
+def main2(prob, Previo=True, Mejora=False): #EDM
+        # info.contradict = False
+        # info.solved = False
+        
+
+        
+        prob.inicial.solved = False         
+        print("entro en main")  #EDM
+
+        prob.inicia0()        
+        
+        t = varpot()
+        t.createfrompot(prob.pinicial)
+        prob.rela = t
+        
+
+        # prob.rela.mejoralocal()           
+        if Mejora:  #EDM
+            prob.rela.mejoralocal()      #EDM  
+        # print("otra vez!")      #EDM  
+
+       
+        lista = prob.rela.extraelista()
+        prob.pinicial.listap = lista
+
+
+        if Previo: #EDM
+            prob.previo()
+
+        if prob.contradict:
+            print("problema contradictorio")
+
+        else:
+
+            t = varpot(prob.Q, prob.Partir)
+            t.createfrompot(prob.pinicial)
+            prob.rela = t
+               
+
+        # prob.rela.mejoralocal()           
+        # if Mejora:  #EDM
+        #     prob.rela.mejoralocal()      #EDM  
+            
+        # arbol = calculaglobal(prob.rela)
+
+
+
+
+        # (prob.orden,prob.clusters,prob.borr,prob.posvar,prob.child,prob.parent) = triangulap(prob.pinicial) 
+
+
+            h = prob.borradin2()
+
+        print("salgo de borrado")
+
+        if not prob.contradict:
+            prob.sol = prob.findsol()
+            prob.compruebaSol()
+            return h
+        else:
+            print(" problema contradictorio ")
+            return prob.pinicial.getvars()
     
 def main(prob, Previo=True, Mejora=False): #EDM
         # info.contradict = False
@@ -358,6 +420,58 @@ def computetreewidhts(archivolee):
     writer.close()
     reader.close()
 
+
+def borradofacil(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[True], Partir=[True], archivogenera="salida.csv"):
+    try:
+        reader=open(archivolee,"r")
+        writer=open(archivogenera,"w")
+        writer.write("Problema;Variable;Claúsulas;Q;MejoraLocal;Previo;PartirVars;TLectura;TBúsqueda;TTotal;SAT\n")
+        ttotal = 0
+        # i=0
+        for linea in reader:
+            # i=i+1
+            linea = linea.rstrip()
+            if len(linea)>0:
+                cadena = ""
+                # param = linea.split()
+                # nombre = param[0]
+                # N1 = int(param[1])
+                nombre=linea.strip()
+                print(nombre)     
+                t1 = time()
+                (info, nvar, nclaus) = leeArchivoGlobal(nombre)
+                t2= time()
+                for Qev in Q:
+                    for Mej in Mejora:
+                        for Pre in Previo:
+                            for Part in Partir:
+                                try:
+                                    t3 = time()
+                                    cadena= nombre + ";" + str(nvar) + ";" + str(nclaus) + ";" + str(Qev) + ";" + str(Mej) + ";" + str(Pre) + ";" + str(Part) + ";"
+                                    prob = problemaTrianFactor(info,Qin=Qev) #EDM   #Último parámetro es Q
+                                    # prob = problemaTrianFactor(info,N1,Qev) #EDM   #Último parámetro es Q
+                                    t4 = time()
+                                    # main(prob)  #EDM 
+                                    nvar = main2(prob, Pre,Mej) #EDM 
+                                    t5 = time()
+                                    print("tiempo lectura ",t2-t1)
+                                    print("tiempo busqueda ",t5-t4)
+                                    print("tiempo TOTAL ",t5-t3+t2-t1)
+                                    cadena =  cadena +  ";" + str(nvar) +"\n"
+                                except ValueError:
+                                    print("ERROR")
+                                    t5 = time()
+                                    cadena = cadena + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + "ERROR" + "\n"
+                                except MemoryError:
+                                    print("ERROR de Memoria")
+                                    t5 = time()
+                                    cadena = cadena + str(t2-t1) + ";" + str(t5-t4) + ";" + str(t5-t3+t2-t1) + "ERROR de Memoria" + "\n"
+                                writer.write(cadena)
+        writer.close()
+        reader.close()    
+    except ValueError:
+        print("Error")
+
 def borradocontablas(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[True], Partir=[True], archivogenera="salida.csv"):
     try:
         reader=open(archivolee,"r")
@@ -414,4 +528,5 @@ def borradocontablas(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[Tr
     except ValueError:
         print("Error")
 # computetreewidhts("ListaCNF_Experimento.txt")
-borradocontablas("ListaCNF_Experimento.txt",[5,10,15,20,25],[False],[False],[False,True],"prueba05.txt")
+# borradocontablas("ListaCNF_Experimento.txt",[5,10,15,20,25],[False],[False],[False,True],"prueba05.txt")
+borradofacil("entrada",[5,10,15,20,25],[False],[False],[False,True],"resultado.txt")

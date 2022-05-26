@@ -314,6 +314,84 @@ class varpot:
                         
             return (exact,lista,listaconvar)
 
+        def marginalizaset2(self,vars,M = 25, Q=20, ver = True, inplace = True, pre = False, orden = []):
+            if not pre:
+                vars.intersection_update(self.getvars())
+            
+            if inplace:
+                if not pre:
+                    orden = []
+                listan = []
+                listaq = []
+                nuevas = []
+                if pre:
+                    nvars = [x for x in orden if x in vars]
+                    nvars.reverse()
+                    vars = nvars
+                e = True
+                i = 0
+                while vars and not self.contradict:
+                    if pre:
+                        var = vars.pop()
+                    else:
+                        var = self.siguientep(vars)
+                    
+
+                    
+                    tama = tam(self.tabla.get(var))
+                    lista = self.get(var)
+                    
+                    if not pre:
+                        pos = vars.copy()
+                        dif = 0
+                        while pos and dif <=2:
+
+                            met = calculamethod(lista,var)
+                            if met == 1:
+                                break
+                            else:
+                                if not pre:
+                                    pos.discard(var)
+                                
+                                if pos:
+                                    var = self.siguientep(pos)
+                                    lista =self.get(var)
+                                    dif = tam(self.tabla.get(var))- tama
+
+                        if met==2:
+                            var = self.siguientep(vars)
+                            lista = self.get(var)
+
+
+                    u.ordenaycombinaincluidas(lista,self, borrar = True, inter=False)
+                    if ver:
+                        print("var", var, "quedan ", len(vars))
+
+                    if not pre:
+                        vars.discard(var)
+                    (exac,nuevas,antiguas) = self.marginaliza(var,M,Q)
+                    if not exac:
+                        print("borrado no exacto " )
+                        e = i
+                        return(e,orden,nuevas,listaq)
+                    else:
+                        i += 1
+                    if not pre:
+                        orden.append(var)
+                    listan.append(nuevas)
+                    listaq.append(antiguas)
+                    if not self.contradict:
+                        u.ordenaycombinaincluidas(nuevas,self, borrar=True)
+
+                e = i
+                return(e,orden,nuevas,listaq)
+            else:
+                res = self.copia()
+                res.marginalizaset(vars,M , Q, ver , inplace = True)
+
+                return res
+
+
         def marginalizaset(self,vars,M = 30, Q=20, ver = True, inplace = True, pre = False, orden = []):
             if not pre:
                 vars.intersection_update(self.getvars())

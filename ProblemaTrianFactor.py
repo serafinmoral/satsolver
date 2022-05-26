@@ -499,7 +499,42 @@ class problemaTrianFactor:
 
         return e
         
-           
+    def borradin2(self, pre = False):
+    
+        if self.rela.contradict:
+                print("contradictorio")
+                self.anula()
+                return self.pinicial.getvars()
+
+
+        if pre:
+            (e,orden,nuevas,antiguas)= self.rela.marginalizaset(set(self.orden), Q=self.Q,pre = True, orden = self.orden.copy()) #EDM
+        else:
+            (e,orden,nuevas,antiguas)= self.rela.marginalizaset2(self.pinicial.getvars(), Q=self.Q,pre = False) #EDM
+        self.contradict =  self.rela.contradict
+        if not pre:
+            self.orden = self.orden +  orden
+        i=0
+        if not self.contradict:
+            for x in antiguas:
+                # print(i, x) #EDM
+                i+=1
+                y = nodoTabla([])
+                for t in x:
+                    y.combina(t,inplace= True)
+                self.lqueue.append(y)
+            
+
+
+            # (self.clusters,self.posvar,self.child,self.parent) = triangulaconorden(self.pinicial,self.orden) 
+
+
+        
+        
+
+
+
+        return e      
 
     def borra12(self,x,l,rela, M= 20):
             print("total ", len(l))
