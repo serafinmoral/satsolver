@@ -514,16 +514,15 @@ class problemaTrianFactor:
         self.contradict =  self.rela.contradict
         if not pre:
             self.orden = self.orden +  orden
-        i=0
+        
+            i=0
         if not self.contradict:
             for x in antiguas:
                 # print(i, x) #EDM
                 i+=1
                 y = nodoTabla([])
-                for t in x:
-                    y.combina(t,inplace= True)
+                
                 self.lqueue.append(y)
-            
 
 
             # (self.clusters,self.posvar,self.child,self.parent) = triangulaconorden(self.pinicial,self.orden) 
