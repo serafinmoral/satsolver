@@ -314,7 +314,7 @@ class varpot:
                         
             return (exact,lista,listaconvar)
 
-        def marginalizaset2(self,vars,M = 25, Q=20, ver = True, inplace = True, pre = False, orden = []):
+        def marginalizaset2(self,vars,M = 30, Q=20, ver = True, inplace = True, pre = False, orden = []):
             if not pre:
                 vars.intersection_update(self.getvars())
             
