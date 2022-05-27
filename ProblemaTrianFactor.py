@@ -24,7 +24,7 @@ import random as ra
 
 
 class problemaTrianFactor:
-    def __init__(self,info=None,M=25, Qin=20, Partirin=True): #EDM
+    def __init__(self,info=None,M=30, Qin=20, Partirin=True): #EDM
          self.M = M
          self.inicial = info
          self.pinicial = PotencialTabla()

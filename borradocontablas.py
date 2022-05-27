@@ -447,17 +447,17 @@ def borradofacil(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[True],
                             for Part in Partir:
                                 try:
                                     t3 = time()
-                                    cadena= nombre + ";" + str(nvar) + ";" + str(nclaus) + ";" + str(Qev) + ";" + str(Mej) + ";" + str(Pre) + ";" + str(Part) + ";"
+                                      
                                     prob = problemaTrianFactor(info,Qin=Qev) #EDM   #Último parámetro es Q
                                     # prob = problemaTrianFactor(info,N1,Qev) #EDM   #Último parámetro es Q
                                     t4 = time()
                                     # main(prob)  #EDM 
-                                    nvar = main2(prob, Pre,Mej) #EDM 
+                                    nv = main2(prob, Pre,Mej) #EDM 
                                     t5 = time()
                                     print("tiempo lectura ",t2-t1)
                                     print("tiempo busqueda ",t5-t4)
                                     print("tiempo TOTAL ",t5-t3+t2-t1)
-                                    cadena =  cadena +  ";" + str(nvar) +"\n"
+                                    cadena =   str(nv) +"\n"
                                 except ValueError:
                                     print("ERROR")
                                     t5 = time()
@@ -529,4 +529,4 @@ def borradocontablas(archivolee, Q=[5,10,15,20,25,30],Mejora=[False], Previo=[Tr
         print("Error")
 # computetreewidhts("ListaCNF_Experimento.txt")
 # borradocontablas("ListaCNF_Experimento.txt",[5,10,15,20,25],[False],[False],[False,True],"prueba05.txt")
-borradofacil("entrada",[5,10,15,20,25],[False],[False],[False,True],"resultado.txt")
+borradofacil("entrada",[5,10,15,20,25],[False],[False],[True],"resultado.txt")
